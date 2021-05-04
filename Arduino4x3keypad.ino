@@ -67,8 +67,8 @@ void setup() {
   Serial.println("");
 }
 
-//int t;
-//unsigned long tt;
+//#define Debug
+
 void loop() {
   loopStartTime = micros();
   UpdateLed();
@@ -88,13 +88,15 @@ void loop() {
         btnState[i][j] = btnStateTemp;
         if (Serial.availableForWrite())
         {
-          Serial.write((4*i+j+1 << 4 ) + (btnState[i][j] == LOW ? 1 : 0));
+#ifndef Debug
+          Serial.write((4*i+j+1 << 4 ) + (btnStateTemp == LOW ? 1 : 0));
+#endif
         }
         if (btnState[2][0] == !HIGH && btnState[0][3] == !HIGH && millis() - lastRgbStateChange >= 500)
         {
           NextRgbState();
         }
-        if (rgbState == spreadLightsOutWhenPressed)
+        if (rgbState == spreadLightsOutWhenPressed && btnStateTemp == !HIGH)
         {
           struct Ball newBall1, newBall2;
           newBall1.row = newBall2.row = i;
@@ -114,21 +116,24 @@ void loop() {
     pinMode(pinR[i], INPUT);
   }
 
-//   Update frequency test
-//  t++;
-//  if (millis() - tt >= 1000)
-//  {
-//    tt = millis();
-//    Serial.print("Updates per second: ");
-//    Serial.println(t);
-//    t = 0;
-//    Serial.print("Microseconds taken for the loop: ");
-//    Serial.println(loopPeriod);
-//  }
-
+  // Update frequency test
+#ifdef Debug
+  static int t;
+  static unsigned long tt;
+  t++;
+  if (millis() - tt >= 1000)
+  {
+    tt = millis();
+    Serial.print("Updates per second: ");
+    Serial.println(t);
+    t = 0;
+    Serial.print("Microseconds taken for the loop: ");
+    Serial.println(loopPeriod);
+  }
+#endif
 
   loopEndTime = micros();
-  loopPeriod = micros() - loopStartTime;
+  loopPeriod = (unsigned long)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);  // Don't change the measured loop time immediately as it might float around
 }
 
 void NextRgbState()
@@ -190,8 +195,8 @@ void UpdateEffect()
   static int breathingState = 0;
   static float breathingStateElapsed = 0.0f;
   static const int breathingRainbowHues[7] = {0,32,64,96,160,176,192};
-  if (micros() - lastEffectUpdate < 33333 /* 30 fps */) return;
-  secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 100.0f;
+  if (micros() - lastEffectUpdate < 33333/4 /* 30 fps */) return;
+  secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 1000.0f;
   lastEffectUpdate = micros();
   
   switch (rgbState)
@@ -233,7 +238,7 @@ void UpdateEffect()
       {
         struct Ball *ball = &balls[i - deleteCount];
         
-        ball->pos = constrain(ball->pos + ball->direction * 0.2f * secondsElapsed, 0.5f, 3.5f);
+        ball->pos = constrain(ball->pos + ball->direction * 4.5f * secondsElapsed, 0.5f, 3.5f);
           
         DrawPixels(4 * ball->row + ball->pos - 0.5f, 1, ball->color);
         
@@ -249,12 +254,23 @@ void UpdateEffect()
       breathingStateElapsed += secondsElapsed;
       if (breathingStateElapsed >= 4.0f)
       {
-        breathingStateElapsed = 0.0f
+        breathingStateElapsed = 0.0f;
         breathingState += 1;
         if (breathingState > 6) // Rainbow has 7 colors
-          breathingState = 0
+          breathingState = 0;
       }
       
+      for (int i = 0; i < NUM_LEDS; i++)
+      {
+        leds[i] = CHSV(breathingRainbowHues[breathingState], 255, 15 + (int)(rgbBrightness * 1.5f *
+                                                                  (breathingStateElapsed <= 4.0f/2 ?
+                                                                    breathingStateElapsed / 2 :
+                                                                    (2.0f - (breathingStateElapsed - 2.0f)) / 2) ));
+//        leds[i] = CHSV(breathingRainbowHues[breathingState], 255, (int)(rgbBrightness * 1.8f));
+//        leds[i].nscale8((int)(256 * ((breathingStateElapsed <= 4*(4.0f/5)) ? breathingStateElapsed / 4*(4.0f/5) : (4.0f - (breathingStateElapsed)) / 4*(1.0f/5)) ));
+      }
+      
+      break;
       // ==============================
   }
 }
@@ -288,6 +304,11 @@ void UpdateLed()
 }
 
 int c(int i)
+{
+  Serial.println(i);
+  return i;
+}
+float c(float i)
 {
   Serial.println(i);
   return i;
