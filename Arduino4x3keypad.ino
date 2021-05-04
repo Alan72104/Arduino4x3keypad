@@ -195,7 +195,7 @@ void UpdateEffect()
   static int breathingState = 0;
   static float breathingStateElapsed = 0.0f;
   static const int breathingRainbowHues[7] = {0,32,64,96,160,176,192};
-  if (micros() - lastEffectUpdate < 33333/4 /* 30 fps */) return;
+  if (micros() - lastEffectUpdate < 33333 /* 30 fps */) return;
   secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 1000.0f;
   lastEffectUpdate = micros();
   
@@ -238,7 +238,7 @@ void UpdateEffect()
       {
         struct Ball *ball = &balls[i - deleteCount];
         
-        ball->pos = constrain(ball->pos + ball->direction * 4.5f * secondsElapsed, 0.5f, 3.5f);
+        ball->pos = constrain(ball->pos + ball->direction * 5.5f * secondsElapsed, 0.5f, 3.5f);
           
         DrawPixels(4 * ball->row + ball->pos - 0.5f, 1, ball->color);
         
@@ -266,8 +266,6 @@ void UpdateEffect()
                                                                   (breathingStateElapsed <= 4.0f/2 ?
                                                                     breathingStateElapsed / 2 :
                                                                     (2.0f - (breathingStateElapsed - 2.0f)) / 2) ));
-//        leds[i] = CHSV(breathingRainbowHues[breathingState], 255, (int)(rgbBrightness * 1.8f));
-//        leds[i].nscale8((int)(256 * ((breathingStateElapsed <= 4*(4.0f/5)) ? breathingStateElapsed / 4*(4.0f/5) : (4.0f - (breathingStateElapsed)) / 4*(1.0f/5)) ));
       }
       
       break;
