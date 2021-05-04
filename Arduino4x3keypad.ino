@@ -37,12 +37,15 @@ enum RgbState
   lightWhenPressed,
   rainbow,
   spreadLightsOutWhenPressed,
-  breathing
+  breathing,
+  fractionalDrawingTest2d
 };
 RgbState rgbState = lightWhenPressed;
 Ball ball_array[50];
 Vector<Ball> balls(ball_array);
 
+float ttt = 0.0f;
+float tttt = 0.0f;
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -96,6 +99,25 @@ void loop() {
         {
           NextRgbState();
         }
+        if (rgbState == fractionalDrawingTest2d)
+        {
+          if (btnState[0][0] == !HIGH)
+          {
+            ttt -= 0.1f;
+          }
+          else if (btnState[1][0] == !HIGH)
+          {
+            ttt += 0.1f;
+          }
+          else if (btnState[1][2] == !HIGH)
+          {
+            tttt += 0.1f;
+          }
+          else if (btnState[1][1] == !HIGH)
+          {
+            tttt -= 0.1f;
+          }
+        }
         if (rgbState == spreadLightsOutWhenPressed && btnStateTemp == !HIGH)
         {
           struct Ball newBall1, newBall2;
@@ -136,25 +158,6 @@ void loop() {
   loopPeriod = (unsigned long)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);  // Don't change the measured loop time immediately as it might float around
 }
 
-void NextRgbState()
-{
-  switch (rgbState)
-  {
-    case lightWhenPressed:
-      rgbState = rainbow;
-      break;
-    case rainbow:
-      rgbState = spreadLightsOutWhenPressed;
-      break;
-    case spreadLightsOutWhenPressed:
-      rgbState = breathing;
-      break;
-    case breathing:
-      rgbState = lightWhenPressed;
-      break;
-  }
-}
-
 CRGB ColorFraction(CRGB colorIn, float fraction)
 {
   fraction = min(1.0f, fraction);
@@ -166,24 +169,114 @@ void DrawPixels(float fPos, float count, CRGB color)
   // Calculate how much the first pixel will hold
   float availFirstPixel = 1.0f - (fPos - (long)(fPos));
   float amtFirstPixel = min(availFirstPixel, count);
-  float remaining = min(count, NUM_LEDS -fPos);
+  float remaining = min(count, NUM_LEDS - fPos);
   int iPos = fPos;
+  
   // Blend (add) in the color of the first partial pixel
   if (remaining > 0.0f)
   {
     leds[iPos++] += ColorFraction(color, amtFirstPixel);
     remaining -= amtFirstPixel;
   }
+  
   // Now draw any full pixels in the middle
   while (remaining > 1.0f)
   {
     leds[iPos++] += color;
     remaining--;
   }
+  
   // Draw tail pixel, up to a single full pixel
   if (remaining > 0.0f)
   {
     leds[iPos] += ColorFraction(color, remaining);
+  }
+}
+
+void DrawPixels2d(float fX, float fY, float diameter, CRGB color)
+{
+  float availFirstPixelX = 1.0f - (fX - (long)(fX));
+  float availFirstPixelY = 1.0f - (fY - (long)(fY));
+  float amtFirstPixelX = min(availFirstPixelX, diameter);
+  float amtFirstPixelY = min(availFirstPixelY, diameter);
+  float remainingX = min(diameter, WIDTH - fX);
+  float remainingY = min(diameter, HEIGHT - fY);
+  int iX = fX;
+  int iY = fY;
+  
+  // Blend in the color of the first partial pixel of the first row
+  if (remainingX > 0.0f && remainingY > 0.0f)
+  {
+    leds[WIDTH * iX++ + iY] += ColorFraction(color, amtFirstPixelX * amtFirstPixelY / 1 * 1);
+    remainingX -= amtFirstPixelX;
+  }
+  
+  // Draw every pixels in the middle of the first row
+  while (remainingX > 1.0f)
+  {
+    leds[WIDTH * iX++ + iY] += ColorFraction(color, 1 * amtFirstPixelY / 1 * 1);
+    remainingX--;
+  }
+  
+  // Draw the tail pixel of the first row, up to a single full pixel
+  if (remainingX > 0.0f)
+  {
+    leds[WIDTH * iX + iY] += ColorFraction(color, remainingX * amtFirstPixelY / 1 * 1);
+  }
+
+  // Draw every middle rows
+  while (remainingY > 1.0f)
+  {
+    remainingX = min(diameter, WIDTH - fX);
+    iX = fX;
+    iY++;
+    // Blend in the color of the first partial pixels of the middle rows
+    if (remainingX > 0.0f)
+    {
+      leds[WIDTH * iX++ + iY] += ColorFraction(color, amtFirstPixelX * 1 / 1 * 1);
+      remainingX -= amtFirstPixelX;
+    }
+    
+    // Draw every pixels in the middle of the middle rows
+    while (remainingX > 1.0f)
+    {
+      leds[WIDTH * iX++ + iY] += color;
+      remainingX--;
+    }
+    
+    // Draw the tail pixels of the middle rows
+    if (remainingX > 0.0f)
+    {
+      leds[WIDTH * iX + iY] += ColorFraction(color, remainingX * 1 / 1 * 1);
+    }
+    remainingY--;
+  }
+
+  // Finally, draw the last row
+  if (remainingY > 0.0f)
+  {
+    remainingX = min(diameter, WIDTH - fX);
+    iX = fX;
+    iY++;
+    // Blend in the color of the first partial pixel of the last row
+    if (remainingX > 0.0f)
+    {
+      leds[WIDTH * iX++ + iY] += ColorFraction(color, remainingX * remainingY / 1 * 1);
+      remainingX -= amtFirstPixelX;
+    }
+    
+    // Draw every pixels in the middle of the last row
+    while (remainingX > 1.0f)
+    {
+      leds[WIDTH * iX++ + iY] += ColorFraction(color, 1 * remainingY / 1 * 1);
+      remainingX--;
+    }
+    
+    // Draw the tail pixel of the last row
+    if (remainingX > 0.0f)
+    {
+      leds[WIDTH * iX + iY] += ColorFraction(color, remainingX * remainingY / 1 * 1);
+    }
   }
 }
 
@@ -270,6 +363,36 @@ void UpdateEffect()
       
       break;
       // ==============================
+    case fractionalDrawingTest2d:
+      // ========== Fractional drawing test 2D ==========
+
+      FastLED.clear();
+      DrawPixels2d(ttt, tttt, 1.1, CRGB(CHSV(128, 255, 63)));
+      
+      break;
+      // ==============================
+  }
+}
+
+void NextRgbState()
+{
+  switch (rgbState)
+  {
+    case lightWhenPressed:
+      rgbState = rainbow;
+      break;
+    case rainbow:
+      rgbState = spreadLightsOutWhenPressed;
+      break;
+    case spreadLightsOutWhenPressed:
+      rgbState = breathing;
+      break;
+    case breathing:
+      rgbState = fractionalDrawingTest2d;
+      break;
+    case fractionalDrawingTest2d:
+      rgbState = lightWhenPressed;
+      break;
   }
 }
 
