@@ -157,12 +157,12 @@ CRGB ColorFraction(CRGB colorIn, float fraction)
   return CRGB(colorIn).fadeToBlackBy(255 * (1.0f - fraction));
 }
 
-void DrawPixel(float fPos, float count, CRGB color)
+void DrawPixel(float fPos, float diameter, CRGB color)
 {
   // Calculate how much the first pixel will hold
   float availFirstPixel = 1.0f - (fPos - (long)(fPos));
-  float amtFirstPixel = min(availFirstPixel, count);
-  float remaining = min(count, NUM_LEDS - fPos);
+  float amtFirstPixel = min(availFirstPixel, diameter);
+  float remaining = min(diameter, NUM_LEDS - fPos);
   int iPos = fPos;
   
   // Blend in the color of the first partial pixel
