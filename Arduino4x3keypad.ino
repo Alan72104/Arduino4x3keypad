@@ -38,7 +38,8 @@ enum RgbState
   rainbow,
   spreadLightsOutWhenPressed,
   breathing,
-  fractionalDrawingTest2d
+  fractionalDrawingTest2d,
+  spinningRainbow
 };
 RgbState rgbState = lightWhenPressed;
 Ball ball_array[50];
@@ -289,6 +290,8 @@ void UpdateEffect()
   static int breathingState = 0;
   static float breathingStateElapsed = 0.0f;
   static const int breathingRainbowHues[7] = {0,32,64,96,160,176,192};
+  static int spinningRainbowState = 0;
+  static float spinningRainbowElapsed = 0.0f;
   if (micros() - lastEffectUpdate < 33333 /* 30 fps */) return;
   secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 1000.0f;
   lastEffectUpdate = micros();
@@ -298,7 +301,7 @@ void UpdateEffect()
     case lightWhenPressed:
       // ========== Light when pressed ==========
 
-      if (++rainbowState == 255) {rainbowState = 0;}
+      if (++rainbowState == 255) rainbowState = 0;
       
       for (int i = 0; i < HEIGHT; i++)
       {
@@ -313,7 +316,7 @@ void UpdateEffect()
     case rainbow:
       // ========== Rainbow ==========
       
-      if (++rainbowState == 255) {rainbowState = 0;}
+      if (++rainbowState > 255) rainbowState = 0;
       
       for (int i = 0; i < WIDTH; i++)
       {
@@ -325,8 +328,7 @@ void UpdateEffect()
     case spreadLightsOutWhenPressed:
       // ========== Spread lights out when pressed ==========
       
-      for (int i = 0; i < NUM_LEDS; i++) 
-        leds[i] = 0x000000;
+      FastLED.clear();
         
       for (int i = 0, deleteCount = 0; i < balls.size(); i++)
       {
@@ -368,7 +370,26 @@ void UpdateEffect()
       // ========== Fractional drawing test 2D ==========
 
       FastLED.clear();
-      DrawPixels2d(ttt, tttt, 1.1, CRGB(CHSV(128, 255, 63)));
+      DrawPixels2d(ttt, tttt, 1.1, CRGB(CHSV(128, 255, rgbBrightness)));
+      
+      break;
+      // ==============================
+    case spinningRainbow:
+      // ========== Spinning rainbow ==========
+      
+      spinningRainbowElapsed += secondsElapsed;
+      if (spinningRainbowElapsed >= 1.0f)
+      {
+        spinningRainbowElapsed = 0.0f;
+        spinningRainbowState += 3 * 5;
+        if (spinningRainbowState > (255 - 9 * 5)) spinningRainbowState = 0;
+      }
+      
+      FastLED.clear();
+      DrawPixels2d(0, 0, 2, CRGB(CHSV(spinningRainbowState, 255, rgbBrightness)));
+      DrawPixels2d(2, 0, 2, CRGB(CHSV(spinningRainbowState + 3 * 5, 255, rgbBrightness)));
+      DrawPixels2d(0, 1, 2, CRGB(CHSV(spinningRainbowState + 6 * 5, 255, rgbBrightness)));
+      DrawPixels2d(2, 1, 2, CRGB(CHSV(spinningRainbowState + 9 * 5, 255, rgbBrightness)));
       
       break;
       // ==============================
@@ -392,6 +413,9 @@ void NextRgbState()
       rgbState = fractionalDrawingTest2d;
       break;
     case fractionalDrawingTest2d:
+      rgbState = spinningRainbow;
+      break;
+    default:
       rgbState = lightWhenPressed;
       break;
   }
