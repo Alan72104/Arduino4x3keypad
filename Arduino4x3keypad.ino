@@ -165,14 +165,14 @@ void DrawPixels(float fPos, float count, CRGB color)
   float remaining = min(count, NUM_LEDS - fPos);
   int iPos = fPos;
   
-  // Blend (add) in the color of the first partial pixel
+  // Blend in the color of the first partial pixel
   if (remaining > 0.0f)
   {
     leds[iPos++] += ColorFraction(color, amtFirstPixel);
     remaining -= amtFirstPixel;
   }
   
-  // Now draw any full pixels in the middle
+  // Now draw every full pixels in the middle
   while (remaining > 1.0f)
   {
     leds[iPos++] += color;
