@@ -139,10 +139,10 @@ void loop() {
   if (millis() - tt >= 1000)
   {
     tt = millis();
-    Serial.print("Updates per second: ");
+    Serial.print(F("Updates per second: "));
     Serial.println(t);
     t = 0;
-    Serial.print("Microseconds taken for the loop: ");
+    Serial.print(F("Microseconds taken for the loop: "));
     Serial.println(loopPeriod);
   }
 #endif
