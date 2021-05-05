@@ -101,19 +101,19 @@ void loop() {
         }
         if (rgbState == fractionalDrawingTest2d)
         {
-          if (btnState[0][0] == !HIGH)
+          if (btnState[0][0] == !HIGH && ttt > 0.0f)
           {
             ttt -= 0.1f;
           }
-          else if (btnState[1][0] == !HIGH)
+          else if (btnState[1][0] == !HIGH && ttt < HEIGHT)
           {
             ttt += 0.1f;
           }
-          else if (btnState[1][2] == !HIGH)
+          else if (btnState[1][2] == !HIGH && tttt < WIDTH)
           {
             tttt += 0.1f;
           }
-          else if (btnState[1][1] == !HIGH)
+          else if (btnState[1][1] == !HIGH && tttt > 0.0f)
           {
             tttt -= 0.1f;
           }
@@ -203,25 +203,29 @@ void DrawPixels2d(float fX, float fY, float diameter, CRGB color)
   float remainingY = min(diameter, HEIGHT - fY);
   int iX = fX;
   int iY = fY;
+  int index = 0;
   
   // Blend in the color of the first partial pixel of the first row
   if (remainingX > 0.0f && remainingY > 0.0f)
   {
-    leds[WIDTH * iX++ + iY] += ColorFraction(color, amtFirstPixelX * amtFirstPixelY / 1 * 1);
+    if ((index = WIDTH * iX++ + iY) < NUM_LEDS)
+      leds[index] += ColorFraction(color, amtFirstPixelX * amtFirstPixelY / 1 * 1);
     remainingX -= amtFirstPixelX;
   }
   
   // Draw every pixels in the middle of the first row
   while (remainingX > 1.0f)
   {
-    leds[WIDTH * iX++ + iY] += ColorFraction(color, 1 * amtFirstPixelY / 1 * 1);
+    if ((index = WIDTH * iX++ + iY) < NUM_LEDS)
+      leds[index] += ColorFraction(color, 1 * amtFirstPixelY / 1 * 1);
     remainingX--;
   }
   
   // Draw the tail pixel of the first row, up to a single full pixel
   if (remainingX > 0.0f)
   {
-    leds[WIDTH * iX + iY] += ColorFraction(color, remainingX * amtFirstPixelY / 1 * 1);
+    if ((index = WIDTH * iX + iY) < NUM_LEDS)
+    leds[index] += ColorFraction(color, remainingX * amtFirstPixelY / 1 * 1);
   }
 
   // Draw every middle rows
@@ -233,21 +237,24 @@ void DrawPixels2d(float fX, float fY, float diameter, CRGB color)
     // Blend in the color of the first partial pixels of the middle rows
     if (remainingX > 0.0f)
     {
-      leds[WIDTH * iX++ + iY] += ColorFraction(color, amtFirstPixelX * 1 / 1 * 1);
+      if ((index = WIDTH * iX++ + iY) < NUM_LEDS)
+        leds[index] += ColorFraction(color, amtFirstPixelX * 1 / 1 * 1);
       remainingX -= amtFirstPixelX;
     }
     
     // Draw every pixels in the middle of the middle rows
     while (remainingX > 1.0f)
     {
-      leds[WIDTH * iX++ + iY] += color;
+      if ((index = WIDTH * iX++ + iY) < NUM_LEDS)
+        leds[index] += color;
       remainingX--;
     }
     
     // Draw the tail pixels of the middle rows
     if (remainingX > 0.0f)
     {
-      leds[WIDTH * iX + iY] += ColorFraction(color, remainingX * 1 / 1 * 1);
+      if ((index = WIDTH * iX + iY) < NUM_LEDS)
+      leds[index] += ColorFraction(color, remainingX * 1 / 1 * 1);
     }
     remainingY--;
   }
@@ -261,21 +268,24 @@ void DrawPixels2d(float fX, float fY, float diameter, CRGB color)
     // Blend in the color of the first partial pixel of the last row
     if (remainingX > 0.0f)
     {
-      leds[WIDTH * iX++ + iY] += ColorFraction(color, remainingX * remainingY / 1 * 1);
+      if ((index = WIDTH * iX++ + iY) < NUM_LEDS)
+        leds[index] += ColorFraction(color, remainingX * remainingY / 1 * 1);
       remainingX -= amtFirstPixelX;
     }
     
     // Draw every pixels in the middle of the last row
     while (remainingX > 1.0f)
     {
-      leds[WIDTH * iX++ + iY] += ColorFraction(color, 1 * remainingY / 1 * 1);
+      if ((index = WIDTH * iX++ + iY) < NUM_LEDS)
+        leds[index] += ColorFraction(color, 1 * remainingY / 1 * 1);
       remainingX--;
     }
     
     // Draw the tail pixel of the last row
     if (remainingX > 0.0f)
     {
-      leds[WIDTH * iX + iY] += ColorFraction(color, remainingX * remainingY / 1 * 1);
+      if ((index = WIDTH * iX + iY) < NUM_LEDS)
+        leds[index] += ColorFraction(color, remainingX * remainingY / 1 * 1);
     }
   }
 }
