@@ -102,21 +102,13 @@ void loop() {
         if (rgbState == fractionalDrawingTest2d)
         {
           if (btnState[0][0] == !HIGH && ttt > 0.0f)
-          {
             ttt -= 0.1f;
-          }
           else if (btnState[1][0] == !HIGH && ttt < HEIGHT)
-          {
             ttt += 0.1f;
-          }
           else if (btnState[1][2] == !HIGH && tttt < WIDTH)
-          {
             tttt += 0.1f;
-          }
           else if (btnState[1][1] == !HIGH && tttt > 0.0f)
-          {
             tttt -= 0.1f;
-          }
         }
         if (rgbState == spreadLightsOutWhenPressed && btnStateTemp == !HIGH)
         {
