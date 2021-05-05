@@ -334,7 +334,7 @@ void UpdateEffect()
       {
         struct Ball *ball = &balls[i - deleteCount];
         
-        ball->pos = constrain(ball->pos + ball->direction * 5.5f * secondsElapsed, 0.5f, 3.5f);
+        ball->pos = constrain(ball->pos + ball->direction * 10.0f * secondsElapsed, 0.5f, 3.5f);
           
         DrawPixels(4 * ball->row + ball->pos - 0.5f, 1, ball->color);
         
