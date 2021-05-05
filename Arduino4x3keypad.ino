@@ -203,29 +203,28 @@ void DrawPixels2d(float fX, float fY, float diameter, CRGB color)
   float remainingY = min(diameter, HEIGHT - fY);
   int iX = fX;
   int iY = fY;
-  int index = 0;
   
   // Blend in the color of the first partial pixel of the first row
   if (remainingX > 0.0f && remainingY > 0.0f)
   {
-    if ((index = WIDTH * iX++ + iY) < NUM_LEDS)
-      leds[index] += ColorFraction(color, amtFirstPixelX * amtFirstPixelY / 1 * 1);
+    if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
+      leds[WIDTH * iX++ + iY] += ColorFraction(color, amtFirstPixelX * amtFirstPixelY / 1 * 1);
     remainingX -= amtFirstPixelX;
   }
   
   // Draw every pixels in the middle of the first row
   while (remainingX > 1.0f)
   {
-    if ((index = WIDTH * iX++ + iY) < NUM_LEDS)
-      leds[index] += ColorFraction(color, 1 * amtFirstPixelY / 1 * 1);
+    if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
+      leds[WIDTH * iX++ + iY] += ColorFraction(color, 1 * amtFirstPixelY / 1 * 1);
     remainingX--;
   }
   
   // Draw the tail pixel of the first row, up to a single full pixel
   if (remainingX > 0.0f)
   {
-    if ((index = WIDTH * iX + iY) < NUM_LEDS)
-    leds[index] += ColorFraction(color, remainingX * amtFirstPixelY / 1 * 1);
+    if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
+      leds[WIDTH * iX + iY] += ColorFraction(color, remainingX * amtFirstPixelY / 1 * 1);
   }
 
   // Draw every middle rows
@@ -237,24 +236,24 @@ void DrawPixels2d(float fX, float fY, float diameter, CRGB color)
     // Blend in the color of the first partial pixels of the middle rows
     if (remainingX > 0.0f)
     {
-      if ((index = WIDTH * iX++ + iY) < NUM_LEDS)
-        leds[index] += ColorFraction(color, amtFirstPixelX * 1 / 1 * 1);
+      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
+        leds[WIDTH * iX++ + iY] += ColorFraction(color, amtFirstPixelX * 1 / 1 * 1);
       remainingX -= amtFirstPixelX;
     }
     
     // Draw every pixels in the middle of the middle rows
     while (remainingX > 1.0f)
     {
-      if ((index = WIDTH * iX++ + iY) < NUM_LEDS)
-        leds[index] += color;
+      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
+        leds[WIDTH * iX++ + iY] += color;
       remainingX--;
     }
     
     // Draw the tail pixels of the middle rows
     if (remainingX > 0.0f)
     {
-      if ((index = WIDTH * iX + iY) < NUM_LEDS)
-      leds[index] += ColorFraction(color, remainingX * 1 / 1 * 1);
+      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
+      leds[WIDTH * iX + iY] += ColorFraction(color, remainingX * 1 / 1 * 1);
     }
     remainingY--;
   }
@@ -268,24 +267,24 @@ void DrawPixels2d(float fX, float fY, float diameter, CRGB color)
     // Blend in the color of the first partial pixel of the last row
     if (remainingX > 0.0f)
     {
-      if ((index = WIDTH * iX++ + iY) < NUM_LEDS)
-        leds[index] += ColorFraction(color, remainingX * remainingY / 1 * 1);
+      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
+        leds[WIDTH * iX++ + iY] += ColorFraction(color, remainingX * remainingY / 1 * 1);
       remainingX -= amtFirstPixelX;
     }
     
     // Draw every pixels in the middle of the last row
     while (remainingX > 1.0f)
     {
-      if ((index = WIDTH * iX++ + iY) < NUM_LEDS)
-        leds[index] += ColorFraction(color, 1 * remainingY / 1 * 1);
+      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
+        leds[WIDTH * iX++ + iY] += ColorFraction(color, 1 * remainingY / 1 * 1);
       remainingX--;
     }
     
     // Draw the tail pixel of the last row
     if (remainingX > 0.0f)
     {
-      if ((index = WIDTH * iX + iY) < NUM_LEDS)
-        leds[index] += ColorFraction(color, remainingX * remainingY / 1 * 1);
+      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
+        leds[WIDTH * iX + iY] += ColorFraction(color, remainingX * remainingY / 1 * 1);
     }
   }
 }
