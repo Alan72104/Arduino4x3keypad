@@ -157,7 +157,7 @@ CRGB ColorFraction(CRGB colorIn, float fraction)
   return CRGB(colorIn).fadeToBlackBy(255 * (1.0f - fraction));
 }
 
-void DrawPixels(float fPos, float count, CRGB color)
+void DrawPixel(float fPos, float count, CRGB color)
 {
   // Calculate how much the first pixel will hold
   float availFirstPixel = 1.0f - (fPos - (long)(fPos));
@@ -186,7 +186,7 @@ void DrawPixels(float fPos, float count, CRGB color)
   }
 }
 
-void DrawPixels2d(float fX, float fY, float diameter, CRGB color)
+void DrawSquare(float fX, float fY, float diameter, CRGB color)
 {
   float availFirstPixelX = 1.0f - (fX - (long)(fX));
   float availFirstPixelY = 1.0f - (fY - (long)(fY));
@@ -336,7 +336,7 @@ void UpdateEffect()
         
         ball->pos = constrain(ball->pos + ball->direction * 10.0f * secondsElapsed, 0.5f, 3.5f);
           
-        DrawPixels(4 * ball->row + ball->pos - 0.5f, 1, ball->color);
+        DrawPixel(4 * ball->row + ball->pos - 0.5f, 1, ball->color);
         
         if(ball->pos <= 0.5f || ball->pos >= 3.5f)
           balls.remove(i - deleteCount++);
@@ -370,7 +370,7 @@ void UpdateEffect()
       // ========== Fractional drawing test 2D ==========
 
       FastLED.clear();
-      DrawPixels2d(ttt, tttt, 1.1, CRGB(CHSV(128, 255, rgbBrightness)));
+      DrawSquare(ttt, tttt, 1.1, CRGB(CHSV(128, 255, rgbBrightness)));
       
       break;
       // ==============================
@@ -386,10 +386,10 @@ void UpdateEffect()
       }
       
       FastLED.clear();
-      DrawPixels2d(0, 0, 2, CRGB(CHSV(spinningRainbowState, 255, rgbBrightness)));
-      DrawPixels2d(2, 0, 2, CRGB(CHSV(spinningRainbowState + 3 * 5, 255, rgbBrightness)));
-      DrawPixels2d(0, 1, 2, CRGB(CHSV(spinningRainbowState + 6 * 5, 255, rgbBrightness)));
-      DrawPixels2d(2, 1, 2, CRGB(CHSV(spinningRainbowState + 9 * 5, 255, rgbBrightness)));
+      DrawSquare(0, 0, 2, CRGB(CHSV(spinningRainbowState, 255, rgbBrightness)));
+      DrawSquare(2, 0, 2, CRGB(CHSV(spinningRainbowState + 3 * 5, 255, rgbBrightness)));
+      DrawSquare(0, 1, 2, CRGB(CHSV(spinningRainbowState + 6 * 5, 255, rgbBrightness)));
+      DrawSquare(2, 1, 2, CRGB(CHSV(spinningRainbowState + 9 * 5, 255, rgbBrightness)));
       
       break;
       // ==============================
