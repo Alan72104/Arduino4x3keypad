@@ -28,8 +28,8 @@ struct Ball
   int row;
   int direction;
   CRGB color;
-//  Ball();
-//  Ball(int p, int r, int d, CRGB c) : pos(p), row(r), direction(d), color(c) {}
+  // Ball();
+  // Ball(float p, int r, int d, CRGB c) : pos(p), row(r), direction(d), color(c) {}
 };
 
 CRGB leds[NUM_LEDS];
@@ -46,8 +46,7 @@ enum RgbState
   spinningRainbow
 };
 RgbState rgbState = lightWhenPressed;
-Ball ball_array[50];
-std::vector<Ball> balls;
+std::vector<Ball> balls(20);
 
 float ttt = 0.0f;
 float tttt = 0.0f;
@@ -153,9 +152,9 @@ void loop() {
           newBall1.color = newBall2.color = CHSV(rand() % 255, 255, rgbBrightness);
           balls.push_back(newBall1);
           balls.push_back(newBall2);
-//          CRGB color = CHSV(rand() % 255, 255, rgbBrightness);
-//          balls.push_back(Ball(i, j, -1, color));
-//          balls.push_back(Ball(i, j, 1, color));
+          // CRGB color = CHSV(rand() % 255, 255, rgbBrightness);
+          // balls.push_back(Ball(i, j, -1, color));
+          // balls.push_back(Ball(i, j, 1, color));
         }
       }
     }
