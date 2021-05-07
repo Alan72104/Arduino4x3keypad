@@ -1,6 +1,9 @@
+#include <Arduino.h>
 #include <FastLED.h>
-#include <Vector.h>
+#include <vector>
 
+#define min(a,b) ((a)<(b)?(a):(b))
+#define max(a,b) ((a)>(b)?(a):(b))
 #define WIDTH 4
 #define HEIGHT 3
 #define LED_PIN 12
@@ -44,10 +47,23 @@ enum RgbState
 };
 RgbState rgbState = lightWhenPressed;
 Ball ball_array[50];
-Vector<Ball> balls(ball_array);
+std::vector<Ball> balls;
 
 float ttt = 0.0f;
 float tttt = 0.0f;
+
+void setup();
+void loop();
+CRGB ColorFraction(CRGB colorIn, float fraction);
+void DrawPixel(float fPos, float diameter, CRGB color);
+void DrawSquare(float fX, float fY, float diameter, CRGB color);
+void UpdateEffect();
+void UpdateRgb();
+void UpdateLed();
+void NextRgbState();
+int c(int i);
+float c(float i);
+unsigned long c(unsigned long i);
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -350,16 +366,14 @@ void UpdateEffect()
       
       FastLED.clear();
         
-      for (int i = 0, deleteCount = 0; i < balls.size(); i++)
+      for (auto ball = balls.begin(); ball < balls.end(); ball++)
       {
-        struct Ball *ball = &balls[i - deleteCount];
-        
         ball->pos = constrain(ball->pos + ball->direction * 10.0f * secondsElapsed, 0.5f, 3.5f);
           
         DrawPixel(4 * ball->row + ball->pos - 0.5f, 1, ball->color);
         
         if(ball->pos <= 0.5f || ball->pos >= 3.5f)
-          balls.remove(i - deleteCount++);
+          balls.erase(ball);
       }
         
       break;
