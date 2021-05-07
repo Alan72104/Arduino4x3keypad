@@ -115,7 +115,7 @@ void loop() {
 #endif
         if (btnState[2][0] == !HIGH)
         {
-          if (btnState[0][3] == !HIGH && millis() - lastRgbStateChange >= 500)
+          if (btnState[0][3] == !HIGH && millis() - lastRgbStateChange >= 150)
           {
             lastRgbStateChange = millis();
             NextRgbState(); 
