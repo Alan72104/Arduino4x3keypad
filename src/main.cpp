@@ -88,7 +88,7 @@ void setup() {
   Serial.println("");
 }
 
-//#define Debug
+// #define Debug
 
 void loop() {
   loopStartTime = micros();
