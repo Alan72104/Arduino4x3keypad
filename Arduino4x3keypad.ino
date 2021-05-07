@@ -30,8 +30,9 @@ struct Ball
 };
 
 CRGB leds[NUM_LEDS];
-const int rgbBrightness = 63;
+int rgbBrightness = 63;
 unsigned long lastRgbStateChange = 0ul;
+unsigned long lastRgbBrightnessChange = 0ul;
 enum RgbState
 {
   lightWhenPressed,
@@ -94,11 +95,25 @@ void loop() {
         if (Serial.availableForWrite())
         {
           Serial.write((4*i+j+1 << 4 ) + (btnStateTemp == LOW ? 1 : 0));
-#endif
         }
-        if (btnState[2][0] == !HIGH && btnState[0][3] == !HIGH && millis() - lastRgbStateChange >= 500)
+#endif
+        if (btnState[2][0] == !HIGH)
         {
-          NextRgbState();
+          if (btnState[0][3] == !HIGH && millis() - lastRgbStateChange >= 500)
+          {
+            lastRgbStateChange = millis();
+            NextRgbState(); 
+          }
+          else if (btnState[0][0] == !HIGH && millis() - lastRgbBrightnessChange >= 100)
+          {
+            lastRgbBrightnessChange = millis();
+            if (rgbBrightness < 255) rgbBrightness = min(rgbBrightness + 10, 255);
+          }
+          else if (btnState[0][1] == !HIGH && millis() - lastRgbBrightnessChange >= 100)
+          {
+            lastRgbBrightnessChange = millis();
+            if (rgbBrightness > 0) rgbBrightness = max(0, rgbBrightness - 10);
+          }
         }
         
         if (rgbState == fractionalDrawingTest2d)
@@ -298,7 +313,7 @@ void UpdateEffect()
   static int spinningRainbowState = 0;
   static float spinningRainbowElapsed = 0.0f;
   if (micros() - lastEffectUpdate < 33333 /* 30 fps */) return;
-  secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 1000.0f;
+  secondsElapsed = (micros() - lastEffectUpdate / 1000.0f) / 1000.0f;
   lastEffectUpdate = micros();
   
   switch (rgbState)
@@ -383,7 +398,7 @@ void UpdateEffect()
       // ========== Spinning rainbow ==========
       
       spinningRainbowElapsed += secondsElapsed;
-      if (spinningRainbowElapsed >= 1.0f)
+      if (c(spinningRainbowElapsed) >= 5.0f)
       {
         spinningRainbowElapsed = 0.0f;
         spinningRainbowState += 3 * 5;
