@@ -329,7 +329,7 @@ void UpdateEffect()
   static int spinningRainbowState = 0;
   static float spinningRainbowElapsed = 0.0f;
   if (micros() - lastEffectUpdate < 33333 /* 30 fps */) return;
-  secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 1000.0f;
+  secondsElapsed = micros() - lastEffectUpdate / 1000.0f / 1000.0f;
   lastEffectUpdate = micros();
   
   switch (rgbState)
@@ -411,7 +411,7 @@ void UpdateEffect()
     case spinningRainbow:
       // ========== Spinning rainbow ==========
       
-      spinningRainbowElapsed += c(secondsElapsed);
+      spinningRainbowElapsed += secondsElapsed;
       if (spinningRainbowElapsed >= 5.0f)
       {
         spinningRainbowElapsed = 0.0f;
@@ -424,6 +424,7 @@ void UpdateEffect()
       DrawSquare(2, 0, 2, CRGB(CHSV(spinningRainbowState + 3 * 5, 255, rgbBrightness)));
       DrawSquare(0, 1, 2, CRGB(CHSV(spinningRainbowState + 6 * 5, 255, rgbBrightness)));
       DrawSquare(2, 1, 2, CRGB(CHSV(spinningRainbowState + 9 * 5, 255, rgbBrightness)));
+
       break;
       // ==============================
   }
