@@ -110,7 +110,7 @@ void loop() {
 #ifndef Debug
         if (Serial.availableForWrite())
         {
-          Serial.write((4*i+j+1 << 4 ) + (btnStateTemp == LOW ? 1 : 0));
+          Serial.write(((4*i+j+1) << 4 ) + (btnStateTemp == LOW ? 1 : 0));
         }
 #endif
         if (btnState[2][0] == !HIGH)
