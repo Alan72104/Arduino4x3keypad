@@ -90,9 +90,9 @@ void loop() {
       if (btnState[i][j] != btnStateTemp)
       {
         btnState[i][j] = btnStateTemp;
+#ifndef Debug
         if (Serial.availableForWrite())
         {
-#ifndef Debug
           Serial.write((4*i+j+1 << 4 ) + (btnStateTemp == LOW ? 1 : 0));
 #endif
         }
@@ -100,6 +100,7 @@ void loop() {
         {
           NextRgbState();
         }
+        
         if (rgbState == fractionalDrawingTest2d)
         {
           if (btnState[0][0] == !HIGH && ttt > 0.0f)
@@ -111,7 +112,7 @@ void loop() {
           else if (btnState[1][1] == !HIGH && tttt > 0.0f)
             tttt -= 0.1f;
         }
-        if (rgbState == spreadLightsOutWhenPressed && btnStateTemp == !HIGH)
+        else if (rgbState == spreadLightsOutWhenPressed && btnStateTemp == !HIGH)
         {
           struct Ball newBall1, newBall2;
           newBall1.row = newBall2.row = i;
