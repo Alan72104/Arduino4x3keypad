@@ -28,8 +28,6 @@ struct Ball
   int y;
   int direction;
   CRGB color;
-  // Ball();
-  // Ball(float p, int r, int d, CRGB c) : pos(p), row(r), direction(d), color(c) {}
 };
 struct Circle
 {
@@ -62,6 +60,7 @@ float fractionalDrawingTestX = 0.0f;
 
 void setup();
 void loop();
+Ball MakeBall(float x, int y, int direction, CRGB color);
 CRGB ColorFraction(CRGB colorIn, float fraction);
 void DrawPixel2d(int x, int y, CRGB color);
 void DrawLine(float fPos, float length, CRGB color);
@@ -151,17 +150,9 @@ void loop() {
         }
         else if (rgbState == spreadLightsOutWhenPressed && btnStateTemp == !HIGH)
         {
-          struct Ball newBall1, newBall2;
-          newBall1.x = newBall2.x = j + 0.5f;
-          newBall1.y = newBall2.y = i;
-          newBall1.direction = -1;
-          newBall2.direction = 1;
-          newBall1.color = newBall2.color = CHSV(rand() % 255, 255, rgbBrightness);
-          balls.push_back(newBall1);
-          balls.push_back(newBall2);
-          // CRGB color = CHSV(rand() % 255, 255, rgbBrightness);
-          // balls.push_back(Ball(i, j, -1, color));
-          // balls.push_back(Ball(i, j, 1, color));
+          CRGB color = CHSV(rand() % 255, 255, rgbBrightness);
+          balls.push_back(MakeBall(j, i, -1, color));
+          balls.push_back(MakeBall(j, i, 1, color));
         }
         else if (rgbState == waterWave && btnStateTemp == !HIGH)
         {
@@ -195,6 +186,16 @@ void loop() {
 
   loopEndTime = micros();
   loopPeriod = (unsigned long)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);  // Don't change the measured loop time immediately as it might float around
+}
+
+Ball MakeBall(float x, int y, int direction, CRGB color)
+{
+  struct Ball newBall;
+  newBall.x = x;
+  newBall.y = y;
+  newBall.direction = direction;
+  newBall.color = color;
+  return newBall;
 }
 
 CRGB ColorFraction(CRGB colorIn, float fraction)
