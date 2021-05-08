@@ -364,7 +364,7 @@ void UpdateEffect()
       
       FastLED.clear();
         
-      for (auto ball = balls.begin(); ball < balls.end(); ball++)
+      for (auto ball = balls.begin(); ball != balls.end(); ball++)
       {
         ball->pos = constrain(ball->pos + ball->direction * 10.0f * secondsElapsed, 0.5f, 3.5f);
           
