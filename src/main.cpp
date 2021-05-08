@@ -76,11 +76,6 @@ void setup() {
     digitalWrite(i, HIGH);
   }
   FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
-//  for (int i = 0; i < NUM_LEDS; i++) {
-//      leds[i] = CHSV(i * 10 - (j * 1), 255, 255);
-//      leds[i] = CRGB::White;
-//  }
-//  FastLED.show();
 
   while(!Serial){}
   Serial.begin(19200);
@@ -364,7 +359,6 @@ void UpdateEffect()
       
       FastLED.clear();
         
-      for (auto ball = balls.begin(); ball != balls.end(); ball++)
       {
         ball->pos = constrain(ball->pos + ball->direction * 10.0f * secondsElapsed, 0.5f, 3.5f);
           
