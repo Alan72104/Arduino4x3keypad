@@ -414,6 +414,9 @@ void UpdateEffect()
   static float breathingStateElapsed = 0.0f;
   static const int breathingRainbowHues[7] = {0,32,64,96,160,176,192};
   static int spinningRainbowState = 0;
+#ifdef Debug
+  static unsigned int updateCount = 0;
+#endif
   if (micros() - lastEffectUpdate < 33333 /* 30 fps */) return;
   secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 1000.0f;
   lastEffectUpdate = micros();
@@ -529,6 +532,15 @@ void UpdateEffect()
       break;
       // ==============================
   }
+#ifdef Debug
+  updateCount++;
+  if (updateCount % 10 == 0)
+  {
+    Serial.print("Effect update took: ");
+    Serial.print(micros() - lastEffectUpdate);
+    Serial.println(" micros");
+  }
+#endif
 }
 
 void UpdateRgb()
