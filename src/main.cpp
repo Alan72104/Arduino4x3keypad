@@ -24,8 +24,8 @@ const unsigned long microsPerScan = (unsigned long)(1000000 / scanPerSec);
 
 struct Ball
 {
-  float pos;
-  int row;
+  float x;
+  int y;
   int direction;
   CRGB color;
   // Ball();
@@ -57,18 +57,21 @@ RgbState rgbState = lightWhenPressed;
 std::vector<Ball> balls(20);
 std::vector<Circle> circles(20);
 
-float ttt = 0.0f;
-float tttt = 0.0f;
+float fractionalDrawingTestY = 0.0f;
+float fractionalDrawingTestX = 0.0f;
 
 void setup();
 void loop();
 CRGB ColorFraction(CRGB colorIn, float fraction);
+void DrawPixel2d(int x, int y, CRGB color);
 void DrawLine(float fPos, float length, CRGB color);
 void DrawSquare(float fX, float fY, float length, CRGB color);
+void DrawCircle(int xc, int yc, int x, int y, CRGB color);
+void CircleBres(int xc, int yc, int r, CRGB color);
+void NextRgbState();
 void UpdateEffect();
 void UpdateRgb();
 void UpdateLed();
-void NextRgbState();
 int c(int i);
 float c(float i);
 unsigned long c(unsigned long i);
@@ -137,20 +140,20 @@ void loop() {
         
         if (rgbState == fractionalDrawingTest2d)
         {
-          if (btnState[0][0] == !HIGH && ttt > 0.0f)
-            ttt -= 0.1f;
-          else if (btnState[1][0] == !HIGH && ttt < HEIGHT)
-            ttt += 0.1f;
-          else if (btnState[1][2] == !HIGH && tttt < WIDTH)
-            tttt += 0.1f;
-          else if (btnState[1][1] == !HIGH && tttt > 0.0f)
-            tttt -= 0.1f;
+          if (btnState[0][0] == !HIGH && fractionalDrawingTestY > 0.0f)
+            fractionalDrawingTestY -= 0.1f;
+          else if (btnState[1][0] == !HIGH && fractionalDrawingTestY < HEIGHT)
+            fractionalDrawingTestY += 0.1f;
+          else if (btnState[1][2] == !HIGH && fractionalDrawingTestX < WIDTH)
+            fractionalDrawingTestX += 0.1f;
+          else if (btnState[1][1] == !HIGH && fractionalDrawingTestX > 0.0f)
+            fractionalDrawingTestX -= 0.1f;
         }
         else if (rgbState == spreadLightsOutWhenPressed && btnStateTemp == !HIGH)
         {
           struct Ball newBall1, newBall2;
-          newBall1.row = newBall2.row = i;
-          newBall1.pos = newBall2.pos = j + 0.5f;
+          newBall1.x = newBall2.x = j + 0.5f;
+          newBall1.y = newBall2.y = i;
           newBall1.direction = -1;
           newBall2.direction = 1;
           newBall1.color = newBall2.color = CHSV(rand() % 255, 255, rgbBrightness);
@@ -163,8 +166,8 @@ void loop() {
         else if (rgbState == waterWave && btnStateTemp == !HIGH)
         {
           struct Circle newCircle;
-          newCircle.x = i;
-          newCircle.y = j;
+          newCircle.x = j;
+          newCircle.y = i;
           newCircle.color = CHSV(rand() % 255, 255, rgbBrightness);
           circles.push_back(newCircle);
         }
@@ -252,24 +255,24 @@ void DrawSquare(float fX, float fY, float diameter, CRGB color)
     // Blend in the color of the first partial pixel of the first row
     if (remainingX > 0.0f)
     {
-      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
-        leds[WIDTH * iX++ + iY] += ColorFraction(color, amtFirstPixelX * amtFirstPixelY / 1 * 1);
+      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+        leds[WIDTH * iY + iX++] += ColorFraction(color, amtFirstPixelX * amtFirstPixelY / 1 * 1);
       remainingX -= amtFirstPixelX;
     }
     
     // Draw every pixels in the middle of the first row
     while (remainingX > 1.0f)
     {
-      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
-        leds[WIDTH * iX++ + iY] += ColorFraction(color, 1 * amtFirstPixelY / 1 * 1);
+      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+        leds[WIDTH * iY + iX++] += ColorFraction(color, 1 * amtFirstPixelY / 1 * 1);
       remainingX--;
     }
     
     // Draw the tail pixel of the first row, up to a single full pixel
     if (remainingX > 0.0f)
     {
-      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
-        leds[WIDTH * iX + iY] += ColorFraction(color, remainingX * amtFirstPixelY / 1 * 1);
+      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+        leds[WIDTH * iY + iX] += ColorFraction(color, remainingX * amtFirstPixelY / 1 * 1);
     }
   }
 
@@ -282,24 +285,24 @@ void DrawSquare(float fX, float fY, float diameter, CRGB color)
     // Blend in the color of the first partial pixels of the middle rows
     if (remainingX > 0.0f)
     {
-      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
-        leds[WIDTH * iX++ + iY] += ColorFraction(color, amtFirstPixelX * 1 / 1 * 1);
+      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+        leds[WIDTH * iY + iX++] += ColorFraction(color, amtFirstPixelX * 1 / 1 * 1);
       remainingX -= amtFirstPixelX;
     }
     
     // Draw every pixels in the middle of the middle rows
     while (remainingX > 1.0f)
     {
-      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
-        leds[WIDTH * iX++ + iY] += color;
+      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+        leds[WIDTH * iY + iX++] += color;
       remainingX--;
     }
     
     // Draw the tail pixels of the middle rows
     if (remainingX > 0.0f)
     {
-      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
-      leds[WIDTH * iX + iY] += ColorFraction(color, remainingX * 1 / 1 * 1);
+      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+      leds[WIDTH * iY + iX] += ColorFraction(color, remainingX * 1 / 1 * 1);
     }
     remainingY--;
   }
@@ -313,24 +316,24 @@ void DrawSquare(float fX, float fY, float diameter, CRGB color)
     // Blend in the color of the first partial pixel of the last row
     if (remainingX > 0.0f)
     {
-      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
-        leds[WIDTH * iX++ + iY] += ColorFraction(color, remainingX * remainingY / 1 * 1);
+      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+        leds[WIDTH * iY + iX++] += ColorFraction(color, remainingX * remainingY / 1 * 1);
       remainingX -= amtFirstPixelX;
     }
     
     // Draw every pixels in the middle of the last row
     while (remainingX > 1.0f)
     {
-      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
-        leds[WIDTH * iX++ + iY] += ColorFraction(color, 1 * remainingY / 1 * 1);
+      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+        leds[WIDTH * iY + iX++] += ColorFraction(color, 1 * remainingY / 1 * 1);
       remainingX--;
     }
     
     // Draw the tail pixel of the last row
     if (remainingX > 0.0f)
     {
-      if (0 <= iX && iX <= WIDTH && 0 <= iY && iY <= HEIGHT)
-        leds[WIDTH * iX + iY] += ColorFraction(color, remainingX * remainingY / 1 * 1);
+      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+        leds[WIDTH * iY + iX] += ColorFraction(color, remainingX * remainingY / 1 * 1);
     }
   }
 }
@@ -371,6 +374,34 @@ void CircleBres(int xc, int yc, int r, CRGB color)
             d = d + 4 * x + 6;
         DrawCircle(xc, yc, x, y, color);
     }
+}
+
+void NextRgbState()
+{
+  switch (rgbState)
+  {
+    case lightWhenPressed:
+      rgbState = rainbow;
+      break;
+    case rainbow:
+      rgbState = spreadLightsOutWhenPressed;
+      break;
+    case spreadLightsOutWhenPressed:
+      rgbState = breathing;
+      break;
+    case breathing:
+      rgbState = fractionalDrawingTest2d;
+      break;
+    case fractionalDrawingTest2d:
+      rgbState = spinningRainbow;
+      break;
+    case spinningRainbow:
+      rgbState = waterWave;
+      break;
+    default:
+      rgbState = lightWhenPressed;
+      break;
+  }
 }
 
 void UpdateEffect()
@@ -422,11 +453,11 @@ void UpdateEffect()
         
       for (auto ball = balls.begin(); ball != balls.end(); )
       {
-        ball->pos = constrain(ball->pos + ball->direction * 10.0f * secondsElapsed, 0.5f, 3.5f);
+        ball->x = constrain(ball->x + ball->direction * 10.0f * secondsElapsed, 0.5f, 3.5f);
           
-        DrawLine(4 * ball->row + ball->pos - 0.5f, 1, ball->color);
+        DrawLine(4 * ball->y + ball->x - 0.5f, 1, ball->color);
         
-        if(ball->pos <= 0.5f || ball->pos >= 3.5f)
+        if(ball->x <= 0.5f || ball->x >= 3.5f)
           balls.erase(ball);
         else
           ball++;
@@ -460,7 +491,7 @@ void UpdateEffect()
       // ========== Fractional drawing test 2D ==========
 
       FastLED.clear();
-      DrawSquare(ttt, tttt, 1.1, CRGB(CHSV(128, 255, rgbBrightness)));
+      DrawSquare(fractionalDrawingTestX, fractionalDrawingTestY, 1.1, CRGB(CHSV(128, 255, rgbBrightness)));
       
       break;
       // ==============================
@@ -488,7 +519,7 @@ void UpdateEffect()
         
         CircleBres(circle->x, circle->y, (int)(circle->radius), circle->color);
 
-        if(circle->radius > 5.0f)
+        if(circle->radius >= 5.0f)
           circles.erase(circle);
         else
           circle++;
@@ -496,34 +527,6 @@ void UpdateEffect()
 
       break;
       // ==============================
-  }
-}
-
-void NextRgbState()
-{
-  switch (rgbState)
-  {
-    case lightWhenPressed:
-      rgbState = rainbow;
-      break;
-    case rainbow:
-      rgbState = spreadLightsOutWhenPressed;
-      break;
-    case spreadLightsOutWhenPressed:
-      rgbState = breathing;
-      break;
-    case breathing:
-      rgbState = fractionalDrawingTest2d;
-      break;
-    case fractionalDrawingTest2d:
-      rgbState = spinningRainbow;
-      break;
-    case spinningRainbow:
-      rgbState = waterWave;
-      break;
-    default:
-      rgbState = lightWhenPressed;
-      break;
   }
 }
 
