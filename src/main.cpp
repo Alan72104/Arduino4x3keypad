@@ -409,10 +409,10 @@ void UpdateEffect()
       if (++spinningRainbowState > 255) spinningRainbowState = 0;
       
       FastLED.clear();
-      DrawSquare(0, 0, 1.5, CRGB(CHSV(spinningRainbowState, 255, rgbBrightness)));
-      DrawSquare(2, 0, 1.5, CRGB(CHSV(spinningRainbowState + 64, 255, rgbBrightness)));
-      DrawSquare(0, 1, 1.5, CRGB(CHSV(spinningRainbowState + 64 * 2, 255, rgbBrightness)));
-      DrawSquare(2, 1, 1.5, CRGB(CHSV(spinningRainbowState + 64 * 3, 255, rgbBrightness)));
+      DrawSquare(0.5f, 0.5f, 1, CRGB(CHSV(spinningRainbowState, 255, rgbBrightness)));
+      DrawSquare(2.5f, 0.5f, 1, CRGB(CHSV(spinningRainbowState + 64, 255, rgbBrightness)));
+      DrawSquare(0.5f, 1.5f, 1, CRGB(CHSV(spinningRainbowState + 64 * 2, 255, rgbBrightness)));
+      DrawSquare(2.5f, 1.5f, 1, CRGB(CHSV(spinningRainbowState + 64 * 3, 255, rgbBrightness)));
 
       break;
       // ==============================
