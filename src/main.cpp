@@ -31,6 +31,13 @@ struct Ball
   // Ball();
   // Ball(float p, int r, int d, CRGB c) : pos(p), row(r), direction(d), color(c) {}
 };
+struct Circle
+{
+  int x;
+  int y;
+  float radius;
+  CRGB color;
+};
 
 CRGB leds[NUM_LEDS];
 int rgbBrightness = 63;
@@ -43,10 +50,12 @@ enum RgbState
   spreadLightsOutWhenPressed,
   breathing,
   fractionalDrawingTest2d,
-  spinningRainbow
+  spinningRainbow,
+  waterWave
 };
 RgbState rgbState = lightWhenPressed;
 std::vector<Ball> balls(20);
+std::vector<Circle> circles(20);
 
 float ttt = 0.0f;
 float tttt = 0.0f;
@@ -54,8 +63,8 @@ float tttt = 0.0f;
 void setup();
 void loop();
 CRGB ColorFraction(CRGB colorIn, float fraction);
-void DrawPixel(float fPos, float diameter, CRGB color);
-void DrawSquare(float fX, float fY, float diameter, CRGB color);
+void DrawLine(float fPos, float length, CRGB color);
+void DrawSquare(float fX, float fY, float length, CRGB color);
 void UpdateEffect();
 void UpdateRgb();
 void UpdateLed();
@@ -151,6 +160,14 @@ void loop() {
           // balls.push_back(Ball(i, j, -1, color));
           // balls.push_back(Ball(i, j, 1, color));
         }
+        else if (rgbState == waterWave && btnStateTemp == !HIGH)
+        {
+          struct Circle newCircle;
+          newCircle.x = i;
+          newCircle.y = j;
+          newCircle.color = CHSV(rand() % 255, 255, rgbBrightness);
+          circles.push_back(newCircle);
+        }
       }
     }
     digitalWrite(pinR[i], HIGH);
@@ -183,12 +200,18 @@ CRGB ColorFraction(CRGB colorIn, float fraction)
   return CRGB(colorIn).fadeToBlackBy(255 * (1.0f - fraction));
 }
 
-void DrawPixel(float fPos, float diameter, CRGB color)
+void DrawPixel2d(int x, int y, CRGB color)
+{
+  if (x < WIDTH && y < HEIGHT)
+    leds[WIDTH * y + x] = color;
+}
+
+void DrawLine(float fPos, float length, CRGB color)
 {
   // Calculate how much the first pixel will hold
   float availFirstPixel = 1.0f - (fPos - (long)(fPos));
-  float amtFirstPixel = min(availFirstPixel, diameter);
-  float remaining = min(diameter, NUM_LEDS - fPos);
+  float amtFirstPixel = min(availFirstPixel, length);
+  float remaining = min(length, NUM_LEDS - fPos);
   int iPos = fPos;
   
   // Blend in the color of the first partial pixel
@@ -312,6 +335,44 @@ void DrawSquare(float fX, float fY, float diameter, CRGB color)
   }
 }
 
+void DrawCircle(int xc, int yc, int x, int y, CRGB color)
+{
+    DrawPixel2d(xc+x, yc+y, color);
+    DrawPixel2d(xc-x, yc+y, color);
+    DrawPixel2d(xc+x, yc-y, color);
+    DrawPixel2d(xc-x, yc-y, color);
+    DrawPixel2d(xc+y, yc+x, color);
+    DrawPixel2d(xc-y, yc+x, color);
+    DrawPixel2d(xc+y, yc-x, color);
+    DrawPixel2d(xc-y, yc-x, color);
+}
+
+// https://www.geeksforgeeks.org/bresenhams-circle-drawing-algorithm/
+void CircleBres(int xc, int yc, int r, CRGB color)
+{
+    int x = 0, y = r;
+    int d = 3 - 2 * r;
+    DrawCircle(xc, yc, x, y, color);
+    while (y >= x)
+    {
+        // for each pixel we will
+        // draw all eight pixels
+        x++;
+ 
+        // check for decision parameter
+        // and correspondingly
+        // update d, x, y
+        if (d > 0)
+        {
+            y--;
+            d = d + 4 * (x - y) + 10;
+        }
+        else
+            d = d + 4 * x + 6;
+        DrawCircle(xc, yc, x, y, color);
+    }
+}
+
 void UpdateEffect()
 {
   static unsigned long lastEffectUpdate = 0ul;
@@ -363,7 +424,7 @@ void UpdateEffect()
       {
         ball->pos = constrain(ball->pos + ball->direction * 10.0f * secondsElapsed, 0.5f, 3.5f);
           
-        DrawPixel(4 * ball->row + ball->pos - 0.5f, 1, ball->color);
+        DrawLine(4 * ball->row + ball->pos - 0.5f, 1, ball->color);
         
         if(ball->pos <= 0.5f || ball->pos >= 3.5f)
           balls.erase(ball);
@@ -416,6 +477,25 @@ void UpdateEffect()
 
       break;
       // ==============================
+    case waterWave:
+      // ========== Water wave ==========
+
+      FastLED.clear();
+
+      for (auto circle = circles.begin(); circle < circles.end(); )
+      {
+        circle->radius += 1.0f * secondsElapsed;
+        
+        CircleBres(circle->x, circle->y, (int)(circle->radius), circle->color);
+
+        if(circle->radius > 5.0f)
+          circles.erase(circle);
+        else
+          circle++;
+      }
+
+      break;
+      // ==============================
   }
 }
 
@@ -437,6 +517,9 @@ void NextRgbState()
       break;
     case fractionalDrawingTest2d:
       rgbState = spinningRainbow;
+      break;
+    case spinningRainbow:
+      rgbState = waterWave;
       break;
     default:
       rgbState = lightWhenPressed;
