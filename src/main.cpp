@@ -146,7 +146,7 @@ void loop() {
           case lightWhenPressed: break;
           case rainbow: break;
           case spreadLightsOutWhenPressed:
-            if (btnStateTemp == !HIGH)
+            if (btnStateTemp == !HIGH && balls.size() < 16)
             {
               CRGB color = CHSV(rand() % 255, 255, rgbBrightness);
               balls.push_back(MakeBall(j, i, -1, color));
@@ -162,7 +162,7 @@ void loop() {
             break;
           case spinningRainbow: break;
           case waterWave:
-            if (btnStateTemp == !HIGH)
+            if (btnStateTemp == !HIGH && circles.capacity() < 16)
               circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(rand() % 255, 255, rgbBrightness))));
             break;
         }
@@ -470,6 +470,11 @@ void UpdateEffect()
       // ========== Spread lights out when pressed ==========
       
       FastLED.clear();
+
+      // Serial.print(balls.size());
+      // Serial.print(" ");
+      // Serial.print(balls.capacity());
+      // Serial.print(" ");
       // Serial.println(2048 - usedRam());
 
       for (auto ball = balls.begin(); ball != balls.end(); )
