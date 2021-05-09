@@ -487,6 +487,7 @@ void UpdateEffect()
         else
           ball++;
       }
+      
       break;
       // ==============================
     case breathing:
