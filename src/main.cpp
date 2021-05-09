@@ -25,8 +25,8 @@ const uint16_t microsPerScan = 1000000u / scanPerSec;
 struct Ball
 {
   float x;
-  int y;
-  int direction;
+  uint8_t y;
+  int8_t direction;
   CRGB color;
 };
 struct Circle
@@ -79,11 +79,11 @@ unsigned long c(unsigned long i);
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
-  for (int i : pinC)
+  for (uint8_t i : pinC)
   {
     pinMode(i, INPUT_PULLUP);
   }
-  for (int i : pinR)
+  for (uint8_t i : pinR)
   {
     pinMode(i, OUTPUT);
     digitalWrite(i, HIGH);
@@ -444,9 +444,9 @@ void UpdateEffect()
 
       rainbowState++;
       
-      for (int i = 0; i < HEIGHT; i++)
+      for (uint8_t i = 0; i < HEIGHT; i++)
       {
-        for (int j = 0; j < WIDTH; j++)
+        for (uint8_t j = 0; j < WIDTH; j++)
         {
           leds[4*i+j] = !btnState[i][j] ? CHSV((4*i+j) * 25 - (rainbowState * 1), 255, rgbBrightness) : CHSV(0, 0, 0);
         }
@@ -459,7 +459,7 @@ void UpdateEffect()
       
       rainbowState++;
       
-      for (int i = 0; i < WIDTH; i++)
+      for (uint8_t i = 0; i < WIDTH; i++)
       {
         leds[4*0+i] = leds[4*1+i] = leds[4*2+i] = CHSV(i * 10 - (rainbowState * 1), 255, rgbBrightness);
       }
@@ -503,7 +503,7 @@ void UpdateEffect()
           breathingState = 0;
       }
       
-      for (int i = 0; i < NUM_LEDS; i++)
+      for (uint8_t i = 0; i < NUM_LEDS; i++)
       {
         leds[i] = CHSV(breathingRainbowHues[breathingState], 255, 15 + (int)(rgbBrightness * 1.5f *
                                                                   (breathingStateElapsed <= 4.0f/2 ?
