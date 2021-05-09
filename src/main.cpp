@@ -61,6 +61,7 @@ float fractionalDrawingTestX = 0.0f;
 void setup();
 void loop();
 Ball MakeBall(float x, int y, int direction, CRGB color);
+Circle MakeCircle(int x, int y, float radius, CRGB color);
 CRGB ColorFraction(CRGB colorIn, float fraction);
 void DrawPixel2d(int x, int y, CRGB color);
 void DrawLine(float fPos, float length, CRGB color);
@@ -112,12 +113,13 @@ void loop() {
       if (btnState[i][j] != btnStateTemp)
       {
         btnState[i][j] = btnStateTemp;
+
 #ifndef Debug
         if (Serial.availableForWrite())
-        {
           Serial.write(((4*i+j+1) << 4 ) + (btnStateTemp == LOW ? 1 : 0));
-        }
 #endif
+
+        // Modifier key handling
         if (btnState[2][0] == !HIGH)
         {
           if (btnState[0][3] == !HIGH && millis() - lastRgbStateChange >= 150)
@@ -128,39 +130,39 @@ void loop() {
           else if (btnState[0][0] == !HIGH && millis() - lastRgbBrightnessChange >= 100)
           {
             lastRgbBrightnessChange = millis();
-            if (rgbBrightness < 255) rgbBrightness = min(rgbBrightness + 10, 255);
+            rgbBrightness = min(rgbBrightness + 10, 255);
           }
           else if (btnState[0][1] == !HIGH && millis() - lastRgbBrightnessChange >= 100)
           {
             lastRgbBrightnessChange = millis();
-            if (rgbBrightness > 0) rgbBrightness = max(0, rgbBrightness - 10);
+            rgbBrightness = max(0, rgbBrightness - 10);
           }
         }
         
-        if (rgbState == fractionalDrawingTest2d)
+        // State specific handling
+        switch (rgbState)
         {
-          if (btnState[0][0] == !HIGH && fractionalDrawingTestY > 0.0f)
-            fractionalDrawingTestY -= 0.1f;
-          else if (btnState[1][0] == !HIGH && fractionalDrawingTestY < HEIGHT)
-            fractionalDrawingTestY += 0.1f;
-          else if (btnState[1][2] == !HIGH && fractionalDrawingTestX < WIDTH)
-            fractionalDrawingTestX += 0.1f;
-          else if (btnState[1][1] == !HIGH && fractionalDrawingTestX > 0.0f)
-            fractionalDrawingTestX -= 0.1f;
-        }
-        else if (rgbState == spreadLightsOutWhenPressed && btnStateTemp == !HIGH)
-        {
-          CRGB color = CHSV(rand() % 255, 255, rgbBrightness);
-          balls.push_back(MakeBall(j, i, -1, color));
-          balls.push_back(MakeBall(j, i, 1, color));
-        }
-        else if (rgbState == waterWave && btnStateTemp == !HIGH)
-        {
-          struct Circle newCircle;
-          newCircle.x = j;
-          newCircle.y = i;
-          newCircle.color = CHSV(rand() % 255, 255, rgbBrightness);
-          circles.push_back(newCircle);
+          case fractionalDrawingTest2d:
+            if (btnState[0][0] == !HIGH && fractionalDrawingTestY > 0.0f)
+              fractionalDrawingTestY -= 0.1f;
+            else if (btnState[1][0] == !HIGH && fractionalDrawingTestY < HEIGHT)
+              fractionalDrawingTestY += 0.1f;
+            else if (btnState[1][2] == !HIGH && fractionalDrawingTestX < WIDTH)
+              fractionalDrawingTestX += 0.1f;
+            else if (btnState[1][1] == !HIGH && fractionalDrawingTestX > 0.0f)
+              fractionalDrawingTestX -= 0.1f;
+          case spreadLightsOutWhenPressed:
+            if (btnStateTemp == !HIGH)
+            {
+              CRGB color = CHSV(rand() % 255, 255, rgbBrightness);
+              balls.push_back(MakeBall(j, i, -1, color));
+              balls.push_back(MakeBall(j, i, 1, color));
+            }
+          case waterWave:
+            if (btnStateTemp == !HIGH)
+            {
+              circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(rand() % 255, 255, rgbBrightness))));
+            }
         }
       }
     }
@@ -196,6 +198,15 @@ Ball MakeBall(float x, int y, int direction, CRGB color)
   newBall.direction = direction;
   newBall.color = color;
   return newBall;
+}
+
+Circle MakeCircle(int x, int y, float radius, CRGB color)
+{
+  struct Circle newCircle;
+  newCircle.x = x;
+  newCircle.y = y;
+  newCircle.color = color;
+  return newCircle;
 }
 
 CRGB ColorFraction(CRGB colorIn, float fraction)
