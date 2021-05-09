@@ -143,14 +143,10 @@ void loop() {
         switch (rgbState)
         {
           case fractionalDrawingTest2d:
-            if (btnState[0][0] == !HIGH && fractionalDrawingTestY > 0.0f)
-              fractionalDrawingTestY -= 0.1f;
-            else if (btnState[1][0] == !HIGH && fractionalDrawingTestY < HEIGHT)
-              fractionalDrawingTestY += 0.1f;
-            else if (btnState[1][2] == !HIGH && fractionalDrawingTestX < WIDTH)
-              fractionalDrawingTestX += 0.1f;
-            else if (btnState[1][1] == !HIGH && fractionalDrawingTestX > 0.0f)
-              fractionalDrawingTestX -= 0.1f;
+            if (btnState[0][0] == !HIGH && fractionalDrawingTestY > 0.0f)         fractionalDrawingTestY -= 0.1f;
+            else if (btnState[1][0] == !HIGH && fractionalDrawingTestY < HEIGHT)  fractionalDrawingTestY += 0.1f;
+            else if (btnState[1][2] == !HIGH && fractionalDrawingTestX < WIDTH)   fractionalDrawingTestX += 0.1f;
+            else if (btnState[1][1] == !HIGH && fractionalDrawingTestX > 0.0f)    fractionalDrawingTestX -= 0.1f;
           case spreadLightsOutWhenPressed:
             if (btnStateTemp == !HIGH)
             {
@@ -160,9 +156,7 @@ void loop() {
             }
           case waterWave:
             if (btnStateTemp == !HIGH)
-            {
               circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(rand() % 255, 255, rgbBrightness))));
-            }
         }
       }
     }
