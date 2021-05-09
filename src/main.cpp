@@ -9,18 +9,18 @@
 #define LED_PIN 12
 #define NUM_LEDS WIDTH * HEIGHT
 
-const int pinC[WIDTH] = {8, 7, 6, 5};
-const int pinR[HEIGHT] = {2, 3, 4};
-int btnStateTemp = LOW;
-int btnState[HEIGHT][WIDTH] = {};
-int ledState = LOW;
+const uint8_t pinC[WIDTH] = {8, 7, 6, 5};
+const uint8_t pinR[HEIGHT] = {2, 3, 4};
+uint8_t btnStateTemp = LOW;
+uint8_t btnState[HEIGHT][WIDTH] = {};
+uint8_t ledState = LOW;
 unsigned long lastBlinkTime = 0ul;
 unsigned long ledBlinkLen = 5ul;
 unsigned long loopEndTime = 0ul;
 unsigned long loopStartTime = 0ul;
 unsigned long loopPeriod = 0ul;
-const int scanPerSec = 1000;
-const unsigned long microsPerScan = (unsigned long)(1000000 / scanPerSec);
+const uint16_t scanPerSec = 1000u;
+const uint16_t microsPerScan = 1000000u / scanPerSec;
 
 struct Ball
 {
@@ -31,14 +31,14 @@ struct Ball
 };
 struct Circle
 {
-  int x;
-  int y;
+  uint8_t x;
+  uint8_t y;
   float radius;
   CRGB color;
 };
 
 CRGB leds[NUM_LEDS];
-int rgbBrightness = 63;
+uint8_t rgbBrightness = 63;
 unsigned long lastRgbStateChange = 0ul;
 unsigned long lastRgbBrightnessChange = 0ul;
 enum RgbState
@@ -60,14 +60,14 @@ float fractionalDrawingTestX = 0.0f;
 
 void setup();
 void loop();
-Ball MakeBall(float x, int y, int direction, CRGB color);
-Circle MakeCircle(int x, int y, float radius, CRGB color);
+Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color);
+Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color);
 CRGB ColorFraction(CRGB colorIn, float fraction);
 void DrawPixel2d(int x, int y, CRGB color);
 void DrawLine(float fPos, float length, CRGB color);
 void DrawSquare(float fX, float fY, float length, CRGB color);
-void DrawCircle(int xc, int yc, int x, int y, CRGB color);
-void CircleBres(int xc, int yc, int r, CRGB color);
+void DrawCircle(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color);
+void CircleBres(uint8_t xc, uint8_t yc, uint8_t r, CRGB color);
 void NextRgbState();
 void UpdateEffect();
 void UpdateRgb();
@@ -104,11 +104,11 @@ void loop() {
   UpdateRgb();
   if (micros() - loopEndTime < (microsPerScan - (loopPeriod > microsPerScan ? microsPerScan : loopPeriod))) return;
   
-  for (int i = 0; i < HEIGHT; i++)
+  for (uint8_t i = 0; i < HEIGHT; i++)
   {
     pinMode(pinR[i], OUTPUT);
     digitalWrite(pinR[i], LOW);
-    for (int j = 0; j < WIDTH; j++)
+    for (uint8_t j = 0; j < WIDTH; j++)
     {
       btnStateTemp = digitalRead(pinC[j]);
       if (btnState[i][j] != btnStateTemp)
@@ -192,7 +192,7 @@ void loop() {
   loopPeriod = (unsigned long)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);  // Don't change the measured loop time immediately as it might float around
 }
 
-Ball MakeBall(float x, int y, int direction, CRGB color)
+Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color)
 {
   struct Ball newBall;
   newBall.x = x;
@@ -202,7 +202,7 @@ Ball MakeBall(float x, int y, int direction, CRGB color)
   return newBall;
 }
 
-Circle MakeCircle(int x, int y, float radius, CRGB color)
+Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color)
 {
   struct Circle newCircle;
   newCircle.x = x;
@@ -355,7 +355,7 @@ void DrawSquare(float fX, float fY, float diameter, CRGB color)
   }
 }
 
-void DrawCircle(int xc, int yc, int x, int y, CRGB color)
+void DrawCircle(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color)
 {
     DrawPixel2d(xc+x, yc+y, color);
     DrawPixel2d(xc-x, yc+y, color);
@@ -368,10 +368,10 @@ void DrawCircle(int xc, int yc, int x, int y, CRGB color)
 }
 
 // https://www.geeksforgeeks.org/bresenhams-circle-drawing-algorithm/
-void CircleBres(int xc, int yc, int r, CRGB color)
+void CircleBres(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
 {
-    int x = 0, y = r;
-    int d = 3 - 2 * r;
+    uint8_t x = 0, y = r;
+    uint8_t d = 3 - 2 * r;
     DrawCircle(xc, yc, x, y, color);
     while (y >= x)
     {
