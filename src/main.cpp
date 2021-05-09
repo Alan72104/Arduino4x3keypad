@@ -425,11 +425,11 @@ void UpdateEffect()
 {
   static unsigned long lastEffectUpdate = 0ul;
   static float secondsElapsed = 0.0f;
-  static int rainbowState = 0;
-  static int breathingState = 0;
+  static uint8_t rainbowState = 0;
+  static uint8_t breathingState = 0;
   static float breathingStateElapsed = 0.0f;
-  static const int breathingRainbowHues[7] = {0,32,64,96,160,176,192};
-  static int spinningRainbowState = 0;
+  static const uint8_t breathingRainbowHues[7] = {0,32,64,96,160,176,192};
+  static uint8_t spinningRainbowState = 0;
 #ifdef Debug
   static unsigned int updateCount = 0;
 #endif
@@ -442,7 +442,7 @@ void UpdateEffect()
     case lightWhenPressed:
       // ========== Light when pressed ==========
 
-      if (++rainbowState == 255) rainbowState = 0;
+      rainbowState++;
       
       for (int i = 0; i < HEIGHT; i++)
       {
@@ -457,7 +457,7 @@ void UpdateEffect()
     case rainbow:
       // ========== Rainbow ==========
       
-      if (++rainbowState > 255) rainbowState = 0;
+      rainbowState++;
       
       for (int i = 0; i < WIDTH; i++)
       {
@@ -482,7 +482,7 @@ void UpdateEffect()
         ball->x += ball->direction * 10.0f * secondsElapsed;
         
         DrawLine(4 * ball->y + constrain(ball->x, 0.5f, 3.5f) - 0.5f, 1, ball->color);
-        
+
         if (ball->x < 0.0f || ball->x >= 4.0f)
           balls.erase(ball);
         else
@@ -524,7 +524,7 @@ void UpdateEffect()
     case spinningRainbow:
       // ========== Spinning rainbow ==========
       
-      if (++spinningRainbowState > 255) spinningRainbowState = 0;
+      spinningRainbowState++;
       
       FastLED.clear();
       DrawSquare(0.5f, 0.5f, 1, CRGB(CHSV(spinningRainbowState, 255, rgbBrightness)));
@@ -543,7 +543,7 @@ void UpdateEffect()
       {
         circle->radius += 1.0f * secondsElapsed;
         
-        CircleBres(circle->x, circle->y, (int)(circle->radius), circle->color);
+        CircleBres(circle->x, circle->y, circle->radius, circle->color);
 
         if(circle->radius >= 5.0f)
           circles.erase(circle);
