@@ -52,8 +52,8 @@ enum RgbState
   waterWave
 };
 RgbState rgbState = lightWhenPressed;
-std::vector<Ball> balls(20);
-std::vector<Circle> circles(20);
+std::vector<Ball> balls;
+std::vector<Circle> circles;
 
 float fractionalDrawingTestY = 0.0f;
 float fractionalDrawingTestX = 0.0f;
@@ -72,6 +72,7 @@ void NextRgbState();
 void UpdateEffect();
 void UpdateRgb();
 void UpdateLed();
+int usedRam();
 int c(int i);
 float c(float i);
 unsigned long c(unsigned long i);
@@ -226,21 +227,24 @@ void DrawLine(float fPos, float length, CRGB color)
   // Blend in the color of the first partial pixel
   if (remaining > 0.0f)
   {
-    leds[iPos++] += ColorFraction(color, amtFirstPixel);
+    if (0 <= iPos && iPos < NUM_LEDS)
+      leds[iPos++] += ColorFraction(color, amtFirstPixel);
     remaining -= amtFirstPixel;
   }
   
   // Now draw every full pixels in the middle
   while (remaining > 1.0f)
   {
-    leds[iPos++] += color;
+    if (0 <= iPos && iPos < NUM_LEDS)
+      leds[iPos++] += color;
     remaining--;
   }
   
   // Draw tail pixel, up to a single full pixel
   if (remaining > 0.0f)
   {
-    leds[iPos] += ColorFraction(color, remaining);
+    if (0 <= iPos && iPos < NUM_LEDS)
+      leds[iPos] += ColorFraction(color, remaining);
   }
 }
 
@@ -459,19 +463,18 @@ void UpdateEffect()
       // ========== Spread lights out when pressed ==========
       
       FastLED.clear();
-        
+      // Serial.println(2048 - usedRam());
+
       for (auto ball = balls.begin(); ball != balls.end(); )
       {
-        ball->x = ball->x + ball->direction * 10.0f * secondsElapsed;
+        ball->x += ball->direction * 10.0f * secondsElapsed;
         
         DrawLine(4 * ball->y + constrain(ball->x, 0.5f, 3.5f) - 0.5f, 1, ball->color);
-        
-        if(ball->x <= 0.0f || ball->x >= 4.0f)
+        if (ball->x < 0.0f || ball->x >= 4.0f)
           balls.erase(ball);
         else
           ball++;
       }
-        
       break;
       // ==============================
     case breathing:
@@ -574,6 +577,13 @@ void UpdateLed()
       digitalWrite(LED_BUILTIN, ledState);
     }
   }
+}
+
+int usedRam() 
+{
+ extern int __heap_start, *__brkval;
+ int v;
+ return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
 }
 
 int c(int i)
