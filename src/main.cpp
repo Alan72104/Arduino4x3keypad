@@ -462,11 +462,11 @@ void UpdateEffect()
         
       for (auto ball = balls.begin(); ball != balls.end(); )
       {
-        ball->x = constrain(ball->x + ball->direction * 10.0f * secondsElapsed, 0.5f, 3.5f);
-          
-        DrawLine(4 * ball->y + ball->x - 0.5f, 1, ball->color);
+        ball->x = ball->x + ball->direction * 10.0f * secondsElapsed;
         
-        if(ball->x <= 0.5f || ball->x >= 3.5f)
+        DrawLine(4 * ball->y + constrain(ball->x, 0.5f, 3.5f) - 0.5f, 1, ball->color);
+        
+        if(ball->x <= 0.0f || ball->x >= 4.0f)
           balls.erase(ball);
         else
           ball++;
