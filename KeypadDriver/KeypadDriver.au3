@@ -98,7 +98,7 @@ Func Main()
 				HandleMsg()
 			EndIf
 			$timer = TimerInit()
-			$loopPeriod = TimerDiff($loopStartTime)
+			$loopPeriod = $loopPeriod * 0.6 + TimerDiff($loopStartTime) * 0.4
 		EndIf
 	WEnd
 EndFunc
