@@ -12,7 +12,7 @@
 const uint8_t pinC[WIDTH] = {8, 7, 6, 5};
 const uint8_t pinR[HEIGHT] = {2, 3, 4};
 uint8_t btnStateTemp = LOW;
-uint8_t btnState[HEIGHT][WIDTH] = {};
+uint8_t btnState[HEIGHT][WIDTH];
 uint8_t ledState = LOW;
 unsigned long lastBlinkTime = 0ul;
 unsigned long ledBlinkLen = 5ul;
@@ -88,6 +88,9 @@ void setup() {
     pinMode(i, OUTPUT);
     digitalWrite(i, HIGH);
   }
+  for (uint8_t j = 0; j < HEIGHT; j++)
+    for (uint8_t i = 0; i < WIDTH; i++)
+      btnState[j][i] = LOW;
   FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
 
   while(!Serial){}
@@ -170,6 +173,33 @@ void loop() {
     }
     digitalWrite(pinR[i], HIGH);
     pinMode(pinR[i], INPUT);
+  }
+
+  if (Serial.available())
+  {
+    unsigned char incomingByte = Serial.read();
+    unsigned char incomingData = incomingByte & 0b00111111;
+    switch (incomingByte >> 6)
+    {
+      case 0:
+        if (incomingData <= 6)
+          rgbState = (RgbState)incomingData;
+        break;
+      case 1:
+        rgbBrightness = incomingData * 4 + 3;
+        break;
+      case 2:
+        for (int i = 0; i < WIDTH * HEIGHT; i++)
+        {
+          Serial.write(leds[i][0]);
+          Serial.write(leds[i][1]);
+          Serial.write(leds[i][2]);
+        }
+        break;
+      case 3:
+
+        break;
+    }
   }
 
   // Update frequency test

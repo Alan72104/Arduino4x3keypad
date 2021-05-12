@@ -4,9 +4,10 @@
 #include <GDIPlus.au3>
 #include <GUIConstantsEx.au3>
 #include <ButtonConstants.au3>
+#include <Array.au3>
 
 Global Const $WIDTH = 4, $HEIGHT = 3
-Global $byteString = ""
+Global $byteString = "", $byte
 ; [keyStrokeUp, keyStrokeDown, keyName], ...]
 Global $keyMap[$WIDTH * $HEIGHT][2]
 For $j = 0 To $HEIGHT - 1
@@ -19,17 +20,17 @@ Global Enum $UP, $DOWN
 Global $btnState[$WIDTH * $HEIGHT]
 Global $index = -1
 Global $loopPeriod, $loopStartTime, $timer
-Global Const $scanPerSec = 1500
+Global Const $scanPerSec = 3000
 Global Const $msPerScan = 1000 / $scanPerSec
 Global $pressedBtnNum = 0
 Global $pressedBtnState = 0
 Global $ports[0]
+global $comPort
 Global $guiOpened = False
 Global $gdiPlusStarted = False
 Global $hGui
 Global $idButtonBtns[$WIDTH * $HEIGHT]
 Global $idButtonClose, $idRadioBind, $idRadioRemove, $idButtonSave
-; Global $accelerators[73][2] = [["a",0],["b",0],["c",0],["d",0],["e",0],["f",0],["g",0],["h",0],["i",0],["j",0],["k",0],["l",0],["m",0],["n",0],["o",0],["p",0],["q",0],["r",0],["s",0],["t",0],["u",0],["v",0],["w",0],["x",0],["y",0],["z",0],["{SPACE}",0],["{ENTER}",0],["{BACKSPACE}",0],["{DELETE}",0],["{UP}",0],["{DOWN}",0],["{LEFT}",0],["{RIGHT}",0],["{HOME}",0],["{END}",0],["{ESC}",0],["{INSERT}",0],["{PGUP}",0],["{PGDN}",0],["{F1}",0],["{F2}",0],["{F3}",0],["{F4}",0],["{F5}",0],["{F6}",0],["{F7}",0],["{F8}",0],["{F9}",0],["{F10}",0],["{F11}",0],["{F12}",0],["{TAB}",0],["{PRINTSCREEN}",0],["{NUMLOCK}",0],["{CAPSLOCK}",0],["{SCROLLLOCK}",0],["{PAUSE}",0],["{NUMPAD0}",0],["{NUMPAD1}",0],["{NUMPAD2}",0],["{NUMPAD3}",0],["{NUMPAD4}",0],["{NUMPAD5}",0],["{NUMPAD6}",0],["{NUMPAD7}",0],["{NUMPAD8}",0],["{NUMPAD9}",0],["{NUMPADMULT}",0],["{NUMPADSUB}",0],["{NUMPADDIV}",0],["{NUMPADDOT}",0],["{NUMPADENTER}",0]]
 Global $msg
 Global $bindingKeys = False
 Global $currentlyBinding = 0
@@ -38,21 +39,31 @@ Global $idButtonConfirm, $idButtonCancel
 Global Enum $BIND, $REMOVE
 Global $bindingAction = $BIND
 Global Const $iniPath = @ScriptDir & "\keypadconfig.ini"
+Global $rgbStates = ["lightWhenPressed","rainbow","spreadLightsOutWhenPressed","breathing","fractionalDrawingTest2d","spinningRainbow","waterWave"]
+Global $idComboRgbState, $idButtonRgbUpdate
+Global Enum $UPDATERGBSTATE, $UPDATERGBBRIGHTNESS, $GETRGBDATA
+Global $waitingForSyncingBytes = 0, $receivedByte = False, $timerGuiBtnRgbSync
+Global $rgbBuffer[$WIDTH * $HEIGHT][3]
+Global $syncingButtonIndex = 0
+Global $syncingRgbIndex = 0
 HotKeySet("{F4}", "OpenGui")
 Opt("GUICloseOnESC", 0)
+
+; Todo: Connection indicator in the gui
 
 Func Main()
 	_CommSetDllPath(@ScriptDir & "/commg.dll")
 	$ports = _ComGetPortNames()
 	For $i = 0 To UBound($ports) - 1
 		If $ports[$i][1] == "USB-SERIAL CH340" Then
-			_CommSetPort(Int(StringReplace($ports[$i][0], "COM", "")), "", 19200, 8, "none", 1, 2)
+			$comPort = $ports[$i][0]
+			_CommSetPort(Int(StringReplace($comPort, "COM", "")), "", 19200, 8, "none", 1, 2)
 			If @error Then
-				c("Cannot connect to com port: $", 1, $ports[$i][0])
+				c("Cannot connect to com port: $", 1, $comPort)
 				ce(@error)
 				Exit
 			Else
-				c("Connected to com port: $", 1, $ports[$i][0])
+				c("Connected to com port: $", 1, $comPort)
 			EndIf
 			ExitLoop
 		EndIf
@@ -87,7 +98,11 @@ Func Main()
 	While 1
 		$loopStartTime = TimerInit()
 		If (TimerDiff($timer) >= ($msPerScan - ($loopPeriod > $msPerScan ? $msPerScan : $loopPeriod))) Then
-			PollKeys()
+			; If $waitingForSyncingBytes And Not $receivedByte Then
+				; PollData()
+			; Else
+				PollKeys()
+			; EndIf
 			; If TimerDiff($tt) >= 1000 Then
 				; $tt = TimerInit()
 				; c($t)
@@ -95,6 +110,7 @@ Func Main()
 			; EndIf
 			; $t += 1
 			If $guiOpened Then
+				SyncGuiRgb()
 				HandleMsg()
 			EndIf
 			$timer = TimerInit()
@@ -110,7 +126,7 @@ Func PollKeys()
 	If $byteString <> "" Then
 		$byte = Int($byteString)
 		$pressedBtnNum = BitShift($byte, 4)
-		$pressedBtnState = BitAnd($byte, 0x01)
+		$pressedBtnState = BitAND($byte, 0x01)
 		; c("Button: $ pressed, state: $", 1, $pressedBtnNum, $pressedBtnState)
 		If $pressedBtnNum <= $WIDTH * $HEIGHT And Not $guiOpened Then
 			Switch $pressedBtnState
@@ -121,6 +137,31 @@ Func PollKeys()
 			EndSwitch
 		EndIf
 	EndIf
+EndFunc
+
+Func PollData()
+	$byteString = _CommReadByte()
+	If $byteString <> "" Then
+		$byte = Int($byteString)
+		; c("Received data $", 1, $byteString)
+		$waitingForSyncingBytes -= 1
+		$receivedByte = True
+		Return
+	EndIf
+EndFunc
+
+Func SendMsgToKeypad($type, $data)
+	If $type > 3 Then
+		c("SendMsgToKeypad >> Message type cannot be larger than 2 bits! Exception data: $", 1, $type)
+		c("Program terminating!")
+		Terminate()
+	EndIf
+	If $data > 63 Then
+		c("SendMsgToKeypad >> Data to send cannot be larger than 6 bits! Exception data: $", 1, $data)
+		c("Program terminating!")
+		Terminate()
+	EndIf
+	_CommSendByte(BitShift($type, -6) + $data)
 EndFunc
 
 Func HandleMsg()
@@ -144,8 +185,9 @@ Func HandleMsg()
 			If $bindingKeys Then
 				$bindingKeys = False
 				ShowBindingGroup(0)
-				; GUISetAccelerators(0, $hGui)
 			EndIf
+		Case $idButtonRgbUpdate
+			SendMsgToKeypad($UPDATERGBSTATE, ArrayFind($rgbStates, GUICtrlRead($idComboRgbState)))
 		Case Else
 			For $j = 0 To $HEIGHT - 1
 				For $i = 0 To $WIDTH - 1
@@ -155,11 +197,9 @@ Func HandleMsg()
 								$bindingKeys = True
 								$currentlyBinding = $j * $WIDTH + $i + 1
 								GUICtrlSetData($idLabelCurrentlyBinding, "Binding key " & $currentlyBinding)
-								; GUICtrlSetData($idLabelBindingStr, $keyMap[$j * $WIDTH + $i][0])
 								GUICtrlSetData($idInputKeyUp, $keyMap[$j * $WIDTH + $i][0])
 								GUICtrlSetData($idInputKeyDown, $keyMap[$j * $WIDTH + $i][1])
 								ShowBindingGroup(1)
-								; GUISetAccelerators($accelerators, $hGui)
 							Case $REMOVE
 								BindRemove($j * $WIDTH + $i + 1)
 								UpdateBtnLabels()
@@ -169,13 +209,6 @@ Func HandleMsg()
 				Next
 			Next
 			If $bindingKeys Then
-				; For $i = 0 To UBound($accelerators, 1) - 1
-					; If $msg = $accelerators[$i][1] Then
-						; c($msg)
-						; GUICtrlSetData($idLabelBindingStr, $accelerators[$i][0])
-						; Return
-					; EndIf
-				; Next
 				If $msg = $idButtonConfirm Then
 					BindKey($currentlyBinding, GUICtrlRead($idInputKeyUp), GUICtrlRead($idInputKeyDown))
 					UpdateBtnLabels()
@@ -189,6 +222,35 @@ Func HandleMsg()
 	EndSwitch
 EndFunc
 
+Func SyncGuiRgb()
+	If TimerDiff($timerGuiBtnRgbSync) > 200 Then
+		$timerGuiBtnRgbSync = TimerInit()
+		SendMsgToKeypad($GETRGBDATA, 0)
+		$waitingForSyncingBytes = 3 * $WIDTH * $HEIGHT
+		$syncingButtonIndex = 0
+		$syncingRgbIndex = 0
+		$ttt = TimerInit()
+	; Else
+		While 1
+			Do
+				PollData()
+			Until $receivedByte
+			$receivedByte = False
+			$rgbBuffer[$syncingButtonIndex][$syncingRgbIndex] = $byte
+			$syncingRgbIndex += 1
+			If $syncingRgbIndex = 3 Then
+				$syncingRgbIndex = 0
+				$syncingButtonIndex += 1
+			EndIf
+			If $syncingButtonIndex = $WIDTH * $HEIGHT Then
+				UpdateBtnLabelsRgb($rgbBuffer)
+				c(TimerDiff($ttt))
+				Return
+			EndIf
+		WEnd
+	EndIf
+EndFunc
+
 Func UpdateBtnLabels()
 	For $j = 0 To $HEIGHT - 1
 		For $i = 0 To $WIDTH - 1
@@ -198,12 +260,29 @@ Func UpdateBtnLabels()
 	Next
 EndFunc
 
+Func UpdateBtnLabelsRgb(ByRef $data)
+	Local $rgb[3]
+	Local $hsl[3]
+	For $j = 0 To $HEIGHT - 1
+		For $i = 0 To $WIDTH - 1
+			$rgb[0] = $data[$j * $WIDTH + $i][0]
+			$rgb[1] = $data[$j * $WIDTH + $i][1]
+			$rgb[2] = $data[$j * $WIDTH + $i][2]
+			$hsl = RgbToHsl($rgb)
+			; $hsl[2] = (100 - 10) * ($hsl[2] - 0 / 100 - 0) + 10
+			$rgb = HslToRgb($hsl)
+			GUICtrlSetBkColor($idButtonBtns[$j * $WIDTH + $i], $rgb[0] * 256 * 256 + _
+															   $rgb[1] * 256 + _
+															   $rgb[2])
+		Next
+	Next
+EndFunc
+
 Func ShowBindingGroup($state)
 	$state = $state ? $GUI_SHOW : $GUI_HIDE
 	GUICtrlSetState($idGroupBinding, $state)
 	GUICtrlSetState($idLabelCurrentlyBinding, $state)
 	GUICtrlSetState($idLabelBindingArrow, $state)
-	; GUICtrlSetState($idLabelBindingStr, $state)
 	GUICtrlSetState($idInputKeyUp, $state)
 	GUICtrlSetState($idInputKeyDown, $state)
 	GUICtrlSetState($idButtonConfirm, $state)
@@ -236,9 +315,6 @@ Func OpenGui()
 		$idLabelBindingArrow = GUICtrlCreateLabel("=>", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
 													    30 + 15 + 30, _
 													    15, 15)
-		; $idLabelBindingStr = GUICtrlCreateLabel("{UP down}", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15 + 10 + 15, _
-														 ; 30 + 15 + 15, _
-														 ; 75, 15)
 		$idInputKeyUp = GUICtrlCreateInput("{UP up}", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15 + 10 + 15, _
 													  30 + 15 + 15, _
 													  75, 20)
@@ -268,13 +344,122 @@ Func OpenGui()
 	$idButtonSave = GUICtrlCreateButton("Save to config", 750 - 25 - 150 + 25, _
 															 500 - 25 - 25 - 25 - 5, _
 															 100, 25)
-	; For $i = 0 To UBound($accelerators, 1) - 1
-		; $accelerators[$i][1] = GUICtrlCreateDummy()
-	; Next
+	$idComboRgbState = GUICtrlCreateCombo("lightWhenPressed", 50, 500 - 25 - 25 - 5 - 25, 150, 25)
+		GUICtrlSetData($idComboRgbState, _ArrayToString($rgbStates, "|", 1))
+	$idButtonRgbUpdate = GUICtrlCreateButton("Update", 50 + 25, 500 - 25 - 25, 100, 25)
 	GUISetState(@SW_SHOW)
+	$timerGuiBtnRgbSync = TimerInit()
+	_CommClearInputBuffer()
+	SendMsgToKeypad($GETRGBDATA, 0)
+	$waitingForSyncingBytes = 3 * $WIDTH * $HEIGHT
+	$syncingButtonIndex = 0
+	$syncingRgbIndex = 0
+EndFunc
+
+Func RgbToHsl($rgb)
+	Local $blue = $rgb[2]
+	Local $green = $rgb[1]
+	Local $red = $rgb[0]
+	Local $luminance
+	Local $hue
+	Local $saturation
+	$red = $red / 255
+	$green = $green / 255
+	$blue = $blue / 255
+	Local $vmax = ((($red > $green) ? $red : $green) > $blue) ? (($red > $green) ? $red : $green) : $blue
+	Local $vmin = ((($red > $green) ? $green : $red) > $blue) ? $blue : (($red > $green) ? $green : $red)
+	Local $delta = $vmax - $vmin
+	Local $luminance = ($vmax + $vmin) / 2
+	If $delta > 0 Then
+	   Local $dr = ((($vmax - $red) / 6.0) + ($delta / 2.0)) / $delta
+	   Local $dg = ((($vmax - $green) / 6.0) + ($delta / 2.0)) / $delta
+	   Local $db = ((($vmax - $blue) / 6.0) + ($delta / 2.0)) / $delta
+	   If $red >= $green And $red >= $blue Then
+		$hue = $db - $dg
+	   ElseIf $green >= $red And $green >= $blue Then
+		$hue = (1.0 / 3.0) + $dr - $db
+	   Else
+		$hue = (2.0 / 3.0) + $dg - $dr
+		 EndIf
+	 
+	   If $hue < 0.0 Then
+		$hue = $hue + 1
+	   ElseIf $hue > 1.0 Then
+		$hue = $hue - 1
+		 EndIf
+	 
+	   If $luminance < 0.5 Then
+		$saturation = $delta / ($vmax + $vmin)
+	   Else
+		$saturation = $delta / (2 - $vmax - $vmin)
+		EndIf
+	Else
+	   $hue = 0
+	   $saturation = 0
+	  EndIf
+	  Local $hsl[3] = [$hue,$saturation,$luminance]
+	Return $hsl
+EndFunc
+
+Func HslToRgb($hsl)
+	Local $luminance = $hsl[2]
+	Local $saturation = $hsl[1]
+	Local $hue = $hsl[0]
+	Local $temp1 = 0
+	Local $temp2 = 0
+	Local $light = 0
+	If $saturation<=0 Then
+		If $luminance < 0 Then
+			$light = 0
+		ElseIf $luminance >= 1.0 Then
+			$light = 255
+		Else
+			$light = Round($luminance * 255)
+		EndIf
+		Local $Color[3] = [$light, $light, $light]
+		Return $Color
+	EndIf
+	 
+	If $luminance < 0.5 Then
+		$temp2 = $luminance * (1.0 + $saturation)
+	Else
+		$temp2 = $luminance + $saturation - ($luminance * $saturation)
+	EndIf
+	$temp1 = 2.0 * $luminance - $temp2
+	Local $rgb[3] = [Round(GetHue($temp1, $temp2, $hue + 1.0 / 3.0) * 255), Round(GetHue($temp1, $temp2, $hue) * 255), Round(GetHue($temp1, $temp2, $hue - 1.0 / 3.0) * 255)]
+	Return $rgb
+EndFunc
+
+Func GetHue($temp1, $temp2, $hue)
+	If $hue < 0.0 Then
+	   $hue = $hue+1
+	ElseIf $hue > 1.0 Then
+	   $hue =$hue-1
+	EndIf
+	 
+	If $hue * 6.0 < 1.0 Then
+		Return  $temp1 + ($temp2 - $temp1) * $hue * 6.0
+	ElseIf ($hue * 2.0) < 1.0 Then
+		Return  $temp2
+	ElseIf $hue * 3.0 < 2.0 Then
+		Return $temp1 + ($temp2 - $temp1) * (2.0 / 3.0 - $hue) * 6.0
+	Else
+		Return $temp1
+	EndIf
+EndFunc
+
+Func ArrayFind(ByRef $a, $v)
+	For $i = 0 To UBound($a) - 1
+		If $a[$i] = $v Then
+			Return $i
+		EndIf
+	Next
+	Return -1
 EndFunc
 
 Func CloseGui()
+	$waitingForSyncingBytes = 0
+	_CommClearInputBuffer()
 	GUIDelete($hGui)
 	$guiOpened = False
 EndFunc
