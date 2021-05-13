@@ -3,7 +3,7 @@
 #include <GUIConstantsEx.au3>
 #include <StringConstants.au3>
 #include <WindowsConstants.au3>
-#include "..\LibDebug.au3"
+#include "LibDebug.au3"
 
 Global Const $WIDTH = 4, $HEIGHT = 3
 Global $byteString = "", $byte
