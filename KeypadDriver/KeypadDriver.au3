@@ -20,7 +20,7 @@ Global Enum $UP, $DOWN
 Global $btnState[$WIDTH * $HEIGHT]
 Global $index = -1
 Global $loopPeriod, $loopStartTime, $timer
-Global Const $scanPerSec = 3000
+Global Const $scanPerSec = 1500
 Global Const $msPerScan = 1000 / $scanPerSec
 Global $pressedBtnNum = 0
 Global $pressedBtnState = 0
