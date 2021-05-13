@@ -1,10 +1,9 @@
-#include "..\LibDebug.au3"
-#include <CommMG.au3>
-#include <StringConstants.au3>
-#include <GDIPlus.au3>
-#include <GUIConstantsEx.au3>
 #include <ButtonConstants.au3>
-#include <Array.au3>
+#include <CommMG.au3>
+#include <GUIConstantsEx.au3>
+#include <StringConstants.au3>
+#include <WindowsConstants.au3>
+#include "..\LibDebug.au3"
 
 Global Const $WIDTH = 4, $HEIGHT = 3
 Global $byteString = "", $byte
@@ -25,7 +24,7 @@ Global Const $msPerScan = 1000 / $scanPerSec
 Global $pressedBtnNum = 0
 Global $pressedBtnState = 0
 Global $ports[0]
-global $comPort
+Global $comPort
 Global $guiOpened = False
 Global $gdiPlusStarted = False
 Global $hGui
@@ -93,6 +92,8 @@ Func Main()
 		BindKey(11, "y")
 		BindKey(12, "u")
 	EndIf
+	Sleep(200)
+	OpenGui()
 	; Global $t = 0
 	; Global $tt = 0
 	While 1
@@ -223,14 +224,14 @@ Func HandleMsg()
 EndFunc
 
 Func SyncGuiRgb()
+	Local $timer = 0
 	If TimerDiff($timerGuiBtnRgbSync) > 200 Then
 		$timerGuiBtnRgbSync = TimerInit()
 		SendMsgToKeypad($GETRGBDATA, 0)
 		$waitingForSyncingBytes = 3 * $WIDTH * $HEIGHT
 		$syncingButtonIndex = 0
 		$syncingRgbIndex = 0
-		$ttt = TimerInit()
-	; Else
+		$timer = TimerInit()
 		While 1
 			Do
 				PollData()
@@ -244,7 +245,9 @@ Func SyncGuiRgb()
 			EndIf
 			If $syncingButtonIndex = $WIDTH * $HEIGHT Then
 				UpdateBtnLabelsRgb($rgbBuffer)
-				c(TimerDiff($ttt))
+				Return
+			EndIf
+			If TimerDiff($timer) > 400 Then
 				Return
 			EndIf
 		WEnd
@@ -291,7 +294,7 @@ EndFunc
 
 Func OpenGui()
 	If $guiOpened Then Return WinActivate("THE Keypad Control Panel")
-	$hGui = GUICreate("THE Keypad Control Panel", 750, 500)
+	$hGui = GUICreate("THE Keypad Control Panel", 750, 500, Default, Default, Default, $WS_EX_TOPMOST)
 	$guiOpened = True
 	GUICtrlCreateGroup("Buttons", 50, 30, _
 								  15 + 60 + 85 * 3 + 15, _
