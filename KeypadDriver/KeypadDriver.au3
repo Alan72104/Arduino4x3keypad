@@ -1,5 +1,6 @@
 #include <Array.au3>
 #include <ButtonConstants.au3>
+#include <Color.au3>
 #include <CommMG.au3>
 #include <GUIConstantsEx.au3>
 #include <StringConstants.au3>
@@ -272,9 +273,11 @@ Func UpdateBtnLabelsRgb(ByRef $data)
 			$rgb[0] = $data[$j * $WIDTH + $i][0]
 			$rgb[1] = $data[$j * $WIDTH + $i][1]
 			$rgb[2] = $data[$j * $WIDTH + $i][2]
-			$hsl = RgbToHsl($rgb)
+			; $hsl = _ColorConvertRGBtoHSL($rgb)
+			; c($hsl[2])
+			; $hsl[2] = 50
 			; $hsl[2] = (100 - 10) * ($hsl[2] - 0 / 100 - 0) + 10
-			$rgb = HslToRgb($hsl)
+			; $rgb = _ColorConvertHSLtoRGB($hsl)
 			GUICtrlSetBkColor($idButtonBtns[$j * $WIDTH + $i], $rgb[0] * 256 * 256 + _
 															   $rgb[1] * 256 + _
 															   $rgb[2])
@@ -358,98 +361,6 @@ Func OpenGui()
 	$waitingForSyncingBytes = 3 * $WIDTH * $HEIGHT
 	$syncingButtonIndex = 0
 	$syncingRgbIndex = 0
-EndFunc
-
-Func RgbToHsl($rgb)
-	Local $blue = $rgb[2]
-	Local $green = $rgb[1]
-	Local $red = $rgb[0]
-	Local $luminance
-	Local $hue
-	Local $saturation
-	$red = $red / 255
-	$green = $green / 255
-	$blue = $blue / 255
-	Local $vmax = ((($red > $green) ? $red : $green) > $blue) ? (($red > $green) ? $red : $green) : $blue
-	Local $vmin = ((($red > $green) ? $green : $red) > $blue) ? $blue : (($red > $green) ? $green : $red)
-	Local $delta = $vmax - $vmin
-	Local $luminance = ($vmax + $vmin) / 2
-	If $delta > 0 Then
-	   Local $dr = ((($vmax - $red) / 6.0) + ($delta / 2.0)) / $delta
-	   Local $dg = ((($vmax - $green) / 6.0) + ($delta / 2.0)) / $delta
-	   Local $db = ((($vmax - $blue) / 6.0) + ($delta / 2.0)) / $delta
-	   If $red >= $green And $red >= $blue Then
-		$hue = $db - $dg
-	   ElseIf $green >= $red And $green >= $blue Then
-		$hue = (1.0 / 3.0) + $dr - $db
-	   Else
-		$hue = (2.0 / 3.0) + $dg - $dr
-		 EndIf
-	 
-	   If $hue < 0.0 Then
-		$hue = $hue + 1
-	   ElseIf $hue > 1.0 Then
-		$hue = $hue - 1
-		 EndIf
-	 
-	   If $luminance < 0.5 Then
-		$saturation = $delta / ($vmax + $vmin)
-	   Else
-		$saturation = $delta / (2 - $vmax - $vmin)
-		EndIf
-	Else
-	   $hue = 0
-	   $saturation = 0
-	  EndIf
-	  Local $hsl[3] = [$hue,$saturation,$luminance]
-	Return $hsl
-EndFunc
-
-Func HslToRgb($hsl)
-	Local $luminance = $hsl[2]
-	Local $saturation = $hsl[1]
-	Local $hue = $hsl[0]
-	Local $temp1 = 0
-	Local $temp2 = 0
-	Local $light = 0
-	If $saturation<=0 Then
-		If $luminance < 0 Then
-			$light = 0
-		ElseIf $luminance >= 1.0 Then
-			$light = 255
-		Else
-			$light = Round($luminance * 255)
-		EndIf
-		Local $Color[3] = [$light, $light, $light]
-		Return $Color
-	EndIf
-	 
-	If $luminance < 0.5 Then
-		$temp2 = $luminance * (1.0 + $saturation)
-	Else
-		$temp2 = $luminance + $saturation - ($luminance * $saturation)
-	EndIf
-	$temp1 = 2.0 * $luminance - $temp2
-	Local $rgb[3] = [Round(GetHue($temp1, $temp2, $hue + 1.0 / 3.0) * 255), Round(GetHue($temp1, $temp2, $hue) * 255), Round(GetHue($temp1, $temp2, $hue - 1.0 / 3.0) * 255)]
-	Return $rgb
-EndFunc
-
-Func GetHue($temp1, $temp2, $hue)
-	If $hue < 0.0 Then
-	   $hue = $hue+1
-	ElseIf $hue > 1.0 Then
-	   $hue =$hue-1
-	EndIf
-	 
-	If $hue * 6.0 < 1.0 Then
-		Return  $temp1 + ($temp2 - $temp1) * $hue * 6.0
-	ElseIf ($hue * 2.0) < 1.0 Then
-		Return  $temp2
-	ElseIf $hue * 3.0 < 2.0 Then
-		Return $temp1 + ($temp2 - $temp1) * (2.0 / 3.0 - $hue) * 6.0
-	Else
-		Return $temp1
-	EndIf
 EndFunc
 
 Func ArrayFind(ByRef $a, $v)
