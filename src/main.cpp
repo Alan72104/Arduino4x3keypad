@@ -254,7 +254,7 @@ CRGB ColorFraction(CRGB colorIn, float fraction)
 
 void DrawPixel2d(int x, int y, CRGB color)
 {
-  if (x < WIDTH && y < HEIGHT)
+  if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT)
     leds[WIDTH * y + x] = color;
 }
 
