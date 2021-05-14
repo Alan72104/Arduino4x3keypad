@@ -43,8 +43,8 @@ Global Enum $BIND, $REMOVE
 Global $bindingAction = $BIND
 Global Const $iniPath = @ScriptDir & "\keypadconfig.ini"
 Global $rgbStates = ["lightWhenPressed","rainbow","spreadLightsOutWhenPressed","breathing","fractionalDrawingTest2d","spinningRainbow","waterWave"]
-Global $idComboRgbState, $idButtonRgbUpdate
-Global Enum $UPDATERGBSTATE, $UPDATERGBBRIGHTNESS, $GETRGBDATA
+Global $idComboRgbState, $idButtonRgbUpdate, $idButtonRgbIncreaseBrightness, $idButtonRgbDecreaseBrightness
+Global Enum $UPDATERGBSTATE, $GETRGBDATA, $INCREASERGBBRIGHTNESS, $DECREASERGBBRIGHTNESS
 Global $waitingForSyncingBytes = 0, $receivedByte = False, $timerGuiBtnRgbSync
 Global $rgbBuffer[$WIDTH * $HEIGHT][3]
 Global $syncingButtonIndex = 0
@@ -189,9 +189,11 @@ Func HandleMsg()
 				ShowBindingGroup(0)
 			EndIf
 		Case $idButtonRgbUpdate
-			If Not $debug Then 
-				SendMsgToKeypad($UPDATERGBSTATE, ArrayFind($rgbStates, GUICtrlRead($idComboRgbState)))
-			EndIf
+			SendMsgToKeypad($UPDATERGBSTATE, ArrayFind($rgbStates, GUICtrlRead($idComboRgbState)))
+		Case $idButtonRgbIncreaseBrightness
+			SendMsgToKeypad($INCREASERGBBRIGHTNESS, 0)
+		Case $idButtonRgbDecreaseBrightness
+			SendMsgToKeypad($DECREASERGBBRIGHTNESS, 0)
 		Case Else
 			For $j = 0 To $HEIGHT - 1
 				For $i = 0 To $WIDTH - 1
@@ -314,7 +316,16 @@ Func OpenGui()
 																	  60, 60, $BS_MULTILINE)
 			Next
 		Next
-	GUICtrlCreateGroup("", -99, -99, 1, 1)	
+	GUICtrlCreateGroup("", -99, -99, 1, 1)
+	GUICtrlCreateGroup("RGB Controls", 50, (30 + 15 + 60 + 85 * 2 + 15) + 15, _
+										   15 + 150 + 15, _
+										   15 + 25 + 8 + 25 + 15)
+		$idComboRgbState = GUICtrlCreateCombo("lightWhenPressed", 50 + 15, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15, 150, 25)
+			GUICtrlSetData($idComboRgbState, _ArrayToString($rgbStates, "|", 1))
+		$idButtonRgbUpdate = GUICtrlCreateButton("Update", 50 + 15, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 100, 25)
+		$idButtonRgbIncreaseBrightness = GUICtrlCreateButton("+", 50 + 15 + 100 + 10 , (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 15, 25)
+		$idButtonRgbDecreaseBrightness = GUICtrlCreateButton("-", 50 + 15 + 100 + 10 + 15 + 10, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 15, 25)
+	GUICtrlCreateGroup("", -99, -99, 1, 1)
 	$idGroupBinding = GUICtrlCreateGroup("Binding", (50 + 15 + 60 + 85 * 3 + 15) + 15, 30, _
 													15 + 100 + 15, _
 													15 + 15 + 20 + 8 + 20 + 25 + 25 + 8 + 25 + 15)
@@ -354,9 +365,6 @@ Func OpenGui()
 															 500 - 25 - 25 - 25 - 5, _
 															 100, 25)
 	$idLabelConnection = GUICtrlCreateLabel("Not connected, retrying...", 50, 500 - 25 - 15, 200, 15)
-	$idComboRgbState = GUICtrlCreateCombo("lightWhenPressed", 50, 500 - 25 - 15 - 25 - 25 - 5 - 25, 150, 25)
-		GUICtrlSetData($idComboRgbState, _ArrayToString($rgbStates, "|", 1))
-	$idButtonRgbUpdate = GUICtrlCreateButton("Update", 50 + 25, 500 - 25 - 15 - 25 - 25, 100, 25)
 	GUISetState(@SW_SHOW)
 	$timerGuiBtnRgbSync = TimerInit()
 	_CommClearInputBuffer()

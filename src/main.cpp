@@ -181,14 +181,11 @@ void loop() {
     unsigned char incomingData = incomingByte & 0b00111111;
     switch (incomingByte >> 6)
     {
-      case 0:
+      case 0: // UPDATERGBSTATE
         if (incomingData <= 6)
           rgbState = (RgbState)incomingData;
         break;
-      case 1:
-        rgbBrightness = incomingData * 4 + 3;
-        break;
-      case 2:
+      case 1: // GETRGBDATA
         static CHSV rgbToHsv;
         static CRGB brightenRgb;
         for (int i = 0; i < WIDTH * HEIGHT; i++)
@@ -200,8 +197,11 @@ void loop() {
           Serial.write(brightenRgb[2]);
         }
         break;
-      case 3:
-
+      case 2: // INCREASERGBBRIGHTNESS
+        rgbBrightness = min(rgbBrightness + 10, 255);
+        break;
+      case 3: // DECREASERGBBRIGHTNESS
+        rgbBrightness = max(0, rgbBrightness - 10);
         break;
     }
   }
