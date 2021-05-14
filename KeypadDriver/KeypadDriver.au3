@@ -375,7 +375,6 @@ Func OpenGui()
 EndFunc
 
 Func Connect()
-	If $debug Then Return
 	$ports = _ComGetPortNames()
 	For $i = 0 To UBound($ports) - 1
 		If $ports[$i][1] == "USB-SERIAL CH340" Then
