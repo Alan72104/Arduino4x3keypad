@@ -514,12 +514,6 @@ void UpdateEffect()
       
       FastLED.clear();
 
-      // Serial.print(balls.size());
-      // Serial.print(" ");
-      // Serial.print(balls.capacity());
-      // Serial.print(" ");
-      // Serial.println(2048 - usedRam());
-
       for (auto ball = balls.begin(); ball != balls.end(); )
       {
         ball->x += ball->direction * 10.0f * secondsElapsed;
@@ -542,7 +536,7 @@ void UpdateEffect()
       {
         breathingStateElapsed = 0.0f;
         breathingState += 1;
-        if (breathingState > 6) // Rainbow has 7 colors
+        if (breathingState > 6)
           breathingState = 0;
       }
       
