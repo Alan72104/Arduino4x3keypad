@@ -52,30 +52,34 @@ Opt("GUICloseOnESC", 0)
 
 ; Todo: Connection indicator in the gui
 
+Global $debug = 1
+
 Func Main()
-	_CommSetDllPath(@ScriptDir & "/commg.dll")
-	$ports = _ComGetPortNames()
-	For $i = 0 To UBound($ports) - 1
-		If $ports[$i][1] == "USB-SERIAL CH340" Then
-			$comPort = $ports[$i][0]
-			_CommSetPort(Int(StringReplace($comPort, "COM", "")), "", 19200, 8, "none", 1, 2)
-			If @error Then
-				c("Cannot connect to com port: $", 1, $comPort)
+	If Not $debug Then
+		_CommSetDllPath(@ScriptDir & "/commg.dll")
+		$ports = _ComGetPortNames()
+		For $i = 0 To UBound($ports) - 1
+			If $ports[$i][1] == "USB-SERIAL CH340" Then
+				$comPort = $ports[$i][0]
+				_CommSetPort(Int(StringReplace($comPort, "COM", "")), "", 19200, 8, "none", 1, 2)
+				If @error Then
+					c("Cannot connect to com port: $", 1, $comPort)
+					ce(@error)
+					Exit
+				Else
+					c("Connected to com port: $", 1, $comPort)
+				EndIf
+				ExitLoop
+			EndIf
+			If $i = UBound($ports) - 1 Then
+				c("Cannot detect com port for arduino nano")
 				ce(@error)
 				Exit
-			Else
-				c("Connected to com port: $", 1, $comPort)
 			EndIf
-			ExitLoop
-		EndIf
-		If $i = UBound($ports) - 1 Then
-			c("Cannot detect com port for arduino nano")
-			ce(@error)
-			Exit
-		EndIf
-	Next
-	_CommSetRTS(0)
-	_CommSetDTR(0)
+		Next
+		_CommSetRTS(0)
+		_CommSetDTR(0)
+	EndIf
 	If FileExists($iniPath) Then
 		For $i = 1 To $WIDTH * $HEIGHT
 			BindKey($i, IniRead($iniPath, "ButtonBindings", "Button" & $i & "Up", ""), IniRead($iniPath, "ButtonBindings", "Button" & $i & "Down", ""))
@@ -96,22 +100,26 @@ Func Main()
 	EndIf
 	Sleep(200)
 	OpenGui()
-	; Global $t = 0
-	; Global $tt = 0
+	If $debug Then
+		Local $t = 0
+		Local $tt = 0
+	EndIf
 	While 1
 		$loopStartTime = TimerInit()
 		If (TimerDiff($timer) >= ($msPerScan - ($loopPeriod > $msPerScan ? $msPerScan : $loopPeriod))) Then
-			; If $waitingForSyncingBytes And Not $receivedByte Then
-				; PollData()
-			; Else
+			If Not $debug Then
 				PollKeys()
-			; EndIf
-			; If TimerDiff($tt) >= 1000 Then
-				; $tt = TimerInit()
-				; c($t)
-				; $t = 0
-			; EndIf
-			; $t += 1
+			EndIf
+			
+			If $debug Then
+				If TimerDiff($tt) >= 1000 Then
+					$tt = TimerInit()
+					c($t)
+					$t = 0
+				EndIf
+				$t += 1
+			EndIf
+			
 			If $guiOpened Then
 				SyncGuiRgb()
 				HandleMsg()
@@ -125,6 +133,7 @@ EndFunc
 Main()
 
 Func PollKeys()
+	If $debug Then Return
 	$byteString = _CommReadByte()
 	If $byteString <> "" Then
 		$byte = Int($byteString)
@@ -143,6 +152,7 @@ Func PollKeys()
 EndFunc
 
 Func PollData()
+	If $debug Then Return
 	$byteString = _CommReadByte()
 	If $byteString <> "" Then
 		$byte = Int($byteString)
@@ -154,6 +164,7 @@ Func PollData()
 EndFunc
 
 Func SendMsgToKeypad($type, $data)
+	If $debug Then Return
 	If $type > 3 Then
 		c("SendMsgToKeypad >> Message type cannot be larger than 2 bits! Exception data: $", 1, $type)
 		c("Program terminating!")
@@ -190,7 +201,9 @@ Func HandleMsg()
 				ShowBindingGroup(0)
 			EndIf
 		Case $idButtonRgbUpdate
-			SendMsgToKeypad($UPDATERGBSTATE, ArrayFind($rgbStates, GUICtrlRead($idComboRgbState)))
+			If Not $debug Then 
+				SendMsgToKeypad($UPDATERGBSTATE, ArrayFind($rgbStates, GUICtrlRead($idComboRgbState)))
+			EndIf
 		Case Else
 			For $j = 0 To $HEIGHT - 1
 				For $i = 0 To $WIDTH - 1
@@ -226,6 +239,7 @@ Func HandleMsg()
 EndFunc
 
 Func SyncGuiRgb()
+	If $debug Then Return
 	Local $timer = 0
 	If TimerDiff($timerGuiBtnRgbSync) > 200 Then
 		$timerGuiBtnRgbSync = TimerInit()
