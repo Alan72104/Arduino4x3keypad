@@ -89,6 +89,7 @@ Func Main()
 		If (TimerDiff($timer) >= ($msPerScan - ($loopPeriod > $msPerScan ? $msPerScan : $loopPeriod))) Then
 			; Because retrieving the port list takes a while, so we don't reconnect too often
 			If $connectionStatus <> $CONNECTED And TimerDiff($timerRetrying) > 5000 Then
+				$timerRetrying = TimerInit()
 				Connect()
 			EndIf
 		
