@@ -47,12 +47,13 @@ Global $waitingForSyncingBytes = 0, $receivedByte = False, $timerGuiBtnRgbSync
 Global $rgbBuffer[$WIDTH * $HEIGHT][3]
 Global $syncingButtonIndex = 0
 Global $syncingRgbIndex = 0
+Global $idLabelConnection
 HotKeySet("{F4}", "OpenGui")
 Opt("GUICloseOnESC", 0)
 
 ; Todo: Connection indicator in the gui
 
-Global $debug = 1
+Global $debug = 0
 
 Func Main()
 	If Not $debug Then
@@ -135,6 +136,7 @@ Main()
 Func PollKeys()
 	If $debug Then Return
 	$byteString = _CommReadByte()
+	If @error = 3 Then c($byteString)
 	If $byteString <> "" Then
 		$byte = Int($byteString)
 		$pressedBtnNum = BitShift($byte, 4)
@@ -365,9 +367,10 @@ Func OpenGui()
 	$idButtonSave = GUICtrlCreateButton("Save to config", 750 - 25 - 150 + 25, _
 															 500 - 25 - 25 - 25 - 5, _
 															 100, 25)
-	$idComboRgbState = GUICtrlCreateCombo("lightWhenPressed", 50, 500 - 25 - 25 - 5 - 25, 150, 25)
+	$idLabelConnection = GUICtrlCreateLabel("Conencted to COM123", 50, 500 - 25 - 15, 200, 15)
+	$idComboRgbState = GUICtrlCreateCombo("lightWhenPressed", 50, 500 - 25 - 15 - 25 - 25 - 5 - 25, 150, 25)
 		GUICtrlSetData($idComboRgbState, _ArrayToString($rgbStates, "|", 1))
-	$idButtonRgbUpdate = GUICtrlCreateButton("Update", 50 + 25, 500 - 25 - 25, 100, 25)
+	$idButtonRgbUpdate = GUICtrlCreateButton("Update", 50 + 25, 500 - 25 - 15 - 25 - 25, 100, 25)
 	GUISetState(@SW_SHOW)
 	$timerGuiBtnRgbSync = TimerInit()
 	_CommClearInputBuffer()
