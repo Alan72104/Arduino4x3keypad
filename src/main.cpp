@@ -165,7 +165,7 @@ void loop() {
             break;
           case spinningRainbow: break;
           case waterWave:
-            if (btnStateTemp == !HIGH && circles.capacity() < 16)
+            if (btnStateTemp == !HIGH && circles.size() < 16)
               circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(rand() % 255, 255, rgbBrightness))));
             break;
         }
@@ -573,7 +573,7 @@ void UpdateEffect()
 
       FastLED.clear();
 
-      for (auto circle = circles.begin(); circle < circles.end(); )
+      for (auto circle = circles.begin(); circle != circles.end(); )
       {
         circle->radius += 1.0f * secondsElapsed;
         
