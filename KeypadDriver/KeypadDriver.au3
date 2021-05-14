@@ -42,7 +42,7 @@ Global $idButtonConfirm, $idButtonCancel
 Global Enum $BIND, $REMOVE
 Global $bindingAction = $BIND
 Global Const $iniPath = @ScriptDir & "\keypadconfig.ini"
-Global $rgbStates = ["lightWhenPressed","rainbow","spreadLightsOutWhenPressed","breathing","fractionalDrawingTest2d","spinningRainbow","waterWave"]
+Global $rgbStates = ["lightWhenPressed","rainbow","spreadLightsOutWhenPressed","breathing","fractionalDrawingTest2d","spinningRainbow","waterWave","antiWaterWave"]
 Global $idComboRgbState, $idButtonRgbUpdate, $idButtonRgbIncreaseBrightness, $idButtonRgbDecreaseBrightness
 Global Enum $UPDATERGBSTATE, $GETRGBDATA, $INCREASERGBBRIGHTNESS, $DECREASERGBBRIGHTNESS
 Global $waitingForSyncingBytes = 0, $receivedByte = False, $timerGuiBtnRgbSync

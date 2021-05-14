@@ -185,7 +185,7 @@ void loop() {
     switch (incomingByte >> 6)
     {
       case 0: // UPDATERGBSTATE
-        if (incomingData <= 6)
+        if (incomingData <= 7)
           rgbState = (RgbState)incomingData;
         break;
       case 1: // GETRGBDATA
