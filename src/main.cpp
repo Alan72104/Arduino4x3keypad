@@ -194,7 +194,7 @@ void loop() {
         for (int i = 0; i < WIDTH * HEIGHT; i++)
         {
           rgbToHsv = rgb2hsv_approximate(leds[i]);
-          brightenRgb.setHSV(rgbToHsv[0], rgbToHsv[1], 255);
+          brightenRgb.setHSV(rgbToHsv[0], rgbToHsv[1], (255 - 200) * (rgbToHsv[2] - 0) / (255 - 0) + 200);
           Serial.write(brightenRgb[0]);
           Serial.write(brightenRgb[1]);
           Serial.write(brightenRgb[2]);
