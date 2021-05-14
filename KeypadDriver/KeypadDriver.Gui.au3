@@ -1,3 +1,10 @@
+; ================================================================================
+;
+; KeypadDriver.Gui.au3
+; This file contains the functions required to display the gui
+;
+; ================================================================================
+
 #include <Array.au3>
 #include <ButtonConstants.au3>
 #include <GUIConstantsEx.au3>
@@ -33,20 +40,31 @@ Global $syncingButtonIndex = 0
 Global $syncingRgbIndex = 0
 Global $rgbBuffer[$WIDTH * $HEIGHT][3]
 
+; This function handles the gui messages and performs the actions
 Func HandleMsg()
 	$msg = GUIGetMsg()
 	Switch $msg
+		; If no message to handle then return instantly
 		Case 0
+			Return
+		
+		; The gui "x" button
 		Case $GUI_EVENT_CLOSE
 			CloseGui()
+		
+		; The "Close the driver" button
 		Case $idButtonClose
 			CloseGui()
 			Terminate()
+		
+		; The "Save to config" button
 		Case $idButtonSave
 			For $i = 1 To $WIDTH * $HEIGHT
 				IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Up", String($keyMap[$i - 1][0]))
 				IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Down", String($keyMap[$i - 1][1]))
 			Next
+		
+		; The binding action selectors
 		Case $idRadioBind
 			$bindingAction = $BIND
 		Case $idRadioRemove
@@ -55,17 +73,25 @@ Func HandleMsg()
 				$bindingKeys = False
 				ShowBindingGroup(0)
 			EndIf
+		
+		; The rgb "Update" button
 		Case $idButtonRgbUpdate
 			SendMsgToKeypad($UPDATERGBSTATE, ArrayFind($rgbStates, GUICtrlRead($idComboRgbState)))
+		
+		; The rgb brightness control buttons
 		Case $idButtonRgbIncreaseBrightness
 			SendMsgToKeypad($INCREASERGBBRIGHTNESS, 0)
 		Case $idButtonRgbDecreaseBrightness
 			SendMsgToKeypad($DECREASERGBBRIGHTNESS, 0)
+		
+		; Manually handle the other messages
 		Case Else
+			; The key buttons
 			For $j = 0 To $HEIGHT - 1
 				For $i = 0 To $WIDTH - 1
 					If $msg = $idButtonBtns[$j * $WIDTH + $i] Then
 						Switch $bindingAction
+							; Open the "Binding" group for the specific key
 							Case $BIND
 								$bindingKeys = True
 								$currentlyBinding = $j * $WIDTH + $i + 1
@@ -73,6 +99,8 @@ Func HandleMsg()
 								GUICtrlSetData($idInputKeyUp, $keyMap[$j * $WIDTH + $i][0])
 								GUICtrlSetData($idInputKeyDown, $keyMap[$j * $WIDTH + $i][1])
 								ShowBindingGroup(1)
+							
+							; Remove the bindings for the specific key
 							Case $REMOVE
 								BindRemove($j * $WIDTH + $i + 1)
 								UpdateBtnLabels()
@@ -81,18 +109,25 @@ Func HandleMsg()
 					EndIf
 				Next
 			Next
+			
+			; If the "Binding" group is active then handle the binding update buttons
 			If $bindingKeys Then
+				; The binding "Confirm" key, updates the key to new bindings
 				If $msg = $idButtonConfirm Then
 					BindKey($currentlyBinding, GUICtrlRead($idInputKeyUp), GUICtrlRead($idInputKeyDown))
 					UpdateBtnLabels()
 					$bindingKeys = False
 					ShowBindingGroup(0)
+				
+				; The binding "Cancel" key, closes the "Binding" group
 				ElseIf $msg = $idButtonCancel Then
 					$bindingKeys = False
 					ShowBindingGroup(0)
 				EndIf
 			EndIf
 	EndSwitch
+	
+	; Updates the connection indicator
 	Switch $connectionStatus
 		Case $NOTCONNECTED
 			GUICtrlSetData($idLabelConnection, "Not connected, retrying...")
@@ -105,16 +140,23 @@ Func HandleMsg()
 	EndSwitch
 EndFunc
 
+; This function retrieves the rgb info from the keypad and syncs them to the gui
 Func SyncGuiRgb()
 	If $connectionStatus <> $CONNECTED Then Return
 	Local $timer = 0
 	If TimerDiff($timerGuiBtnRgbSync) > 150 Then
 		$timerGuiBtnRgbSync = TimerInit()
+		
+		; Clear the serial input buffer in case there are still some scrapped bytes
+		_CommClearInputBuffer()
 		SendMsgToKeypad($GETRGBDATA, 0)
 		$waitingForSyncingBytes = 3 * $WIDTH * $HEIGHT
 		$syncingButtonIndex = 0
 		$syncingRgbIndex = 0
 		$timer = TimerInit()
+		
+		; Constantly poll the bytes from serial until all the rgb infos have been received
+		; One button consists of a RGB value, a RGB value consists of 3 bytes for R, G and B
 		While 1
 			Do
 				PollData()
@@ -122,14 +164,20 @@ Func SyncGuiRgb()
 			$receivedByte = False
 			$rgbBuffer[$syncingButtonIndex][$syncingRgbIndex] = $byte
 			$syncingRgbIndex += 1
+			
+			; If 3 bytes have been received, switch to the next button
 			If $syncingRgbIndex = 3 Then
 				$syncingRgbIndex = 0
 				$syncingButtonIndex += 1
 			EndIf
+			
+			; If all the buttons' rgb have been received, updates the key buttons' colors and return
 			If $syncingButtonIndex = $WIDTH * $HEIGHT Then
 				UpdateBtnLabelsRgb($rgbBuffer)
 				Return
 			EndIf
+			
+			; Watch out for timeouts
 			If TimerDiff($timer) > 200 Then
 				Return
 			EndIf
@@ -137,6 +185,7 @@ Func SyncGuiRgb()
 	EndIf
 EndFunc
 
+; This function updates the key buttons' text to their "keyStrokeDown"s
 Func UpdateBtnLabels()
 	For $j = 0 To $HEIGHT - 1
 		For $i = 0 To $WIDTH - 1
@@ -146,6 +195,7 @@ Func UpdateBtnLabels()
 	Next
 EndFunc
 
+; This function updates the background colors of the key buttons
 Func UpdateBtnLabelsRgb(ByRef $data)
 	For $j = 0 To $HEIGHT - 1
 		For $i = 0 To $WIDTH - 1
@@ -156,6 +206,7 @@ Func UpdateBtnLabelsRgb(ByRef $data)
 	Next
 EndFunc
 
+; This function shows or hides the "Binding" group and the inside controls
 Func ShowBindingGroup($state)
 	$state = $state ? $GUI_SHOW : $GUI_HIDE
 	GUICtrlSetState($idGroupBinding, $state)
@@ -167,8 +218,11 @@ Func ShowBindingGroup($state)
 	GUICtrlSetState($idButtonCancel, $state)
 EndFunc
 
+; This function creates the gui 
 Func OpenGui()
+	; If gui is already opened, activate the window
 	If $guiOpened Then Return WinActivate("THE Keypad Control Panel")
+	
 	$hGui = GUICreate("THE Keypad Control Panel", 750, 500, Default, Default, Default, $WS_EX_TOPMOST)
 	$guiOpened = True
 	GUICtrlCreateGroup("Buttons", 50, 30, _
@@ -232,18 +286,15 @@ Func OpenGui()
 															 500 - 25 - 25 - 25 - 5, _
 															 100, 25)
 	$idLabelConnection = GUICtrlCreateLabel("Not connected, retrying...", 50, 500 - 25 - 15, 200, 15)
+	
+	; Shows the gui
 	GUISetState(@SW_SHOW)
+	
 	$timerGuiBtnRgbSync = TimerInit()
-	_CommClearInputBuffer()
-	SendMsgToKeypad($GETRGBDATA, 0)
-	$waitingForSyncingBytes = 3 * $WIDTH * $HEIGHT
-	$syncingButtonIndex = 0
-	$syncingRgbIndex = 0
 EndFunc
 
+; This function closes the gui
 Func CloseGui()
-	$waitingForSyncingBytes = 0
-	_CommClearInputBuffer()
 	GUIDelete($hGui)
 	$guiOpened = False
 EndFunc

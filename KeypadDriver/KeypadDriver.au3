@@ -1,3 +1,10 @@
+; ================================================================================
+;
+; KeypadDriver.au3
+; This main file runs the main loop, key binding functions and includes all the other modules 
+;
+; ================================================================================
+
 #include <WindowsConstants.au3>
 #include "Include\LibDebug.au3"
 #include "Include\CommMG.au3"
@@ -18,11 +25,11 @@ Global $debug = 0
 
 Func Main()
 	_CommSetDllPath(@ScriptDir & "\Include\commg.dll")
-	If FileExists($iniPath) Then
+	If FileExists($iniPath) Then  ; If the config exists then use the binding in it
 		For $i = 1 To $WIDTH * $HEIGHT
 			BindKey($i, IniRead($iniPath, "ButtonBindings", "Button" & $i & "Up", ""), IniRead($iniPath, "ButtonBindings", "Button" & $i & "Down", ""))
 		Next
-	Else
+	Else  ; If config doesn't exist then use the default binding
 		BindKey(1, "ESC")
 		BindKey(2, "`")
 		BindKey(3, "c")
@@ -46,6 +53,7 @@ Func Main()
 	While 1
 		$loopStartTime = TimerInit()
 		If (TimerDiff($timer) >= ($msPerScan - ($loopPeriod > $msPerScan ? $msPerScan : $loopPeriod))) Then
+		
 			; Because retrieving the port list takes a while, so we don't reconnect too often
 			If $connectionStatus <> $CONNECTED And TimerDiff($timerRetrying) > 5000 Then
 				$timerRetrying = TimerInit()
@@ -56,10 +64,12 @@ Func Main()
 				PollKeys()
 			EndIf
 			
+			; Debug loop time and loop frequency output
 			If $debug Then
 				If TimerDiff($tt) >= 1000 Then
 					$tt = TimerInit()
 					c($t)
+					c($loopPeriod)
 					$t = 0
 				EndIf
 				$t += 1
@@ -69,19 +79,24 @@ Func Main()
 				SyncGuiRgb()
 				HandleMsg()
 			EndIf
+			
 			$timer = TimerInit()
-			$loopPeriod = $loopPeriod * 0.6 + TimerDiff($loopStartTime) * 0.4
+			$loopPeriod = $loopPeriod * 0.6 + TimerDiff($loopStartTime) * 0.4  ; Don't modify the measured loop time immediately as it might float around
 		EndIf
 	WEnd
 EndFunc
 
 Main()
 
+; This function removes both keyStrokeUp and keyStrokeDown from a key
 Func BindRemove($num)
 	$keyMap[$num - 1][0] = ""
 	$keyMap[$num - 1][1] = ""
 EndFunc
 
+; This function takes 2 arguments and binds a character to a key, with both up and down settings
+;
+; Or takes 3 arguments and binds custom up and down stroke to a key
 Func BindKey($num, $key, $extra = 0x0)
 	If $num > $WIDTH * $HEIGHT Then Return
 	Switch @NumParams
