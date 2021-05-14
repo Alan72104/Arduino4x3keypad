@@ -590,7 +590,7 @@ void UpdateEffect()
       break;
       // ==============================
     case antiWaterWave:
-      // ========== Water wave ==========
+      // ========== Anti water wave ==========
 
       FastLED.clear();
 
