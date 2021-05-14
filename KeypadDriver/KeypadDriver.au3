@@ -1,6 +1,5 @@
 #include <Array.au3>
 #include <ButtonConstants.au3>
-#include <Color.au3>
 #include <CommMG.au3>
 #include <GUIConstantsEx.au3>
 #include <StringConstants.au3>
@@ -282,21 +281,11 @@ Func UpdateBtnLabels()
 EndFunc
 
 Func UpdateBtnLabelsRgb(ByRef $data)
-	Local $rgb[3]
-	Local $hsl[3]
 	For $j = 0 To $HEIGHT - 1
 		For $i = 0 To $WIDTH - 1
-			$rgb[0] = $data[$j * $WIDTH + $i][0]
-			$rgb[1] = $data[$j * $WIDTH + $i][1]
-			$rgb[2] = $data[$j * $WIDTH + $i][2]
-			; $hsl = _ColorConvertRGBtoHSL($rgb)
-			; c($hsl[2])
-			; $hsl[2] = 50
-			; $hsl[2] = (100 - 10) * ($hsl[2] - 0 / 100 - 0) + 10
-			; $rgb = _ColorConvertHSLtoRGB($hsl)
-			GUICtrlSetBkColor($idButtonBtns[$j * $WIDTH + $i], $rgb[0] * 256 * 256 + _
-															   $rgb[1] * 256 + _
-															   $rgb[2])
+			GUICtrlSetBkColor($idButtonBtns[$j * $WIDTH + $i], $data[$j * $WIDTH + $i][0] * 256 * 256 + _
+															   $data[$j * $WIDTH + $i][1] * 256 + _
+															   $data[$j * $WIDTH + $i][2])
 		Next
 	Next
 EndFunc

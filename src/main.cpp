@@ -189,11 +189,15 @@ void loop() {
         rgbBrightness = incomingData * 4 + 3;
         break;
       case 2:
+        static CHSV rgbToHsv;
+        static CRGB brightenRgb;
         for (int i = 0; i < WIDTH * HEIGHT; i++)
         {
-          Serial.write(leds[i][0]);
-          Serial.write(leds[i][1]);
-          Serial.write(leds[i][2]);
+          rgbToHsv = rgb2hsv_approximate(leds[i]);
+          brightenRgb.setHSV(rgbToHsv[0], rgbToHsv[1], 255);
+          Serial.write(brightenRgb[0]);
+          Serial.write(brightenRgb[1]);
+          Serial.write(brightenRgb[2]);
         }
         break;
       case 3:
