@@ -147,8 +147,6 @@ void loop() {
         // State specific handling
         switch (rgbState)
         {
-          case lightWhenPressed: break;
-          case rainbow: break;
           case spreadLightsOutWhenPressed:
             if (btnStateTemp == !HIGH && balls.size() < 16)
             {
@@ -157,14 +155,12 @@ void loop() {
               balls.push_back(MakeBall(j, i, 1, color));
             }
             break;
-          case breathing: break;
           case fractionalDrawingTest2d:
             if (btnState[0][0] == !HIGH && fractionalDrawingTestY > 0.0f)         fractionalDrawingTestY -= 0.1f;
             else if (btnState[1][0] == !HIGH && fractionalDrawingTestY < HEIGHT)  fractionalDrawingTestY += 0.1f;
             else if (btnState[1][2] == !HIGH && fractionalDrawingTestX < WIDTH)   fractionalDrawingTestX += 0.1f;
             else if (btnState[1][1] == !HIGH && fractionalDrawingTestX > 0.0f)    fractionalDrawingTestX -= 0.1f;
             break;
-          case spinningRainbow: break;
           case waterWave:
             if (btnStateTemp == !HIGH && circles.size() < 16)
               circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(rand() % 255, 255, rgbBrightness))));
@@ -172,6 +168,8 @@ void loop() {
           case antiWaterWave:
             if (btnStateTemp == !HIGH && circles.size() < 16)
               circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(rand() % 255, 255, rgbBrightness))));
+            break;
+          default:
             break;
         }
       }
