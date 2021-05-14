@@ -576,7 +576,7 @@ void UpdateEffect()
 
       for (auto circle = circles.begin(); circle != circles.end(); )
       {
-        circle->radius += 1.0f * secondsElapsed;
+        circle->radius += 15.0f * secondsElapsed;
         
         CircleBres(circle->x, circle->y, circle->radius, circle->color);
 
