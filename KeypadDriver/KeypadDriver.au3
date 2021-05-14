@@ -26,6 +26,9 @@ Global $pressedBtnNum = 0
 Global $pressedBtnState = 0
 Global $ports[0]
 Global $comPort
+Global Enum $NOTCONNECTED, $CONNECTIONFAILED, $PORTDETECTIONFAILED, $CONNECTED
+Global $connectionStatus = $NOTCONNECTED
+Global $timerRetrying
 Global $guiOpened = False
 Global $gdiPlusStarted = False
 Global $hGui
@@ -55,31 +58,7 @@ Opt("GUICloseOnESC", 0)
 Global $debug = 0
 
 Func Main()
-	If Not $debug Then
-		_CommSetDllPath(@ScriptDir & "/commg.dll")
-		$ports = _ComGetPortNames()
-		For $i = 0 To UBound($ports) - 1
-			If $ports[$i][1] == "USB-SERIAL CH340" Then
-				$comPort = $ports[$i][0]
-				_CommSetPort(Int(StringReplace($comPort, "COM", "")), "", 19200, 8, "none", 1, 2)
-				If @error Then
-					c("Cannot connect to com port: $", 1, $comPort)
-					ce(@error)
-					Exit
-				Else
-					c("Connected to com port: $", 1, $comPort)
-				EndIf
-				ExitLoop
-			EndIf
-			If $i = UBound($ports) - 1 Then
-				c("Cannot detect com port for arduino nano")
-				ce(@error)
-				Exit
-			EndIf
-		Next
-		_CommSetRTS(0)
-		_CommSetDTR(0)
-	EndIf
+	_CommSetDllPath(@ScriptDir & "/commg.dll")
 	If FileExists($iniPath) Then
 		For $i = 1 To $WIDTH * $HEIGHT
 			BindKey($i, IniRead($iniPath, "ButtonBindings", "Button" & $i & "Up", ""), IniRead($iniPath, "ButtonBindings", "Button" & $i & "Down", ""))
@@ -100,6 +79,7 @@ Func Main()
 	EndIf
 	Sleep(200)
 	OpenGui()
+	Connect()
 	If $debug Then
 		Local $t = 0
 		Local $tt = 0
@@ -107,6 +87,11 @@ Func Main()
 	While 1
 		$loopStartTime = TimerInit()
 		If (TimerDiff($timer) >= ($msPerScan - ($loopPeriod > $msPerScan ? $msPerScan : $loopPeriod))) Then
+			; Because retrieving the port list takes a while, so we don't reconnect too often
+			If $connectionStatus <> $CONNECTED And TimerDiff($timerRetrying) > 5000 Then
+				Connect()
+			EndIf
+		
 			If Not $debug Then
 				PollKeys()
 			EndIf
@@ -133,9 +118,9 @@ EndFunc
 Main()
 
 Func PollKeys()
-	If $debug Then Return
+	If $connectionStatus <> $CONNECTED Then Return
 	$byteString = _CommReadByte()
-	If @error = 3 Then c($byteString)
+	If @error = 3 Then $connectionStatus = $CONNECTIONFAILED
 	If $byteString <> "" Then
 		$byte = Int($byteString)
 		$pressedBtnNum = BitShift($byte, 4)
@@ -153,8 +138,9 @@ Func PollKeys()
 EndFunc
 
 Func PollData()
-	If $debug Then Return
+	If $connectionStatus <> $CONNECTED Then Return
 	$byteString = _CommReadByte()
+	If @error = 3 Then $connectionStatus = $CONNECTIONFAILED
 	If $byteString <> "" Then
 		$byte = Int($byteString)
 		; c("Received data $", 1, $byteString)
@@ -165,7 +151,7 @@ Func PollData()
 EndFunc
 
 Func SendMsgToKeypad($type, $data)
-	If $debug Then Return
+	If $connectionStatus <> $CONNECTED Then Return
 	If $type > 3 Then
 		c("SendMsgToKeypad >> Message type cannot be larger than 2 bits! Exception data: $", 1, $type)
 		c("Program terminating!")
@@ -237,10 +223,20 @@ Func HandleMsg()
 				EndIf
 			EndIf
 	EndSwitch
+	Switch $connectionStatus
+		Case $NOTCONNECTED
+			GUICtrlSetData($idLabelConnection, "Not connected, retrying...")
+		Case $CONNECTIONFAILED
+			GUICtrlSetData($idLabelConnection, "Cannot connect to " & $comPort & ", retrying...")
+		Case $PORTDETECTIONFAILED
+			GUICtrlSetData($idLabelConnection, "COM port auto detection failed, please select the port manually")
+		Case $CONNECTED
+			GUICtrlSetData($idLabelConnection, "Connected to " & $comPort)
+	EndSwitch
 EndFunc
 
 Func SyncGuiRgb()
-	If $debug Then Return
+	If $connectionStatus <> $CONNECTED Then Return
 	Local $timer = 0
 	If TimerDiff($timerGuiBtnRgbSync) > 150 Then
 		$timerGuiBtnRgbSync = TimerInit()
@@ -356,7 +352,7 @@ Func OpenGui()
 	$idButtonSave = GUICtrlCreateButton("Save to config", 750 - 25 - 150 + 25, _
 															 500 - 25 - 25 - 25 - 5, _
 															 100, 25)
-	$idLabelConnection = GUICtrlCreateLabel("Conencted to COM123", 50, 500 - 25 - 15, 200, 15)
+	$idLabelConnection = GUICtrlCreateLabel("Not connected, retrying...", 50, 500 - 25 - 15, 200, 15)
 	$idComboRgbState = GUICtrlCreateCombo("lightWhenPressed", 50, 500 - 25 - 15 - 25 - 25 - 5 - 25, 150, 25)
 		GUICtrlSetData($idComboRgbState, _ArrayToString($rgbStates, "|", 1))
 	$idButtonRgbUpdate = GUICtrlCreateButton("Update", 50 + 25, 500 - 25 - 15 - 25 - 25, 100, 25)
@@ -367,6 +363,28 @@ Func OpenGui()
 	$waitingForSyncingBytes = 3 * $WIDTH * $HEIGHT
 	$syncingButtonIndex = 0
 	$syncingRgbIndex = 0
+EndFunc
+
+Func Connect()
+	If $debug Then Return
+	$ports = _ComGetPortNames()
+	For $i = 0 To UBound($ports) - 1
+		If $ports[$i][1] == "USB-SERIAL CH340" Then
+			$comPort = $ports[$i][0]
+			_CommSetPort(Int(StringReplace($comPort, "COM", "")), "", 19200, 8, "none", 1, 2)
+			If Not @error Then
+				$connectionStatus = $CONNECTED
+				_CommSetRTS(0)
+				_CommSetDTR(0)
+			Else
+				$connectionStatus = $CONNECTIONFAILED
+			EndIf
+			ExitLoop
+		EndIf
+		If $i = UBound($ports) - 1 Then
+			$connectionStatus = $PORTDETECTIONFAILED
+		EndIf
+	Next
 EndFunc
 
 Func ArrayFind(ByRef $a, $v)
