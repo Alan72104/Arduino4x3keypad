@@ -49,7 +49,8 @@ enum RgbState
   breathing,
   fractionalDrawingTest2d,
   spinningRainbow,
-  waterWave
+  waterWave,
+  antiWaterWave
 };
 RgbState rgbState = lightWhenPressed;
 std::vector<Ball> balls;
@@ -167,6 +168,10 @@ void loop() {
           case waterWave:
             if (btnStateTemp == !HIGH && circles.size() < 16)
               circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(rand() % 255, 255, rgbBrightness))));
+            break;
+          case antiWaterWave:
+            if (btnStateTemp == !HIGH && circles.size() < 16)
+              circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(rand() % 255, 255, rgbBrightness))));
             break;
         }
       }
@@ -450,6 +455,9 @@ void NextRgbState()
     case spinningRainbow:
       rgbState = waterWave;
       break;
+    case waterWave:
+      rgbState = antiWaterWave;
+      break;
     default:
       rgbState = lightWhenPressed;
       break;
@@ -581,6 +589,26 @@ void UpdateEffect()
         CircleBres(circle->x, circle->y, circle->radius, circle->color);
 
         if(circle->radius >= 5.0f)
+          circles.erase(circle);
+        else
+          circle++;
+      }
+
+      break;
+      // ==============================
+    case antiWaterWave:
+      // ========== Water wave ==========
+
+      FastLED.clear();
+
+      for (auto circle = circles.begin(); circle != circles.end(); )
+      {
+        circle->radius -= 15.0f * secondsElapsed;
+        
+        if (circle->radius > 0.0f)
+        CircleBres(circle->x, circle->y, circle->radius, circle->color);
+
+        if(circle->radius <= 0.0f)
           circles.erase(circle);
         else
           circle++;
