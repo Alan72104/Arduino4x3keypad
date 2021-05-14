@@ -121,7 +121,10 @@ Main()
 Func PollKeys()
 	If $connectionStatus <> $CONNECTED Then Return
 	$byteString = _CommReadByte()
-	If @error = 3 Then $connectionStatus = $CONNECTIONFAILED
+	If @error = 3 Then
+		$connectionStatus = $CONNECTIONFAILED
+		Return
+	EndIf
 	If $byteString <> "" Then
 		$byte = Int($byteString)
 		$pressedBtnNum = BitShift($byte, 4)
@@ -141,7 +144,10 @@ EndFunc
 Func PollData()
 	If $connectionStatus <> $CONNECTED Then Return
 	$byteString = _CommReadByte()
-	If @error = 3 Then $connectionStatus = $CONNECTIONFAILED
+	If @error = 3 Then
+		$connectionStatus = $CONNECTIONFAILED
+		Return
+	EndIf
 	If $byteString <> "" Then
 		$byte = Int($byteString)
 		; c("Received data $", 1, $byteString)
