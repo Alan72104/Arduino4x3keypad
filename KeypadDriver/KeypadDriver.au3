@@ -242,7 +242,7 @@ EndFunc
 Func SyncGuiRgb()
 	If $debug Then Return
 	Local $timer = 0
-	If TimerDiff($timerGuiBtnRgbSync) > 200 Then
+	If TimerDiff($timerGuiBtnRgbSync) > 150 Then
 		$timerGuiBtnRgbSync = TimerInit()
 		SendMsgToKeypad($GETRGBDATA, 0)
 		$waitingForSyncingBytes = 3 * $WIDTH * $HEIGHT
@@ -264,7 +264,7 @@ Func SyncGuiRgb()
 				UpdateBtnLabelsRgb($rgbBuffer)
 				Return
 			EndIf
-			If TimerDiff($timer) > 400 Then
+			If TimerDiff($timer) > 200 Then
 				Return
 			EndIf
 		WEnd
