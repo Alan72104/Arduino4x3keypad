@@ -241,6 +241,7 @@ Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color)
   struct Circle newCircle;
   newCircle.x = x;
   newCircle.y = y;
+  newCircle.radius = radius;
   newCircle.color = color;
   return newCircle;
 }
