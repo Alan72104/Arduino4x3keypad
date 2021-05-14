@@ -222,8 +222,9 @@ void loop() {
     Serial.print(F("Updates per second: "));
     Serial.println(t);
     t = 0;
-    Serial.print(F("Microseconds taken for the loop: "));
-    Serial.println(loopPeriod);
+    Serial.print(F("Loop took: "));
+    Serial.print(loopPeriod);
+    Serial.println(F(" micros"));
   }
 #endif
 
@@ -474,7 +475,7 @@ void UpdateEffect()
   static const uint8_t breathingRainbowHues[7] = {0,32,64,96,160,176,192};
   static uint8_t spinningRainbowState = 0;
 #ifdef Debug
-  static unsigned int updateCount = 0;
+  static unsigned int lastEffectDebug = 0;
 #endif
   if (micros() - lastEffectUpdate < 33333 /* 30 fps */) return;
   secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 1000.0f;
@@ -612,9 +613,9 @@ void UpdateEffect()
       // ==============================
   }
 #ifdef Debug
-  updateCount++;
-  if (updateCount % 10 == 0)
+  if (millis() - lastEffectDebug > 1000)
   {
+    lastEffectDebug = millis();
     Serial.print("Effect update took: ");
     Serial.print(micros() - lastEffectUpdate);
     Serial.println(" micros");
