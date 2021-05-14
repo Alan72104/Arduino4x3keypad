@@ -18,5 +18,7 @@ For $j = 0 To $HEIGHT - 1
 	Next
 Next
 
+Global Enum $UP, $DOWN
+
 Global Enum $NOTCONNECTED, $CONNECTIONFAILED, $PORTDETECTIONFAILED, $CONNECTED
 Global $connectionStatus = $NOTCONNECTED
