@@ -128,8 +128,11 @@ void loop() {
 
   if (Serial.available())
   {
-    static unsigned char incomingByte = Serial.read();
-    static unsigned char incomingData = incomingByte & 0b00111111;
+    static unsigned char incomingByte;
+    static unsigned char incomingData;
+    
+    incomingByte = Serial.read();
+    incomingData = incomingByte & 0b00111111;
     switch (incomingByte >> 6)
     {
       case 0: // UPDATERGBSTATE
