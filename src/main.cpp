@@ -16,17 +16,15 @@ unsigned long loopPeriod = 0ul;
 const uint16_t scanPerSec = 1000u;
 const uint16_t microsPerScan = 1000000u / scanPerSec;
 
-
 CRGB leds[NUM_LEDS];
 uint8_t rgbBrightness = 63;
+RgbState rgbState = lightWhenPressed;
 unsigned long lastRgbStateChange = 0ul;
 unsigned long lastRgbBrightnessChange = 0ul;
-RgbState rgbState = lightWhenPressed;
-std::vector<Ball> balls;
-std::vector<Circle> circles;
-
 float fractionalDrawingTestY = 0.0f;
 float fractionalDrawingTestX = 0.0f;
+std::vector<Ball> balls;
+std::vector<Circle> circles;
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -601,23 +599,7 @@ void UpdateLed()
 
 int usedRam() 
 {
- extern int __heap_start, *__brkval;
- int v;
- return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
-}
-
-int c(int i)
-{
-  Serial.println(i);
-  return i;
-}
-float c(float i)
-{
-  Serial.println(i);
-  return i;
-}
-unsigned long c(unsigned long i)
-{
-  Serial.println(i);
-  return i;
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
 }

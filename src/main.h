@@ -48,6 +48,3 @@ void UpdateEffect();
 void UpdateRgb();
 void UpdateLed();
 int usedRam();
-int c(int i);
-float c(float i);
-unsigned long c(unsigned long i);
