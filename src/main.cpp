@@ -124,7 +124,7 @@ void loop() {
           case spreadLightsOutWhenPressed:
             if (btnStateTemp == !HIGH && balls.size() < 16)
             {
-              CRGB color = CHSV(rand() % 255, 255, rgbBrightness);
+              CRGB color = CHSV(rand() % 256, 255, rgbBrightness);
               balls.push_back(MakeBall(j, i, -1, color));
               balls.push_back(MakeBall(j, i, 1, color));
             }
@@ -139,12 +139,12 @@ void loop() {
           
           case waterWave:
             if (btnStateTemp == !HIGH && circles.size() < 16)
-              circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(rand() % 255, 255, rgbBrightness))));
+              circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(rand() % 256, 255, rgbBrightness))));
             break;
           
           case antiWaterWave:
             if (btnStateTemp == !HIGH && circles.size() < 16)
-              circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(rand() % 255, 255, rgbBrightness))));
+              circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(rand() % 256, 255, rgbBrightness))));
             break;
           
           default:
