@@ -606,7 +606,7 @@ void UpdateEffect()
     case stars:
       // ========== Anti water wave ==========
 
-      // If the last state isn't the same, init all the buttons to random rainbow colors
+      // If the last state isn't the same, init the delayElapsed, and init all the buttons to random rainbow colors
       if (lastRgbState != stars)
       {
         starsDelayElapsed = 0.0f;
