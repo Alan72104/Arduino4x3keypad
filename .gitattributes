@@ -1,3 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-*.au3 linguist-documentation
+KeypadDriver/KeypadDriver.Gui.au3 linguist-documentation
+KeypadDriver/KeypadDriver.Serial.au3 linguist-documentation
+KeypadDriver/KeypadDriver.Vars.au3 linguist-documentation
