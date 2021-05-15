@@ -285,7 +285,7 @@ Func OpenGui()
 	$idButtonSave = GUICtrlCreateButton("Save to config", 750 - 25 - 150 + 25, _
 															 500 - 25 - 25 - 25 - 5, _
 															 100, 25)
-	$idLabelConnection = GUICtrlCreateLabel("Not connected, retrying...", 50, 500 - 25 - 15, 200, 15)
+	$idLabelConnection = GUICtrlCreateLabel("Not connected, retrying...", 50, 500 - 25 - 15, 350, 15)
 	
 	; Shows the gui
 	GUISetState(@SW_SHOW)
