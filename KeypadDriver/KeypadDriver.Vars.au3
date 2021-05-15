@@ -7,6 +7,8 @@
 
 #include-once
 
+Global Const $iniPath = @ScriptDir & "\keypadconfig.ini"
+
 Global Const $WIDTH = 4, $HEIGHT = 3
 
 ; [[keyStrokeUp, keyStrokeDown], ...]

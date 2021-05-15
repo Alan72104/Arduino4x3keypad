@@ -12,7 +12,6 @@
 #include "KeypadDriver.Gui.au3"
 #include "KeypadDriver.Serial.au3"
 
-Global Const $iniPath = @ScriptDir & "\keypadconfig.ini"
 Global Const $scanPerSec = 1500
 Global Const $msPerScan = 1000 / $scanPerSec
 Global $loopPeriod, $loopStartTime, $timer
