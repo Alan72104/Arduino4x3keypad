@@ -130,11 +130,11 @@ Func HandleMsg()
 	; Updates the connection indicator
 	Switch $connectionStatus
 		Case $NOTCONNECTED
-			GUICtrlSetData($idLabelConnection, "Not connected, retrying...")
+			GUICtrlSetData($idLabelConnection, "Not connected, detecting the port...")
 		Case $CONNECTIONFAILED
 			GUICtrlSetData($idLabelConnection, "Cannot connect to " & $comPort & ", retrying...")
 		Case $PORTDETECTIONFAILED
-			GUICtrlSetData($idLabelConnection, "COM port auto detection failed, please select the port manually")
+			GUICtrlSetData($idLabelConnection, "COM port auto detection failed, please make sure you have the keypad plugged in!")
 		Case $CONNECTED
 			GUICtrlSetData($idLabelConnection, "Connected to " & $comPort)
 	EndSwitch
@@ -285,7 +285,7 @@ Func OpenGui()
 	$idButtonSave = GUICtrlCreateButton("Save to config", 750 - 25 - 150 + 25, _
 															 500 - 25 - 25 - 25 - 5, _
 															 100, 25)
-	$idLabelConnection = GUICtrlCreateLabel("Not connected, retrying...", 50, 500 - 25 - 15, 350, 15)
+	$idLabelConnection = GUICtrlCreateLabel("Not connected, detecting the port...", 50, 500 - 25 - 15, 500, 15)
 	
 	; Shows the gui
 	GUISetState(@SW_SHOW)
