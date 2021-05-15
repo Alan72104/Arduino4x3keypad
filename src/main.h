@@ -8,6 +8,17 @@
 #define LED_PIN 12
 #define NUM_LEDS WIDTH * HEIGHT
 
+enum RgbState {
+  lightWhenPressed,
+  rainbow,
+  spreadLightsOutWhenPressed,
+  breathing,
+  fractionalDrawingTest2d,
+  spinningRainbow,
+  waterWave,
+  antiWaterWave
+};
+
 typedef struct {
   float x;
   uint8_t y;
@@ -21,17 +32,6 @@ typedef struct {
   float radius;
   CRGB color;
 } Circle;
-
-enum RgbState {
-  lightWhenPressed,
-  rainbow,
-  spreadLightsOutWhenPressed,
-  breathing,
-  fractionalDrawingTest2d,
-  spinningRainbow,
-  waterWave,
-  antiWaterWave
-};
 
 void setup();
 void loop();
