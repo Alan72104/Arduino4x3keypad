@@ -16,7 +16,8 @@ enum RgbState {
   fractionalDrawingTest2d,
   spinningRainbow,
   waterWave,
-  antiWaterWave
+  antiWaterWave,
+  stars
 };
 
 typedef struct {

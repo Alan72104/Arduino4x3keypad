@@ -445,6 +445,9 @@ void NextRgbState()
     case waterWave:
       rgbState = antiWaterWave;
       break;
+    case antiWaterWave:
+      rgbState = stars;
+      break;
     default:
       rgbState = lightWhenPressed;
       break;
@@ -460,6 +463,7 @@ void UpdateEffect()
   static float breathingStateElapsed = 0.0f;
   static const uint8_t breathingRainbowHues[7] = {0,32,64,96,160,176,192};
   static uint8_t spinningRainbowState = 0;
+  static float starsDelayElapsed = 0.0f;
 #ifdef Debug
   static unsigned long lastEffectDebug = 0;
 #endif
@@ -595,6 +599,28 @@ void UpdateEffect()
           circles.erase(circle);
         else
           circle++;
+      }
+
+      break;
+      // ==============================
+    case stars:
+      // ========== Anti water wave ==========
+
+      // If the last state isn't the same, init all the buttons to random rainbow colors
+      if (lastRgbState != stars)
+      {
+        starsDelayElapsed = 0.0f;
+        for (uint8_t i = 0; i < NUM_LEDS; i++)
+          leds[i] = CHSV(breathingRainbowHues[rand() % 7], 255, rgbBrightness);
+        break;
+      }
+
+      starsDelayElapsed += secondsElapsed;
+
+      if (starsDelayElapsed >= 0.1f)
+      {
+        starsDelayElapsed = 0.0f;
+        leds[rand() % NUM_LEDS] = CHSV(breathingRainbowHues[rand() % 7], 255, rgbBrightness);
       }
 
       break;
