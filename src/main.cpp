@@ -604,9 +604,9 @@ void UpdateEffect()
   if (millis() - lastEffectDebug > 1000)
   {
     lastEffectDebug = millis();
-    Serial.print("Effect update took: ");
+    Serial.print(F("Effect update took: "));
     Serial.print(micros() - lastEffectUpdate);
-    Serial.println(" micros");
+    Serial.println(F(" micros"));
   }
 #endif
 }
