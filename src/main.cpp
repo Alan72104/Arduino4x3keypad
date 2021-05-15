@@ -382,7 +382,7 @@ void DrawSquare(float fX, float fY, float diameter, CRGB color)
   }
 }
 
-void DrawCircle(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color)
+void DrawCircle_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color)
 {
     DrawPixel2d(xc+x, yc+y, color);
     DrawPixel2d(xc-x, yc+y, color);
@@ -395,17 +395,16 @@ void DrawCircle(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color)
 }
 
 // https://www.geeksforgeeks.org/bresenhams-circle-drawing-algorithm/
-void CircleBres(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
+void DrawCircle(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
 {
     uint8_t x = 0, y = r;
     uint8_t d = 3 - 2 * r;
-    DrawCircle(xc, yc, x, y, color);
+    DrawCircle_internal(xc, yc, x, y, color);
     while (y >= x)
     {
-        // for each pixel we will
+        // for each point we will
         // draw all eight pixels
         x++;
- 
         // check for decision parameter
         // and correspondingly
         // update d, x, y
@@ -416,7 +415,7 @@ void CircleBres(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
         }
         else
             d = d + 4 * x + 6;
-        DrawCircle(xc, yc, x, y, color);
+        DrawCircle_internal(xc, yc, x, y, color);
     }
 }
 
@@ -569,7 +568,7 @@ void UpdateEffect()
       {
         circle->radius += 15.0f * secondsElapsed;
         
-        CircleBres(circle->x, circle->y, circle->radius, circle->color);
+        DrawCircle(circle->x, circle->y, circle->radius, circle->color);
 
         if(circle->radius >= 5.0f)
           circles.erase(circle);
@@ -589,7 +588,7 @@ void UpdateEffect()
         circle->radius -= 15.0f * secondsElapsed;
         
         if (circle->radius > 0.0f)
-        CircleBres(circle->x, circle->y, circle->radius, circle->color);
+        DrawCircle(circle->x, circle->y, circle->radius, circle->color);
 
         if(circle->radius <= 0.0f)
           circles.erase(circle);
