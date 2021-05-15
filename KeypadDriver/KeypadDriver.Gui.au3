@@ -112,14 +112,14 @@ Func HandleMsg()
 			
 			; If the "Binding" group is active then handle the binding update buttons
 			If $bindingKeys Then
-				; The binding "Confirm" key, updates the key to new bindings
+				; The binding "Confirm" button, updates the key to new bindings
 				If $msg = $idButtonConfirm Then
 					BindKey($currentlyBinding, GUICtrlRead($idInputKeyUp), GUICtrlRead($idInputKeyDown))
 					UpdateBtnLabels()
 					$bindingKeys = False
 					ShowBindingGroup(0)
 				
-				; The binding "Cancel" key, closes the "Binding" group
+				; The binding "Cancel" button, closes the "Binding" group
 				ElseIf $msg = $idButtonCancel Then
 					$bindingKeys = False
 					ShowBindingGroup(0)
