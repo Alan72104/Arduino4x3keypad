@@ -1,13 +1,7 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include <vector>
-
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
-#define WIDTH 4
-#define HEIGHT 3
-#define LED_PIN 12
-#define NUM_LEDS WIDTH * HEIGHT
+#include "main.h"
 
 const uint8_t pinC[WIDTH] = {8, 7, 6, 5};
 const uint8_t pinR[HEIGHT] = {2, 3, 4};
@@ -22,20 +16,6 @@ unsigned long loopPeriod = 0ul;
 const uint16_t scanPerSec = 1000u;
 const uint16_t microsPerScan = 1000000u / scanPerSec;
 
-struct Ball
-{
-  float x;
-  uint8_t y;
-  int8_t direction;
-  CRGB color;
-};
-struct Circle
-{
-  uint8_t x;
-  uint8_t y;
-  float radius;
-  CRGB color;
-};
 
 CRGB leds[NUM_LEDS];
 uint8_t rgbBrightness = 63;
@@ -59,24 +39,6 @@ std::vector<Circle> circles;
 float fractionalDrawingTestY = 0.0f;
 float fractionalDrawingTestX = 0.0f;
 
-void setup();
-void loop();
-Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color);
-Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color);
-CRGB ColorFraction(CRGB colorIn, float fraction);
-void DrawPixel2d(int x, int y, CRGB color);
-void DrawLine(float fPos, float length, CRGB color);
-void DrawSquare(float fX, float fY, float length, CRGB color);
-void DrawCircle(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color);
-void CircleBres(uint8_t xc, uint8_t yc, uint8_t r, CRGB color);
-void NextRgbState();
-void UpdateEffect();
-void UpdateRgb();
-void UpdateLed();
-int usedRam();
-int c(int i);
-float c(float i);
-unsigned long c(unsigned long i);
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
