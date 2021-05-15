@@ -3,6 +3,7 @@
 #include <vector>
 #include "main.h"
 
+// Variables required to run the keypad
 const uint8_t pinC[WIDTH] = {8, 7, 6, 5};
 const uint8_t pinR[HEIGHT] = {2, 3, 4};
 uint8_t btnStateTemp = LOW;
@@ -16,11 +17,14 @@ unsigned long loopPeriod = 0ul;
 const uint16_t scanPerSec = 1000u;
 const uint16_t microsPerScan = 1000000u / scanPerSec;
 
+// Variables for the rgb leds
 CRGB leds[NUM_LEDS];
 uint8_t rgbBrightness = 63;
+unsigned long lastRgbBrightnessChange = 0ul;
+
+// Variables for the rgb effects
 RgbState rgbState = lightWhenPressed;
 unsigned long lastRgbStateChange = 0ul;
-unsigned long lastRgbBrightnessChange = 0ul;
 float fractionalDrawingTestY = 0.0f;
 float fractionalDrawingTestX = 0.0f;
 std::vector<Ball> balls;
@@ -28,48 +32,70 @@ std::vector<Circle> circles;
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
+
+  // Columns are pulled up inputs
+  // Leaving the pin normally HIGH
+  // When connected to ground, the pin is pulled down to LOW
   for (uint8_t i : pinC)
   {
     pinMode(i, INPUT_PULLUP);
   }
+
+  // Rows are voltage outputs
+  // When writing to LOW, the pin will be grounded
+  // When writing to HIGH, the pin will be connected to 5v
   for (uint8_t i : pinR)
   {
     pinMode(i, OUTPUT);
     digitalWrite(i, HIGH);
   }
+
   for (uint8_t j = 0; j < HEIGHT; j++)
     for (uint8_t i = 0; i < WIDTH; i++)
       btnState[j][i] = LOW;
+  
   FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
 
-  while(!Serial){}
+  // Wait until the serial system starts
+  while (!Serial) {}
   Serial.begin(19200);
-  Serial.println("");
 }
 
 // #define Debug
 
 void loop() {
+  // The start time of the FULL loop
   loopStartTime = micros();
+
   UpdateLed();
   UpdateEffect();
   UpdateRgb();
+
+  // Todo: Split key detecting into its own function
   if (micros() - loopEndTime < (microsPerScan - (loopPeriod > microsPerScan ? microsPerScan : loopPeriod))) return;
   
   for (uint8_t i = 0; i < HEIGHT; i++)
   {
-    pinMode(pinR[i], OUTPUT);
+    // Write the current row to LOW which is ground
+    // If a switch on the row is pressed, it pulls the corresponding column input pin to ground which is LOW
+    // According to the input_pullup characteristics, pin reading needs to be inverted
     digitalWrite(pinR[i], LOW);
+
     for (uint8_t j = 0; j < WIDTH; j++)
     {
       btnStateTemp = digitalRead(pinC[j]);
+
+      // Only perform actions when the state changes
       if (btnState[i][j] != btnStateTemp)
       {
         btnState[i][j] = btnStateTemp;
 
 #ifndef Debug
         if (Serial.availableForWrite())
+        {
+          // Key status byte - |first 4 bits for key number, 3 zero padding bits, last one bit for pressed state|
           Serial.write(((4*i+j+1) << 4 ) + (btnStateTemp == LOW ? 1 : 0));
+        }
 #endif
 
         // Modifier key handling
@@ -103,34 +129,38 @@ void loop() {
               balls.push_back(MakeBall(j, i, 1, color));
             }
             break;
+          
           case fractionalDrawingTest2d:
             if (btnState[0][0] == !HIGH && fractionalDrawingTestY > 0.0f)         fractionalDrawingTestY -= 0.1f;
             else if (btnState[1][0] == !HIGH && fractionalDrawingTestY < HEIGHT)  fractionalDrawingTestY += 0.1f;
             else if (btnState[1][2] == !HIGH && fractionalDrawingTestX < WIDTH)   fractionalDrawingTestX += 0.1f;
             else if (btnState[1][1] == !HIGH && fractionalDrawingTestX > 0.0f)    fractionalDrawingTestX -= 0.1f;
             break;
+          
           case waterWave:
             if (btnStateTemp == !HIGH && circles.size() < 16)
               circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(rand() % 255, 255, rgbBrightness))));
             break;
+          
           case antiWaterWave:
             if (btnStateTemp == !HIGH && circles.size() < 16)
               circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(rand() % 255, 255, rgbBrightness))));
             break;
+          
           default:
             break;
         }
       }
     }
     digitalWrite(pinR[i], HIGH);
-    pinMode(pinR[i], INPUT);
   }
 
+  // If serial has received bytes, read the driver messages
   if (Serial.available())
   {
     static unsigned char incomingByte;
     static unsigned char incomingData;
-    
+
     incomingByte = Serial.read();
     incomingData = incomingByte & 0b00111111;
     switch (incomingByte >> 6)
@@ -160,8 +190,8 @@ void loop() {
     }
   }
 
-  // Update frequency test
 #ifdef Debug
+  // Update frequency test
   static int t;
   static unsigned long tt;
   t++;
@@ -178,7 +208,8 @@ void loop() {
 #endif
 
   loopEndTime = micros();
-  loopPeriod = (unsigned long)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);  // Don't change the measured loop time immediately as it might float around
+  // Don't change the measured loop time immediately as it might float around
+  loopPeriod = (unsigned long)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);
 }
 
 Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color)
@@ -201,18 +232,22 @@ Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color)
   return newCircle;
 }
 
+// This function fades the color brightness to the fraction
 CRGB ColorFraction(CRGB colorIn, float fraction)
 {
   fraction = min(1.0f, fraction);
   return CRGB(colorIn).fadeToBlackBy(255 * (1.0f - fraction));
 }
 
+// This function takes both x and y coordinates and draws the corresponding led mapped to the virtual 2d matrix
 void DrawPixel2d(int x, int y, CRGB color)
 {
   if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT)
     leds[WIDTH * y + x] = color;
 }
 
+// This function draws a line onto the 1d strip
+// Position and length can be float
 void DrawLine(float fPos, float length, CRGB color)
 {
   // Calculate how much the first pixel will hold
@@ -245,6 +280,8 @@ void DrawLine(float fPos, float length, CRGB color)
   }
 }
 
+// This function draws a square onto the virtual 2d matrix
+// Coordinate and diameter can be float
 void DrawSquare(float fX, float fY, float diameter, CRGB color)
 {
   float availFirstPixelX = 1.0f - (fX - (long)(fX));
@@ -514,6 +551,8 @@ void UpdateEffect()
       spinningRainbowState++;
       
       FastLED.clear();
+
+      // Todo: Real spinning rainbow
       DrawSquare(0.5f, 0.5f, 1, CRGB(CHSV(spinningRainbowState, 255, rgbBrightness)));
       DrawSquare(2.5f, 0.5f, 1, CRGB(CHSV(spinningRainbowState + 64, 255, rgbBrightness)));
       DrawSquare(0.5f, 1.5f, 1, CRGB(CHSV(spinningRainbowState + 64 * 2, 255, rgbBrightness)));
