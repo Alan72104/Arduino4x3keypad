@@ -21,24 +21,12 @@ CRGB leds[NUM_LEDS];
 uint8_t rgbBrightness = 63;
 unsigned long lastRgbStateChange = 0ul;
 unsigned long lastRgbBrightnessChange = 0ul;
-enum RgbState
-{
-  lightWhenPressed,
-  rainbow,
-  spreadLightsOutWhenPressed,
-  breathing,
-  fractionalDrawingTest2d,
-  spinningRainbow,
-  waterWave,
-  antiWaterWave
-};
 RgbState rgbState = lightWhenPressed;
 std::vector<Ball> balls;
 std::vector<Circle> circles;
 
 float fractionalDrawingTestY = 0.0f;
 float fractionalDrawingTestX = 0.0f;
-
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);

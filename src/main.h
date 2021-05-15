@@ -23,6 +23,17 @@ struct Circle
   CRGB color;
 };
 
+enum RgbState {
+  lightWhenPressed,
+  rainbow,
+  spreadLightsOutWhenPressed,
+  breathing,
+  fractionalDrawingTest2d,
+  spinningRainbow,
+  waterWave,
+  antiWaterWave
+};
+
 void setup();
 void loop();
 Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color);
