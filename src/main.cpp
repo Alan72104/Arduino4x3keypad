@@ -461,7 +461,7 @@ void UpdateEffect()
   static const uint8_t breathingRainbowHues[7] = {0,32,64,96,160,176,192};
   static uint8_t spinningRainbowState = 0;
 #ifdef Debug
-  static unsigned int lastEffectDebug = 0;
+  static unsigned long lastEffectDebug = 0;
 #endif
   if (micros() - lastEffectUpdate < 33333 /* 30 fps */) return;
   secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 1000.0f;
