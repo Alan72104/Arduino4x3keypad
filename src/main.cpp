@@ -24,10 +24,11 @@ unsigned long lastRgbBrightnessChange = 0ul;
 
 // Variables for the rgb effects
 RgbState rgbState = lightWhenPressed;
+RgbState lastRgbState = lightWhenPressed;
 unsigned long lastRgbStateChange = 0ul;
+std::vector<Ball> balls;
 float fractionalDrawingTestY = 0.0f;
 float fractionalDrawingTestX = 0.0f;
-std::vector<Ball> balls;
 std::vector<Circle> circles;
 
 void setup() {
@@ -599,6 +600,8 @@ void UpdateEffect()
       break;
       // ==============================
   }
+
+  lastRgbState = rgbState;
 #ifdef Debug
   if (millis() - lastEffectDebug > 1000)
   {
