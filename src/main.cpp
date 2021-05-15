@@ -182,7 +182,7 @@ void loop() {
 
 Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color)
 {
-  struct Ball newBall;
+  Ball newBall;
   newBall.x = x;
   newBall.y = y;
   newBall.direction = direction;
@@ -192,7 +192,7 @@ Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color)
 
 Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color)
 {
-  struct Circle newCircle;
+  Circle newCircle;
   newCircle.x = x;
   newCircle.y = y;
   newCircle.radius = radius;

@@ -8,20 +8,19 @@
 #define LED_PIN 12
 #define NUM_LEDS WIDTH * HEIGHT
 
-struct Ball
-{
+typedef struct {
   float x;
   uint8_t y;
   int8_t direction;
   CRGB color;
-};
-struct Circle
-{
+} Ball;
+
+typedef struct {
   uint8_t x;
   uint8_t y;
   float radius;
   CRGB color;
-};
+} Circle;
 
 enum RgbState {
   lightWhenPressed,
