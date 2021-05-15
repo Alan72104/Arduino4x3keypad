@@ -171,13 +171,13 @@ Func SyncGuiRgb()
 				$syncingButtonIndex += 1
 			EndIf
 			
-			; If all the buttons' rgb have been received, updates the key buttons' colors and return
+			; If all the buttons' rgb have been received, update the key buttons' colors and return
 			If $syncingButtonIndex = $WIDTH * $HEIGHT Then
 				UpdateBtnLabelsRgb($rgbBuffer)
 				Return
 			EndIf
 			
-			; Watch out for timeouts
+			; Watch out for timeouts that could potentially freeze the script
 			If TimerDiff($timer) > 200 Then
 				Return
 			EndIf
