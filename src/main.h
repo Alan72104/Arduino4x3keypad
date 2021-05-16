@@ -9,14 +9,14 @@
 #define NUM_LEDS WIDTH * HEIGHT
 
 enum RgbState {
-  lightWhenPressed,
+  staticLight,
   rainbow,
-  spreadLightsOutWhenPressed,
+  spreadOut,
   breathing,
   fractionalDrawingTest2d,
   spinningRainbow,
-  waterWave,
-  antiWaterWave,
+  ripple,
+  antiRipple,
   stars
 };
 

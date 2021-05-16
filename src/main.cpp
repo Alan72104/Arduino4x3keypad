@@ -23,8 +23,8 @@ uint8_t rgbBrightness = 63;
 unsigned long lastRgbBrightnessChange = 0ul;
 
 // Variables for the rgb effects
-RgbState rgbState = lightWhenPressed;
-RgbState lastRgbState = lightWhenPressed;
+RgbState rgbState = staticLight;
+RgbState lastRgbState = staticLight;
 unsigned long lastRgbStateChange = 0ul;
 std::vector<Ball> balls;
 float fractionalDrawingTestY = 0.0f;
@@ -122,7 +122,7 @@ void loop() {
         // State specific handling
         switch (rgbState)
         {
-          case spreadLightsOutWhenPressed:
+          case spreadOut:
             if (btnStateTemp == !HIGH && balls.size() < 16)
             {
               CRGB color = CHSV(random(256), 255, rgbBrightness);
@@ -138,12 +138,12 @@ void loop() {
             else if (btnState[1][1] == !HIGH && fractionalDrawingTestX > 0.0f)    fractionalDrawingTestX -= 0.1f;
             break;
           
-          case waterWave:
+          case ripple:
             if (btnStateTemp == !HIGH && circles.size() < 16)
               circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
             break;
           
-          case antiWaterWave:
+          case antiRipple:
             if (btnStateTemp == !HIGH && circles.size() < 16)
               circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
             break;
@@ -424,13 +424,13 @@ void NextRgbState()
 {
   switch (rgbState)
   {
-    case lightWhenPressed:
+    case staticLight:
       rgbState = rainbow;
       break;
     case rainbow:
-      rgbState = spreadLightsOutWhenPressed;
+      rgbState = spreadOut;
       break;
-    case spreadLightsOutWhenPressed:
+    case spreadOut:
       rgbState = breathing;
       break;
     case breathing:
@@ -440,16 +440,16 @@ void NextRgbState()
       rgbState = spinningRainbow;
       break;
     case spinningRainbow:
-      rgbState = waterWave;
+      rgbState = ripple;
       break;
-    case waterWave:
-      rgbState = antiWaterWave;
+    case ripple:
+      rgbState = antiRipple;
       break;
-    case antiWaterWave:
+    case antiRipple:
       rgbState = stars;
       break;
     default:
-      rgbState = lightWhenPressed;
+      rgbState = staticLight;
       break;
   }
 }
@@ -473,7 +473,7 @@ void UpdateEffect()
   
   switch (rgbState)
   {
-    case lightWhenPressed:
+    case staticLight:
       // ========== Light when pressed ==========
 
       rainbowState++;
@@ -500,7 +500,7 @@ void UpdateEffect()
       
       break;
       // ==============================
-    case spreadLightsOutWhenPressed:
+    case spreadOut:
       // ========== Spread lights out when pressed ==========
       
       FastLED.clear();
@@ -564,7 +564,7 @@ void UpdateEffect()
 
       break;
       // ==============================
-    case waterWave:
+    case ripple:
       // ========== Water wave ==========
 
       FastLED.clear();
@@ -583,7 +583,7 @@ void UpdateEffect()
 
       break;
       // ==============================
-    case antiWaterWave:
+    case antiRipple:
       // ========== Anti water wave ==========
 
       FastLED.clear();
