@@ -5,12 +5,15 @@
 ;
 ; ================================================================================
 
+#include-once
 #include <Array.au3>
 #include <ButtonConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <StringConstants.au3>
+#include <WindowsConstants.au3>
 #include "Include\CommMG.au3"
 #include "KeypadDriver.Vars.au3"
+#include "KeypadDriver.Serial.au3"
 
 Global $_guiOpened = False
 Global $_hGui
@@ -131,11 +134,11 @@ Func HandleMsg()
 		Case $NOTCONNECTED
 			GUICtrlSetData($_idLabelConnection, "Not connected, detecting the port...")
 		Case $CONNECTIONFAILED
-			GUICtrlSetData($_idLabelConnection, "Cannot connect to " & $comPort & ", retrying...")
+			GUICtrlSetData($_idLabelConnection, "Cannot connect to " & GetComPort() & ", retrying...")
 		Case $PORTDETECTIONFAILED
 			GUICtrlSetData($_idLabelConnection, "COM port auto detection failed, please make sure you have the keypad plugged in!")
 		Case $CONNECTED
-			GUICtrlSetData($_idLabelConnection, "Connected to " & $comPort)
+			GUICtrlSetData($_idLabelConnection, "Connected to " & GetComPort())
 	EndSwitch
 EndFunc
 
@@ -159,8 +162,8 @@ Func SyncGuiRgb()
 			Do
 				PollData()
 			Until IsByteReceived()
+			$_rgbBuffer[$_syncingButtonIndex][$_syncingRgbIndex] = GetByte()
 			ByteProcessed()
-			$_rgbBuffer[$_syncingButtonIndex][$_syncingRgbIndex] = $byte
 			$_syncingRgbIndex += 1
 			
 			; If 3 bytes have been received, switch to the next button

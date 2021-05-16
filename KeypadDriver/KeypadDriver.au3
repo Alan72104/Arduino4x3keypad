@@ -5,12 +5,11 @@
 ;
 ; ================================================================================
 
-#include <WindowsConstants.au3>
 #include "Include\LibDebug.au3"
 #include "Include\CommMG.au3"
 #include "KeypadDriver.Vars.au3"
-#include "KeypadDriver.Serial.au3"
 #include "KeypadDriver.Gui.au3"
+#include "KeypadDriver.Serial.au3"
 
 Global Const $_scansPerSec = 1500
 Global Const $_msPerScan = 1000 / $_scansPerSec

@@ -5,8 +5,11 @@
 ;
 ; ================================================================================
 
+#include-once
 #include "Include\CommMG.au3"
+#include "Include\LibDebug.au3"
 #include "KeypadDriver.Vars.au3"
+#include "KeypadDriver.Gui.au3"
 
 Global $_byteString = "", $_byte, $_byteReceived = False
 
@@ -110,6 +113,14 @@ Func SendMsgToKeypad($type, $data)
 		Terminate()
 	EndIf
 	_CommSendByte(BitShift($type, -6) + $data)
+EndFunc
+
+Func GetComPort()
+	Return $_comPort
+EndFunc
+
+Func GetByte()
+	Return $_byte
 EndFunc
 
 Func IsByteReceived()
