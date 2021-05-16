@@ -24,9 +24,7 @@ Global $debug = 0
 Func Main()
 	_CommSetDllPath(@ScriptDir & "\Include\commg.dll")
 	If FileExists($iniPath) Then  ; If the config exists then use the binding in it
-		For $i = 1 To $WIDTH * $HEIGHT
-			BindKey($i, IniRead($iniPath, "ButtonBindings", "Button" & $i & "Up", ""), IniRead($iniPath, "ButtonBindings", "Button" & $i & "Down", ""))
-		Next
+		ConfigLoad()
 	Else  ; If config doesn't exist then use the default binding
 		BindKey(1, "ESC")
 		BindKey(2, "`")
@@ -105,6 +103,19 @@ Func BindKey($num, $key, $extra = 0x0)
 			$keyMap[$num - 1][0] = $key
 			$keyMap[$num - 1][1] = $extra
 	EndSwitch
+EndFunc
+
+Func ConfigLoad()
+	For $i = 1 To $WIDTH * $HEIGHT
+		BindKey($i, IniRead($iniPath, "ButtonBindings", "Button" & $i & "Up", ""), IniRead($iniPath, "ButtonBindings", "Button" & $i & "Down", ""))
+	Next
+EndFunc
+
+Func ConfigSave()
+	For $i = 1 To $WIDTH * $HEIGHT
+		IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Up", String($keyMap[$i - 1][0]))
+		IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Down", String($keyMap[$i - 1][1]))
+	Next
 EndFunc
 
 Func Terminate()

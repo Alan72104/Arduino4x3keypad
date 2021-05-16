@@ -61,10 +61,7 @@ Func HandleMsg()
 		
 		; The "Save to config" button
 		Case $_idButtonSave
-			For $i = 1 To $WIDTH * $HEIGHT
-				IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Up", String($keyMap[$i - 1][0]))
-				IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Down", String($keyMap[$i - 1][1]))
-			Next
+			ConfigSave()
 		
 		; The binding action selectors
 		Case $_idRadioBind
