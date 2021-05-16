@@ -1,7 +1,7 @@
 ; ================================================================================
 ;
 ; KeypadDriver.Vars.au3
-; This file declares the variables required to define the driver key mapping and status
+; This file declares the variables required to define the driver key mapping and all other status
 ;
 ; ================================================================================
 
@@ -10,6 +10,8 @@
 Global Const $iniPath = @ScriptDir & "\keypadconfig.ini"
 
 Global Const $WIDTH = 4, $HEIGHT = 3
+
+Global $rgbStates = ["staticLight","rainbow","spreadOut","breathing","fractionalDrawingTest2d","spinningRainbow","ripple","antiRipple","stars","raindrop"]
 
 ; [[keyStrokeUp, keyStrokeDown], ...]
 Global $keyMap[$WIDTH * $HEIGHT][2]
