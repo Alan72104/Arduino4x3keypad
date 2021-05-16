@@ -12,37 +12,37 @@
 #include "Include\CommMG.au3"
 #include "KeypadDriver.Vars.au3"
 
-Global $guiOpened = False
-Global $hGui
-Global $msg
+Global $_guiOpened = False
+Global $_hGui
+Global $_msg
 
-Global $idButtonBtns[$WIDTH * $HEIGHT]
+Global $_idButtonBtns[$WIDTH * $HEIGHT]
 
-Global Enum $BIND, $REMOVE
-Global $bindingAction = $BIND
-Global $bindingKeys = False
-Global $currentlyBinding = 0
-Global $idGroupBinding, $idLabelCurrentlyBinding, $idLabelBindingArrow, $idLabelBindingStr, $idInputKeyUp, $idInputKeyDown, $idButtonConfirm, $idButtonCancel
+Global Enum $_BIND, $_REMOVE
+Global $_bindingAction = $_BIND
+Global $_bindingKeys = False
+Global $_currentlyBinding = 0
+Global $_idGroupBinding, $_idLabelCurrentlyBinding, $_idLabelBindingArrow, $_idLabelBindingStr, $_idInputKeyUp, $_idInputKeyDown, $_idButtonConfirm, $_idButtonCancel
 
-Global $idRadioBind, $idRadioRemove
+Global $_idRadioBind, $_idRadioRemove
 
-Global $idComboRgbState, $idButtonRgbUpdate, $idButtonRgbIncreaseBrightness, $idButtonRgbDecreaseBrightness
+Global $_idComboRgbState, $_idButtonRgbUpdate, $_idButtonRgbIncreaseBrightness, $_idButtonRgbDecreaseBrightness
 
-Global $idLabelConnection
+Global $_idLabelConnection
 
-Global $idButtonClose, $idButtonSave
+Global $_idButtonClose, $_idButtonSave
 
-Global Enum $UPDATERGBSTATE, $GETRGBDATA, $INCREASERGBBRIGHTNESS, $DECREASERGBBRIGHTNESS
+Global Enum $_UPDATERGBSTATE, $_GETRGBDATA, $_INCREASERGBBRIGHTNESS, $_DECREASERGBBRIGHTNESS
 
-Global $waitingForSyncingBytes = 0, $receivedByte = False, $timerGuiBtnRgbSync
-Global $syncingButtonIndex = 0
-Global $syncingRgbIndex = 0
-Global $rgbBuffer[$WIDTH * $HEIGHT][3]
+Global $_waitingForSyncingBytes = 0, $_receivedByte = False, $_timerGuiBtnRgbSync
+Global $_syncingButtonIndex = 0
+Global $_syncingRgbIndex = 0
+Global $_rgbBuffer[$WIDTH * $HEIGHT][3]
 
 ; This function handles the gui messages and performs the actions
 Func HandleMsg()
-	$msg = GUIGetMsg()
-	Switch $msg
+	$_msg = GUIGetMsg()
+	Switch $_msg
 		; If no message to handle then return instantly
 		Case 0
 			Return
@@ -52,55 +52,55 @@ Func HandleMsg()
 			CloseGui()
 		
 		; The "Close the driver" button
-		Case $idButtonClose
+		Case $_idButtonClose
 			CloseGui()
 			Terminate()
 		
 		; The "Save to config" button
-		Case $idButtonSave
+		Case $_idButtonSave
 			For $i = 1 To $WIDTH * $HEIGHT
 				IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Up", String($keyMap[$i - 1][0]))
 				IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Down", String($keyMap[$i - 1][1]))
 			Next
 		
 		; The binding action selectors
-		Case $idRadioBind
-			$bindingAction = $BIND
-		Case $idRadioRemove
-			$bindingAction = $REMOVE
-			If $bindingKeys Then
-				$bindingKeys = False
+		Case $_idRadioBind
+			$_bindingAction = $_BIND
+		Case $_idRadioRemove
+			$_bindingAction = $_REMOVE
+			If $_bindingKeys Then
+				$_bindingKeys = False
 				ShowBindingGroup(0)
 			EndIf
 		
 		; The rgb "Update" button
-		Case $idButtonRgbUpdate
-			SendMsgToKeypad($UPDATERGBSTATE, ArrayFind($rgbStates, GUICtrlRead($idComboRgbState)))
+		Case $_idButtonRgbUpdate
+			SendMsgToKeypad($_UPDATERGBSTATE, ArrayFind($rgbStates, GUICtrlRead($_idComboRgbState)))
 		
 		; The rgb brightness control buttons
-		Case $idButtonRgbIncreaseBrightness
-			SendMsgToKeypad($INCREASERGBBRIGHTNESS, 0)
-		Case $idButtonRgbDecreaseBrightness
-			SendMsgToKeypad($DECREASERGBBRIGHTNESS, 0)
+		Case $_idButtonRgbIncreaseBrightness
+			SendMsgToKeypad($_INCREASERGBBRIGHTNESS, 0)
+		Case $_idButtonRgbDecreaseBrightness
+			SendMsgToKeypad($_DECREASERGBBRIGHTNESS, 0)
 		
 		; Manually handle the other messages
 		Case Else
 			; The key buttons
 			For $j = 0 To $HEIGHT - 1
 				For $i = 0 To $WIDTH - 1
-					If $msg = $idButtonBtns[$j * $WIDTH + $i] Then
-						Switch $bindingAction
+					If $_msg = $_idButtonBtns[$j * $WIDTH + $i] Then
+						Switch $_bindingAction
 							; Open the "Binding" group for the specific key
-							Case $BIND
-								$bindingKeys = True
-								$currentlyBinding = $j * $WIDTH + $i + 1
-								GUICtrlSetData($idLabelCurrentlyBinding, "Binding key " & $currentlyBinding)
-								GUICtrlSetData($idInputKeyUp, $keyMap[$j * $WIDTH + $i][0])
-								GUICtrlSetData($idInputKeyDown, $keyMap[$j * $WIDTH + $i][1])
+							Case $_BIND
+								$_bindingKeys = True
+								$_currentlyBinding = $j * $WIDTH + $i + 1
+								GUICtrlSetData($_idLabelCurrentlyBinding, "Binding key " & $_currentlyBinding)
+								GUICtrlSetData($_idInputKeyUp, $keyMap[$j * $WIDTH + $i][0])
+								GUICtrlSetData($_idInputKeyDown, $keyMap[$j * $WIDTH + $i][1])
 								ShowBindingGroup(1)
 							
 							; Remove the bindings for the specific key
-							Case $REMOVE
+							Case $_REMOVE
 								BindRemove($j * $WIDTH + $i + 1)
 								UpdateBtnLabels()
 						EndSwitch
@@ -110,17 +110,17 @@ Func HandleMsg()
 			Next
 			
 			; If the "Binding" group is active then handle the binding update buttons
-			If $bindingKeys Then
+			If $_bindingKeys Then
 				; The binding "Confirm" button, updates the key to new bindings
-				If $msg = $idButtonConfirm Then
-					BindKey($currentlyBinding, GUICtrlRead($idInputKeyUp), GUICtrlRead($idInputKeyDown))
+				If $_msg = $_idButtonConfirm Then
+					BindKey($_currentlyBinding, GUICtrlRead($_idInputKeyUp), GUICtrlRead($_idInputKeyDown))
 					UpdateBtnLabels()
-					$bindingKeys = False
+					$_bindingKeys = False
 					ShowBindingGroup(0)
 				
 				; The binding "Cancel" button, closes the "Binding" group
-				ElseIf $msg = $idButtonCancel Then
-					$bindingKeys = False
+				ElseIf $_msg = $_idButtonCancel Then
+					$_bindingKeys = False
 					ShowBindingGroup(0)
 				EndIf
 			EndIf
@@ -129,13 +129,13 @@ Func HandleMsg()
 	; Updates the connection indicator
 	Switch $connectionStatus
 		Case $NOTCONNECTED
-			GUICtrlSetData($idLabelConnection, "Not connected, detecting the port...")
+			GUICtrlSetData($_idLabelConnection, "Not connected, detecting the port...")
 		Case $CONNECTIONFAILED
-			GUICtrlSetData($idLabelConnection, "Cannot connect to " & $comPort & ", retrying...")
+			GUICtrlSetData($_idLabelConnection, "Cannot connect to " & $comPort & ", retrying...")
 		Case $PORTDETECTIONFAILED
-			GUICtrlSetData($idLabelConnection, "COM port auto detection failed, please make sure you have the keypad plugged in!")
+			GUICtrlSetData($_idLabelConnection, "COM port auto detection failed, please make sure you have the keypad plugged in!")
 		Case $CONNECTED
-			GUICtrlSetData($idLabelConnection, "Connected to " & $comPort)
+			GUICtrlSetData($_idLabelConnection, "Connected to " & $comPort)
 	EndSwitch
 EndFunc
 
@@ -143,15 +143,15 @@ EndFunc
 Func SyncGuiRgb()
 	If $connectionStatus <> $CONNECTED Then Return
 	Local $timer = 0
-	If TimerDiff($timerGuiBtnRgbSync) > 150 Then
-		$timerGuiBtnRgbSync = TimerInit()
+	If TimerDiff($_timerGuiBtnRgbSync) > 150 Then
+		$_timerGuiBtnRgbSync = TimerInit()
 		
 		; Clear the serial input buffer in case there are still some scrapped bytes
 		_CommClearInputBuffer()
-		SendMsgToKeypad($GETRGBDATA, 0)
-		$waitingForSyncingBytes = 3 * $WIDTH * $HEIGHT
-		$syncingButtonIndex = 0
-		$syncingRgbIndex = 0
+		SendMsgToKeypad($_GETRGBDATA, 0)
+		$_waitingForSyncingBytes = 3 * $WIDTH * $HEIGHT
+		$_syncingButtonIndex = 0
+		$_syncingRgbIndex = 0
 		$timer = TimerInit()
 		
 		; Constantly poll the bytes from serial until all the rgb infos have been received
@@ -159,20 +159,20 @@ Func SyncGuiRgb()
 		While 1
 			Do
 				PollData()
-			Until $receivedByte
-			$receivedByte = False
-			$rgbBuffer[$syncingButtonIndex][$syncingRgbIndex] = $byte
-			$syncingRgbIndex += 1
+			Until $_receivedByte
+			$_receivedByte = False
+			$_rgbBuffer[$_syncingButtonIndex][$_syncingRgbIndex] = $byte
+			$_syncingRgbIndex += 1
 			
 			; If 3 bytes have been received, switch to the next button
-			If $syncingRgbIndex = 3 Then
-				$syncingRgbIndex = 0
-				$syncingButtonIndex += 1
+			If $_syncingRgbIndex = 3 Then
+				$_syncingRgbIndex = 0
+				$_syncingButtonIndex += 1
 			EndIf
 			
 			; If all the buttons' rgb have been received, update the key buttons' colors and return
-			If $syncingButtonIndex = $WIDTH * $HEIGHT Then
-				UpdateBtnLabelsRgb($rgbBuffer)
+			If $_syncingButtonIndex = $WIDTH * $HEIGHT Then
+				UpdateBtnLabelsRgb($_rgbBuffer)
 				Return
 			EndIf
 			
@@ -188,7 +188,7 @@ EndFunc
 Func UpdateBtnLabels()
 	For $j = 0 To $HEIGHT - 1
 		For $i = 0 To $WIDTH - 1
-			GUICtrlSetData($idButtonBtns[$j * $WIDTH + $i], ($j * $WIDTH + $i + 1) & @CRLF & _
+			GUICtrlSetData($_idButtonBtns[$j * $WIDTH + $i], ($j * $WIDTH + $i + 1) & @CRLF & _
 															($keyMap[$j * $WIDTH + $i][1] = "" ? "None" : $keyMap[$j * $WIDTH + $i][1]))
 		Next
 	Next
@@ -198,7 +198,7 @@ EndFunc
 Func UpdateBtnLabelsRgb(ByRef $data)
 	For $j = 0 To $HEIGHT - 1
 		For $i = 0 To $WIDTH - 1
-			GUICtrlSetBkColor($idButtonBtns[$j * $WIDTH + $i], $data[$j * $WIDTH + $i][0] * 256 * 256 + _
+			GUICtrlSetBkColor($_idButtonBtns[$j * $WIDTH + $i], $data[$j * $WIDTH + $i][0] * 256 * 256 + _
 															   $data[$j * $WIDTH + $i][1] * 256 + _
 															   $data[$j * $WIDTH + $i][2])
 		Next
@@ -208,28 +208,28 @@ EndFunc
 ; This function shows or hides the "Binding" group and the inside controls
 Func ShowBindingGroup($state)
 	$state = $state ? $GUI_SHOW : $GUI_HIDE
-	GUICtrlSetState($idGroupBinding, $state)
-	GUICtrlSetState($idLabelCurrentlyBinding, $state)
-	GUICtrlSetState($idLabelBindingArrow, $state)
-	GUICtrlSetState($idInputKeyUp, $state)
-	GUICtrlSetState($idInputKeyDown, $state)
-	GUICtrlSetState($idButtonConfirm, $state)
-	GUICtrlSetState($idButtonCancel, $state)
+	GUICtrlSetState($_idGroupBinding, $state)
+	GUICtrlSetState($_idLabelCurrentlyBinding, $state)
+	GUICtrlSetState($_idLabelBindingArrow, $state)
+	GUICtrlSetState($_idInputKeyUp, $state)
+	GUICtrlSetState($_idInputKeyDown, $state)
+	GUICtrlSetState($_idButtonConfirm, $state)
+	GUICtrlSetState($_idButtonCancel, $state)
 EndFunc
 
 ; This function creates the gui 
 Func OpenGui()
 	; If gui is already opened, activate the window
-	If $guiOpened Then Return WinActivate("THE Keypad Control Panel")
+	If $_guiOpened Then Return WinActivate("THE Keypad Control Panel")
 	
-	$hGui = GUICreate("THE Keypad Control Panel", 750, 500, Default, Default, Default, $WS_EX_TOPMOST)
-	$guiOpened = True
+	$_hGui = GUICreate("THE Keypad Control Panel", 750, 500, Default, Default, Default, $WS_EX_TOPMOST)
+	$_guiOpened = True
 	GUICtrlCreateGroup("Buttons", 50, 30, _
 								  15 + 60 + 85 * 3 + 15, _
 								  15 + 60 + 85 * 2 + 15)
 		For $j = 0 To $HEIGHT - 1
 			For $i = 0 To $WIDTH - 1
-				$idButtonBtns[$j * $WIDTH + $i] = GUICtrlCreateButton(($j * $WIDTH + $i + 1) & @CRLF & _
+				$_idButtonBtns[$j * $WIDTH + $i] = GUICtrlCreateButton(($j * $WIDTH + $i + 1) & @CRLF & _
 																	  ($keyMap[$j * $WIDTH + $i][1] = "" ? "None" : $keyMap[$j * $WIDTH + $i][1]), _
 																	  50 + 15 + $i * 85, _
 																	  30 + 15 + $j * 85, _
@@ -240,31 +240,31 @@ Func OpenGui()
 	GUICtrlCreateGroup("RGB Controls", 50, (30 + 15 + 60 + 85 * 2 + 15) + 15, _
 										   15 + 150 + 15, _
 										   15 + 25 + 8 + 25 + 15)
-		$idComboRgbState = GUICtrlCreateCombo("staticLight", 50 + 15, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15, 150, 25)
-			GUICtrlSetData($idComboRgbState, _ArrayToString($rgbStates, "|", 1))
-		$idButtonRgbUpdate = GUICtrlCreateButton("Update", 50 + 15, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 100, 25)
-		$idButtonRgbIncreaseBrightness = GUICtrlCreateButton("+", 50 + 15 + 100 + 10 , (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 15, 25)
-		$idButtonRgbDecreaseBrightness = GUICtrlCreateButton("-", 50 + 15 + 100 + 10 + 15 + 10, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 15, 25)
+		$_idComboRgbState = GUICtrlCreateCombo("staticLight", 50 + 15, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15, 150, 25)
+			GUICtrlSetData($_idComboRgbState, _ArrayToString($rgbStates, "|", 1))
+		$_idButtonRgbUpdate = GUICtrlCreateButton("Update", 50 + 15, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 100, 25)
+		$_idButtonRgbIncreaseBrightness = GUICtrlCreateButton("+", 50 + 15 + 100 + 10 , (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 15, 25)
+		$_idButtonRgbDecreaseBrightness = GUICtrlCreateButton("-", 50 + 15 + 100 + 10 + 15 + 10, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 15, 25)
 	GUICtrlCreateGroup("", -99, -99, 1, 1)
-	$idGroupBinding = GUICtrlCreateGroup("Binding", (50 + 15 + 60 + 85 * 3 + 15) + 15, 30, _
+	$_idGroupBinding = GUICtrlCreateGroup("Binding", (50 + 15 + 60 + 85 * 3 + 15) + 15, 30, _
 													15 + 100 + 15, _
 													15 + 15 + 20 + 8 + 20 + 25 + 25 + 8 + 25 + 15)
-		$idLabelCurrentlyBinding = GUICtrlCreateLabel("Binding key 1", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
+		$_idLabelCurrentlyBinding = GUICtrlCreateLabel("Binding key 1", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
 																	   30 + 15, _
 																	   100, 15)
-		$idLabelBindingArrow = GUICtrlCreateLabel("=>", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
+		$_idLabelBindingArrow = GUICtrlCreateLabel("=>", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
 													    30 + 15 + 30, _
 													    15, 15)
-		$idInputKeyUp = GUICtrlCreateInput("{UP up}", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15 + 10 + 15, _
+		$_idInputKeyUp = GUICtrlCreateInput("{UP up}", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15 + 10 + 15, _
 													  30 + 15 + 15, _
 													  75, 20)
-		$idInputKeyDown = GUICtrlCreateInput("{UP down}", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15 + 10 + 15, _
+		$_idInputKeyDown = GUICtrlCreateInput("{UP down}", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15 + 10 + 15, _
 													  30 + 15 + 15 + 20 + 8, _
 													  75, 20)
-		$idButtonConfirm = GUICtrlCreateButton("Confirm", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
+		$_idButtonConfirm = GUICtrlCreateButton("Confirm", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
 														  30 + 15 + 15 + 20 + 8 + 20 + 25, _
 														  100, 25)
-		$idButtonCancel = GUICtrlCreateButton("Cancel", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
+		$_idButtonCancel = GUICtrlCreateButton("Cancel", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
 														  30 + 15 + 15 + 20 + 8 + 20 + 25 + 25 + 8, _
 														  100, 25)
 	GUICtrlCreateGroup("", -99, -99, 1, 1)
@@ -273,29 +273,29 @@ Func OpenGui()
 								  0 + 30, _
 								  15 + 100 + 15, _
 								  15 + 15 + 25 * 1 + 15)
-		$idRadioBind = GUICtrlCreateRadio("Bind to new keys", 750 - 50 - 15 - 100, 30 + 15, 100, 15)
-			GUICtrlSetState($idRadioBind, $GUI_CHECKED)
-		$idRadioRemove = GUICtrlCreateRadio("Remove binding", 750 - 50 - 15 - 100, 30 + 15 + 15 + 10, 100, 15)
+		$_idRadioBind = GUICtrlCreateRadio("Bind to new keys", 750 - 50 - 15 - 100, 30 + 15, 100, 15)
+			GUICtrlSetState($_idRadioBind, $GUI_CHECKED)
+		$_idRadioRemove = GUICtrlCreateRadio("Remove binding", 750 - 50 - 15 - 100, 30 + 15 + 15 + 10, 100, 15)
 	GUICtrlCreateGroup("", -99, -99, 1, 1)    
-	$idButtonClose = GUICtrlCreateButton("Close the driver", 750 - 25 - 150, _
+	$_idButtonClose = GUICtrlCreateButton("Close the driver", 750 - 25 - 150, _
 															 500 - 25 - 25, _
 															 150, 25)
-		GUICtrlSetColor($idButtonClose, 0xFF0000)
-	$idButtonSave = GUICtrlCreateButton("Save to config", 750 - 25 - 150 + 25, _
+		GUICtrlSetColor($_idButtonClose, 0xFF0000)
+	$_idButtonSave = GUICtrlCreateButton("Save to config", 750 - 25 - 150 + 25, _
 															 500 - 25 - 25 - 25 - 5, _
 															 100, 25)
-	$idLabelConnection = GUICtrlCreateLabel("Not connected, detecting the port...", 50, 500 - 25 - 15, 500, 15)
+	$_idLabelConnection = GUICtrlCreateLabel("Not connected, detecting the port...", 50, 500 - 25 - 15, 500, 15)
 	
 	; Shows the gui
 	GUISetState(@SW_SHOW)
 	
-	$timerGuiBtnRgbSync = TimerInit()
+	$_timerGuiBtnRgbSync = TimerInit()
 EndFunc
 
 ; This function closes the gui
 Func CloseGui()
-	GUIDelete($hGui)
-	$guiOpened = False
+	GUIDelete($_hGui)
+	$_guiOpened = False
 EndFunc
 
 Func ArrayFind(ByRef $a, $v)

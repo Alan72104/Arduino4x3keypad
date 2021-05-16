@@ -8,12 +8,12 @@
 #include "Include\CommMG.au3"
 #include "KeypadDriver.Vars.au3"
 
-Global $byteString = "", $byte
+Global $_byteString = "", $_byte
 
-Global $comPort
+Global $_comPort
 
-Global $pressedBtnNum = 0
-Global $pressedBtnState = 0
+Global $_pressedBtnNum = 0
+Global $_pressedBtnState = 0
 
 ; This function tries to connect to the keypad serial port
 Func Connect()
@@ -22,8 +22,8 @@ Func Connect()
 	For $i = 0 To UBound($ports) - 1
 		If $ports[$i][1] == "USB-SERIAL CH340" Then
 			Local $errorStr = ""
-			$comPort = $ports[$i][0]
-			_CommSetPort(Int(StringReplace($comPort, "COM", "")), 5, 19200, 8, "none", 1, 2)
+			$_comPort = $ports[$i][0]
+			_CommSetPort(Int(StringReplace($_comPort, "COM", "")), $errorStr, 19200, 8, "none", 1, 2)
 			
 			If Not @error Then
 				; Connection succeed
@@ -48,27 +48,27 @@ EndFunc
 ; This function polls the serial for new key datas
 Func PollKeys()
 	If $connectionStatus <> $CONNECTED Then Return
-	$byteString = _CommReadByte()
+	$_byteString = _CommReadByte()
 	If @error = 3 Then
 		$connectionStatus = $CONNECTIONFAILED
 		Return
 	EndIf
-	If $byteString <> "" Then
-		$byte = Int($byteString)
+	If $_byteString <> "" Then
+		$_byte = Int($_byteString)
 		
 		; Key status byte - |first 4 bits for key number, 3 zero padding bits, last one bit for pressed state|
-		$pressedBtnNum = BitShift($byte, 4)
-		$pressedBtnState = BitAND($byte, 0x01)
+		$_pressedBtnNum = BitShift($_byte, 4)
+		$_pressedBtnState = BitAND($_byte, 0x01)
 		
-		; c("Button: $ pressed, state: $", 1, $pressedBtnNum, $pressedBtnState)
+		; c("Button: $ pressed, state: $", 1, $_pressedBtnNum, $_pressedBtnState)
 		
 		; Only sends the key stroke when the gui isn't opened
-		If $pressedBtnNum <= $WIDTH * $HEIGHT And Not $guiOpened Then
-			Switch $pressedBtnState
+		If $_pressedBtnNum <= $WIDTH * $HEIGHT And Not $guiOpened Then
+			Switch $_pressedBtnState
 				Case $UP
-					Send($keyMap[$pressedBtnNum - 1][0])
+					Send($keyMap[$_pressedBtnNum - 1][0])
 				Case $DOWN
-					Send($keyMap[$pressedBtnNum - 1][1])
+					Send($keyMap[$_pressedBtnNum - 1][1])
 			EndSwitch
 		EndIf
 	EndIf
@@ -78,17 +78,17 @@ EndFunc
 Func PollData()
 	If $connectionStatus <> $CONNECTED Then Return
 	
-	; If there's still unprocessed byte in the buffer $byte, return
+	; If there's still unprocessed byte in the buffer $_byte, return
 	If $receivedByte Then Return
 	
-	$byteString = _CommReadByte()
+	$_byteString = _CommReadByte()
 	If @error = 3 Then
 		$connectionStatus = $CONNECTIONFAILED
 		Return
 	EndIf
-	If $byteString <> "" Then
-		$byte = Int($byteString)
-		; c("Received data $", 1, $byteString)
+	If $_byteString <> "" Then
+		$_byte = Int($_byteString)
+		; c("Received data $", 1, $_byteString)
 		$waitingForSyncingBytes -= 1
 		$receivedByte = True
 		Return

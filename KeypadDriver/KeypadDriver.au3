@@ -12,10 +12,10 @@
 #include "KeypadDriver.Serial.au3"
 #include "KeypadDriver.Gui.au3"
 
-Global Const $scanPerSec = 1500
-Global Const $msPerScan = 1000 / $scanPerSec
-Global $loopPeriod, $loopStartTime, $timer
-Global $timerRetrying
+Global Const $_scansPerSec = 1500
+Global Const $_msPerScan = 1000 / $_scansPerSec
+Global $_loopPeriod, $_loopStartTime, $_timer
+Global $_timerRetrying
 
 HotKeySet("{F4}", "OpenGui")
 Opt("GUICloseOnESC", 0)
@@ -50,12 +50,12 @@ Func Main()
 		Local $tt = 0
 	EndIf
 	While 1
-		$loopStartTime = TimerInit()
-		If (TimerDiff($timer) >= ($msPerScan - ($loopPeriod > $msPerScan ? $msPerScan : $loopPeriod))) Then
+		$_loopStartTime = TimerInit()
+		If (TimerDiff($_timer) >= ($_msPerScan - ($_loopPeriod > $_msPerScan ? $_msPerScan : $_loopPeriod))) Then
 		
 			; Because retrieving the port list takes a while, so we don't reconnect too often
-			If $connectionStatus <> $CONNECTED And TimerDiff($timerRetrying) > 5000 Then
-				$timerRetrying = TimerInit()
+			If $connectionStatus <> $CONNECTED And TimerDiff($_timerRetrying) > 5000 Then
+				$_timerRetrying = TimerInit()
 				Connect()
 			EndIf
 		
@@ -68,7 +68,7 @@ Func Main()
 				If TimerDiff($tt) >= 1000 Then
 					$tt = TimerInit()
 					c($t)
-					c($loopPeriod)
+					c($_loopPeriod)
 					$t = 0
 				EndIf
 				$t += 1
@@ -79,8 +79,8 @@ Func Main()
 				HandleMsg()
 			EndIf
 			
-			$timer = TimerInit()
-			$loopPeriod = $loopPeriod * 0.6 + TimerDiff($loopStartTime) * 0.4  ; Don't modify the measured loop time immediately as it might float around
+			$_timer = TimerInit()
+			$_loopPeriod = $_loopPeriod * 0.6 + TimerDiff($_loopStartTime) * 0.4  ; Don't modify the measured loop time immediately as it might float around
 		EndIf
 	WEnd
 EndFunc
