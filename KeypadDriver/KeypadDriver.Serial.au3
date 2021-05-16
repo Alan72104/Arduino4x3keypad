@@ -21,8 +21,9 @@ Func Connect()
 	$ports = _ComGetPortNames()
 	For $i = 0 To UBound($ports) - 1
 		If $ports[$i][1] == "USB-SERIAL CH340" Then
+			Local $errorStr = ""
 			$comPort = $ports[$i][0]
-			_CommSetPort(Int(StringReplace($comPort, "COM", "")), "", 19200, 8, "none", 1, 2)
+			_CommSetPort(Int(StringReplace($comPort, "COM", "")), 5, 19200, 8, "none", 1, 2)
 			
 			If Not @error Then
 				; Connection succeed
@@ -32,6 +33,7 @@ Func Connect()
 			Else
 				; Connection failed
 				$connectionStatus = $CONNECTIONFAILED
+				c("Connection failed, error: $", 1, $errorStr)
 			EndIf
 			
 			; Port was detected, no matter whether it's connected or not, stop searching ports, return
