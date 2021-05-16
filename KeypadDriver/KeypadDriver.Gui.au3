@@ -26,7 +26,7 @@ Global $idGroupBinding, $idLabelCurrentlyBinding, $idLabelBindingArrow, $idLabel
 
 Global $idRadioBind, $idRadioRemove
 
-Global $rgbStates = ["lightWhenPressed","rainbow","spreadLightsOutWhenPressed","breathing","fractionalDrawingTest2d","spinningRainbow","waterWave","antiWaterWave"]
+Global $rgbStates = ["staticLight","rainbow","spreadOut","breathing","fractionalDrawingTest2d","spinningRainbow","ripple","antiRipple"]
 Global $idComboRgbState, $idButtonRgbUpdate, $idButtonRgbIncreaseBrightness, $idButtonRgbDecreaseBrightness
 
 Global $idLabelConnection
@@ -241,7 +241,7 @@ Func OpenGui()
 	GUICtrlCreateGroup("RGB Controls", 50, (30 + 15 + 60 + 85 * 2 + 15) + 15, _
 										   15 + 150 + 15, _
 										   15 + 25 + 8 + 25 + 15)
-		$idComboRgbState = GUICtrlCreateCombo("lightWhenPressed", 50 + 15, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15, 150, 25)
+		$idComboRgbState = GUICtrlCreateCombo("staticLight", 50 + 15, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15, 150, 25)
 			GUICtrlSetData($idComboRgbState, _ArrayToString($rgbStates, "|", 1))
 		$idButtonRgbUpdate = GUICtrlCreateButton("Update", 50 + 15, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 100, 25)
 		$idButtonRgbIncreaseBrightness = GUICtrlCreateButton("+", 50 + 15 + 100 + 10 , (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 15, 25)
