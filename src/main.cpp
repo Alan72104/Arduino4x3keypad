@@ -607,7 +607,7 @@ void UpdateEffect()
         circle->radius -= 15.0f * secondsElapsed;
         
         if (circle->radius > 0.0f)
-        DrawCircle(circle->x, circle->y, circle->radius, circle->color);
+          DrawCircle(circle->x, circle->y, circle->radius, circle->color);
 
         if(circle->radius <= 0.0f)
           circles.erase(circle);
