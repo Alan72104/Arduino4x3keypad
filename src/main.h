@@ -17,7 +17,8 @@ enum RgbState {
   spinningRainbow,
   ripple,
   antiRipple,
-  stars
+  stars,
+  raindrop
 };
 
 typedef struct {
@@ -34,10 +35,17 @@ typedef struct {
   CRGB color;
 } Circle;
 
+typedef struct {
+  uint8_t x;
+  float y;
+  CRGB color;
+} Raindrop;
+
 void setup();
 void loop();
 Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color);
 Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color);
+Raindrop MakeRaindrop(uint8_t x, float y, CRGB color);
 CRGB ColorFraction(CRGB colorIn, float fraction);
 void DrawPixel2d(int x, int y, CRGB color);
 void DrawLine(float fPos, float length, CRGB color);

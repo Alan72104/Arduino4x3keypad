@@ -30,6 +30,7 @@ std::vector<Ball> balls;
 float fractionalDrawingTestY = 0.0f;
 float fractionalDrawingTestX = 0.0f;
 std::vector<Circle> circles;
+std::vector<Raindrop> raindrops;
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -231,6 +232,15 @@ Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color)
   newCircle.radius = radius;
   newCircle.color = color;
   return newCircle;
+}
+
+Raindrop MakeRaindrop(uint8_t x, float y, CRGB color)
+{
+  Raindrop newRaindrop;
+  newRaindrop.x = x;
+  newRaindrop.y = y;
+  newRaindrop.color = color;
+  return newRaindrop;
 }
 
 // This function fades the color brightness to the fraction
@@ -448,6 +458,9 @@ void NextRgbState()
     case antiRipple:
       rgbState = stars;
       break;
+    case stars:
+      rgbState = raindrop;
+      break;
     default:
       rgbState = staticLight;
       break;
@@ -464,6 +477,7 @@ void UpdateEffect()
   static const uint8_t breathingRainbowHues[7] = {0,32,64,96,160,176,192};
   static uint8_t spinningRainbowState = 0;
   static float starsDelayElapsed = 0.0f;
+  static float raindropDelayElapsed = 0.0f;
 #ifdef Debug
   static unsigned long lastEffectDebug = 0;
 #endif
@@ -621,6 +635,41 @@ void UpdateEffect()
       {
         starsDelayElapsed = 0.0f;
         leds[random(NUM_LEDS)] = CHSV(breathingRainbowHues[random(7)], 255, rgbBrightness);
+      }
+
+      break;
+      // ==============================
+    case raindrop:
+      // ========== Raindrop ==========
+
+      // If the last state isn't the same, init the delayElapsed, and init all the buttons to random rainbow colors
+      if (lastRgbState != raindrop)
+      {
+        raindropDelayElapsed = 0.0f;
+        for (uint8_t i = 0; i < NUM_LEDS; i++)
+          leds[i] = 0x000000;
+      }
+
+      raindropDelayElapsed += secondsElapsed;
+
+      if (raindropDelayElapsed >= 0.3f)
+      {
+        raindropDelayElapsed = 0.0f;
+        raindrops.push_back(MakeRaindrop(random(WIDTH), 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
+      }
+
+      FastLED.clear();
+
+      for (auto raindrop = raindrops.begin(); raindrop != raindrops.end(); )
+      {
+        raindrop->y += 4.0f * secondsElapsed;
+        
+        DrawSquare(raindrop->x, raindrop->y, 1.0f, raindrop->color);
+
+        if(raindrop->y >= HEIGHT)
+          raindrops.erase(raindrop);
+        else
+          raindrop++;
       }
 
       break;
