@@ -9,8 +9,8 @@
 #include "Include\LibDebug.au3"
 #include "Include\CommMG.au3"
 #include "KeypadDriver.Vars.au3"
-#include "KeypadDriver.Gui.au3"
 #include "KeypadDriver.Serial.au3"
+#include "KeypadDriver.Gui.au3"
 
 Global Const $scanPerSec = 1500
 Global Const $msPerScan = 1000 / $scanPerSec
