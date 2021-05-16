@@ -8,7 +8,7 @@
 #include "Include\CommMG.au3"
 #include "KeypadDriver.Vars.au3"
 
-Global $_byteString = "", $_byte
+Global $_byteString = "", $_byte, $_byteReceived = False
 
 Global $_comPort
 
@@ -63,7 +63,7 @@ Func PollKeys()
 		; c("Button: $ pressed, state: $", 1, $_pressedBtnNum, $_pressedBtnState)
 		
 		; Only sends the key stroke when the gui isn't opened
-		If $_pressedBtnNum <= $WIDTH * $HEIGHT And Not $guiOpened Then
+		If $_pressedBtnNum <= $WIDTH * $HEIGHT And Not IsGuiOpened() Then
 			Switch $_pressedBtnState
 				Case $UP
 					Send($keyMap[$_pressedBtnNum - 1][0])
@@ -79,7 +79,7 @@ Func PollData()
 	If $connectionStatus <> $CONNECTED Then Return
 	
 	; If there's still unprocessed byte in the buffer $_byte, return
-	If $receivedByte Then Return
+	If $_byteReceived Then Return
 	
 	$_byteString = _CommReadByte()
 	If @error = 3 Then
@@ -89,8 +89,7 @@ Func PollData()
 	If $_byteString <> "" Then
 		$_byte = Int($_byteString)
 		; c("Received data $", 1, $_byteString)
-		$waitingForSyncingBytes -= 1
-		$receivedByte = True
+		$_byteReceived = True
 		Return
 	EndIf
 EndFunc
@@ -111,4 +110,12 @@ Func SendMsgToKeypad($type, $data)
 		Terminate()
 	EndIf
 	_CommSendByte(BitShift($type, -6) + $data)
+EndFunc
+
+Func IsByteReceived()
+	Return $_byteReceived
+EndFunc
+
+Func ByteProcessed()
+	$_byteReceived = False
 EndFunc

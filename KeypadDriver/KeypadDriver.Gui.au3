@@ -34,7 +34,7 @@ Global $_idButtonClose, $_idButtonSave
 
 Global Enum $_UPDATERGBSTATE, $_GETRGBDATA, $_INCREASERGBBRIGHTNESS, $_DECREASERGBBRIGHTNESS
 
-Global $_waitingForSyncingBytes = 0, $_receivedByte = False, $_timerGuiBtnRgbSync
+Global $_timerGuiBtnRgbSync
 Global $_syncingButtonIndex = 0
 Global $_syncingRgbIndex = 0
 Global $_rgbBuffer[$WIDTH * $HEIGHT][3]
@@ -149,7 +149,6 @@ Func SyncGuiRgb()
 		; Clear the serial input buffer in case there are still some scrapped bytes
 		_CommClearInputBuffer()
 		SendMsgToKeypad($_GETRGBDATA, 0)
-		$_waitingForSyncingBytes = 3 * $WIDTH * $HEIGHT
 		$_syncingButtonIndex = 0
 		$_syncingRgbIndex = 0
 		$timer = TimerInit()
@@ -159,8 +158,8 @@ Func SyncGuiRgb()
 		While 1
 			Do
 				PollData()
-			Until $_receivedByte
-			$_receivedByte = False
+			Until IsByteReceived()
+			ByteProcessed()
 			$_rgbBuffer[$_syncingButtonIndex][$_syncingRgbIndex] = $byte
 			$_syncingRgbIndex += 1
 			
@@ -296,6 +295,10 @@ EndFunc
 Func CloseGui()
 	GUIDelete($_hGui)
 	$_guiOpened = False
+EndFunc
+
+Func IsGuiOpened()
+	Return $_guiOpened
 EndFunc
 
 Func ArrayFind(ByRef $a, $v)

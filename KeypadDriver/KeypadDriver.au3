@@ -74,7 +74,7 @@ Func Main()
 				$t += 1
 			EndIf
 			
-			If $guiOpened Then
+			If IsGuiOpened() Then
 				SyncGuiRgb()
 				HandleMsg()
 			EndIf
