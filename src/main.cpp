@@ -517,7 +517,7 @@ void UpdateEffect()
       // ========== Spread lights out when pressed ==========
       
       // If the last state isn't the same, that means the user just switched to this effect,
-      // clear the effect data vector
+      // clear the leds, and clear the effect data vector
       if (lastRgbState != spreadOut)
       {
         FastLED.clear();
