@@ -6,6 +6,7 @@
 ; ================================================================================
 
 #include-once
+#include <MsgBoxConstants.au3>
 #include "Include\CommMG.au3"
 #include "Include\LibDebug.au3"
 #include "KeypadDriver.Vars.au3"
@@ -103,15 +104,18 @@ Func SendMsgToKeypad($type, $data)
 	
 	; Message byte - |first 2 bits for msg type, last 6 bits for msg data|
 	If $type > 3 Then
-		c("SendMsgToKeypad >> Message type cannot be larger than 2 bits! Exception data: $", 1, $type)
-		c("Program terminating!")
-		Terminate()
+		MsgBox($MB_ICONWARNING + $MB_TOPMOST, "KeypadDriver", "Exception catched ""SendMsgToKeypad()""" & @CRLF & @CRLF & _
+															  "Message type cannot be larger than 2 bits! Type: " & $type & @CRLF & @CRLF & _
+															  "Message not sent!")
+		Return
 	EndIf
 	If $data > 63 Then
-		c("SendMsgToKeypad >> Data to send cannot be larger than 6 bits! Exception data: $", 1, $data)
-		c("Program terminating!")
-		Terminate()
+		MsgBox($MB_ICONWARNING + $MB_TOPMOST, "KeypadDriver", "Exception catched ""SendMsgToKeypad()""" & @CRLF & @CRLF & _
+															  "Data to send cannot be larger than 2 bits! Data: " & $data & @CRLF & @CRLF & _
+															  "Message not sent!")
+		Return
 	EndIf
+
 	_CommSendByte(BitShift($type, -6) + $data)
 EndFunc
 
