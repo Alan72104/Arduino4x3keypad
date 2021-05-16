@@ -125,7 +125,7 @@ void loop() {
           case spreadLightsOutWhenPressed:
             if (btnStateTemp == !HIGH && balls.size() < 16)
             {
-              CRGB color = CHSV(rand() % 256, 255, rgbBrightness);
+              CRGB color = CHSV(random(256), 255, rgbBrightness);
               balls.push_back(MakeBall(j, i, -1, color));
               balls.push_back(MakeBall(j, i, 1, color));
             }
@@ -140,12 +140,12 @@ void loop() {
           
           case waterWave:
             if (btnStateTemp == !HIGH && circles.size() < 16)
-              circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(rand() % 256, 255, rgbBrightness))));
+              circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
             break;
           
           case antiWaterWave:
             if (btnStateTemp == !HIGH && circles.size() < 16)
-              circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(rand() % 256, 255, rgbBrightness))));
+              circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
             break;
           
           default:
@@ -611,13 +611,13 @@ void UpdateEffect()
       {
         starsDelayElapsed = 0.0f;
         for (uint8_t i = 0; i < NUM_LEDS; i++)
-          leds[i] = CHSV(breathingRainbowHues[rand() % 7], 255, rgbBrightness);
+          leds[i] = CHSV(breathingRainbowHues[random(7)], 255, rgbBrightness);
         break;
       }
 
       starsDelayElapsed += secondsElapsed;
 
-      if (starsDelayElapsed >= 0.05f)
+      if (starsDelayElapsed >= 0.1f)
       {
         starsDelayElapsed = 0.0f;
         leds[random(NUM_LEDS)] = CHSV(breathingRainbowHues[random(7)], 255, rgbBrightness);
