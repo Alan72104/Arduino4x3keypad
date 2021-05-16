@@ -5,7 +5,7 @@
 #define max(a,b) ((a)>(b)?(a):(b))
 #define WIDTH 4
 #define HEIGHT 3
-#define LED_PIN 12
+#define RGB_PIN 12
 #define NUM_LEDS WIDTH * HEIGHT
 
 enum RgbState {

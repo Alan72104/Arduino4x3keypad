@@ -56,7 +56,7 @@ void setup() {
     for (uint8_t i = 0; i < WIDTH; i++)
       btnState[j][i] = LOW;
   
-  FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.addLeds<WS2812B, RGB_PIN, GRB>(leds, NUM_LEDS);
 
   // Wait until the serial system starts
   while (!Serial) {}
