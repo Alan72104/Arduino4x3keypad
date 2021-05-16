@@ -516,6 +516,15 @@ void UpdateEffect()
     case spreadOut:
       // ========== Spread lights out when pressed ==========
       
+      // If the last state isn't the same, that means the user just switched to this effect,
+      // clear the effect data vector
+      if (lastRgbState != spreadOut)
+      {
+        FastLED.clear();
+        balls.clear();
+        break;
+      }
+
       FastLED.clear();
 
       for (auto ball = balls.begin(); ball != balls.end(); )
@@ -580,6 +589,15 @@ void UpdateEffect()
     case ripple:
       // ========== Water wave ==========
 
+      // If the last state isn't the same, that means the user just switched to this effect,
+      // clear the leds, and clear the effect data vector
+      if (lastRgbState != ripple)
+      {
+        FastLED.clear();
+        circles.clear();
+        break;
+      }
+
       FastLED.clear();
 
       for (auto circle = circles.begin(); circle != circles.end(); )
@@ -598,6 +616,15 @@ void UpdateEffect()
       // ==============================
     case antiRipple:
       // ========== Anti water wave ==========
+
+      // If the last state isn't the same, that means the user just switched to this effect,
+      // clear the leds, and clear the effect data vector
+      if (lastRgbState != antiRipple)
+      {
+        FastLED.clear();
+        circles.clear();
+        break;
+      }
 
       FastLED.clear();
 
@@ -619,7 +646,7 @@ void UpdateEffect()
     case stars:
       // ========== Stars ==========
 
-      // If the last state isn't the same, that means user just switched to this effect,
+      // If the last state isn't the same, that means the user just switched to this effect,
       // init the delayElapsed, and init all the buttons to random rainbow colors
       if (lastRgbState != stars)
       {
@@ -642,7 +669,7 @@ void UpdateEffect()
     case raindrop:
       // ========== Raindrop ==========
 
-      // If the last state isn't the same, that means user just switched to this effect,
+      // If the last state isn't the same, that means the user just switched to this effect,
       // init the delayElapsed, and clear the effect data vector
       if (lastRgbState != raindrop)
       {
