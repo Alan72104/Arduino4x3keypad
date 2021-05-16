@@ -26,7 +26,7 @@ Global $idGroupBinding, $idLabelCurrentlyBinding, $idLabelBindingArrow, $idLabel
 
 Global $idRadioBind, $idRadioRemove
 
-Global $rgbStates = ["staticLight","rainbow","spreadOut","breathing","fractionalDrawingTest2d","spinningRainbow","ripple","antiRipple","raindrop"]
+Global $rgbStates = ["staticLight","rainbow","spreadOut","breathing","fractionalDrawingTest2d","spinningRainbow","ripple","antiRipple","stars","raindrop"]
 Global $idComboRgbState, $idButtonRgbUpdate, $idButtonRgbIncreaseBrightness, $idButtonRgbDecreaseBrightness
 
 Global $idLabelConnection
