@@ -168,8 +168,7 @@ void loop() {
     switch (incomingByte >> 6)
     {
       case 0: // UPDATERGBSTATE
-        if (incomingData <= 7)
-          rgbState = (RgbState)incomingData;
+        rgbState = (RgbState)incomingData;
         break;
       case 1: // GETRGBDATA
         static CHSV rgbToHsv;
