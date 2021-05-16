@@ -617,10 +617,10 @@ void UpdateEffect()
 
       starsDelayElapsed += secondsElapsed;
 
-      if (starsDelayElapsed >= 0.1f)
+      if (starsDelayElapsed >= 0.05f)
       {
         starsDelayElapsed = 0.0f;
-        leds[rand() % NUM_LEDS] = CHSV(breathingRainbowHues[rand() % 7], 255, rgbBrightness);
+        leds[random(NUM_LEDS)] = CHSV(breathingRainbowHues[random(7)], 255, rgbBrightness);
       }
 
       break;
