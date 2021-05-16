@@ -619,7 +619,8 @@ void UpdateEffect()
     case stars:
       // ========== Stars ==========
 
-      // If the last state isn't the same, init the delayElapsed, and init all the buttons to random rainbow colors
+      // If the last state isn't the same, that means user just switched to this effect,
+      // init the delayElapsed, and init all the buttons to random rainbow colors
       if (lastRgbState != stars)
       {
         starsDelayElapsed = 0.0f;
@@ -641,11 +642,11 @@ void UpdateEffect()
     case raindrop:
       // ========== Raindrop ==========
 
-      // If the last state isn't the same, init the delayElapsed, and init all the buttons to random rainbow colors
+      // If the last state isn't the same, that means user just switched to this effect,
+      // init the delayElapsed, and clear the effect data vector
       if (lastRgbState != raindrop)
       {
         raindropDelayElapsed = 0.0f;
-        FastLED.clear();
         raindrops.clear();
       }
 
