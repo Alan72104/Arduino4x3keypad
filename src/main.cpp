@@ -645,8 +645,8 @@ void UpdateEffect()
       if (lastRgbState != raindrop)
       {
         raindropDelayElapsed = 0.0f;
-        for (uint8_t i = 0; i < NUM_LEDS; i++)
-          leds[i] = 0x000000;
+        FastLED.clear();
+        raindrops.clear();
       }
 
       raindropDelayElapsed += secondsElapsed;
