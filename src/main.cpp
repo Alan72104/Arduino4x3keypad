@@ -556,10 +556,8 @@ void UpdateEffect()
       
       for (uint8_t i = 0; i < NUM_LEDS; i++)
       {
-        leds[i] = CHSV(breathingRainbowHues[breathingState], 255, 15 + (int)(rgbBrightness * 1.5f *
-                                                                  (breathingStateElapsed <= 4.0f/2 ?
-                                                                  breathingStateElapsed / 2 :
-                                                                  (2.0f - (breathingStateElapsed - 2.0f)) / 2) ));
+        leds[i] = CHSV(breathingRainbowHues[breathingState], 255, 15 + (rgbBrightness * 1.5f *
+                        (breathingStateElapsed <= 4.0f/2 ? breathingStateElapsed / 2 : (2.0f - (breathingStateElapsed - 2.0f)) / 2)) );
       }
       
       break;
