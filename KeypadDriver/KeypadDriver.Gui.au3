@@ -12,8 +12,10 @@
 #include <StringConstants.au3>
 #include <WindowsConstants.au3>
 #include "Include\CommMG.au3"
+#include "KeypadDriver.au3"
 #include "KeypadDriver.Vars.au3"
 #include "KeypadDriver.Serial.au3"
+#include "KeypadDriver.Keys.au3"
 
 Global $_guiOpened = False
 Global $_hGui
@@ -95,8 +97,8 @@ Func HandleMsg()
 								$_bindingKeys = True
 								$_currentlyBinding = $j * $WIDTH + $i + 1
 								GUICtrlSetData($_idLabelCurrentlyBinding, "Binding key " & $_currentlyBinding)
-								GUICtrlSetData($_idInputKeyUp, $keyMap[$j * $WIDTH + $i][0])
-								GUICtrlSetData($_idInputKeyDown, $keyMap[$j * $WIDTH + $i][1])
+								GUICtrlSetData($_idInputKeyUp, GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEUP))
+								GUICtrlSetData($_idInputKeyDown, GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN))
 								ShowBindingGroup(1)
 							
 							; Remove the bindings for the specific key
@@ -188,7 +190,7 @@ Func UpdateBtnLabels()
 	For $j = 0 To $HEIGHT - 1
 		For $i = 0 To $WIDTH - 1
 			GUICtrlSetData($_idButtonBtns[$j * $WIDTH + $i], ($j * $WIDTH + $i + 1) & @CRLF & _
-															($keyMap[$j * $WIDTH + $i][1] = "" ? "None" : $keyMap[$j * $WIDTH + $i][1]))
+															 GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN))
 		Next
 	Next
 EndFunc
@@ -229,7 +231,7 @@ Func OpenGui()
 		For $j = 0 To $HEIGHT - 1
 			For $i = 0 To $WIDTH - 1
 				$_idButtonBtns[$j * $WIDTH + $i] = GUICtrlCreateButton(($j * $WIDTH + $i + 1) & @CRLF & _
-																	  ($keyMap[$j * $WIDTH + $i][1] = "" ? "None" : $keyMap[$j * $WIDTH + $i][1]), _
+																	  GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN), _
 																	  50 + 15 + $i * 85, _
 																	  30 + 15 + $j * 85, _
 																	  60, 60, $BS_MULTILINE)

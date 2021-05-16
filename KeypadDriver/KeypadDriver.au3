@@ -5,11 +5,13 @@
 ;
 ; ================================================================================
 
+#include-once
 #include "Include\LibDebug.au3"
 #include "Include\CommMG.au3"
 #include "KeypadDriver.Vars.au3"
 #include "KeypadDriver.Gui.au3"
 #include "KeypadDriver.Serial.au3"
+#include "KeypadDriver.Keys.au3"
 
 Global Const $_scansPerSec = 1500
 Global Const $_msPerScan = 1000 / $_scansPerSec
@@ -58,6 +60,11 @@ Func Main()
 		
 			If Not $debug Then
 				PollKeys()
+				If IsKeyDataReceived() Then
+					; c("Button: $ pressed, state: $", 1, $_pressedBtnNum, $_pressedBtnState)
+					SendKey(GetKeyDataNum(), GetKeyDataState())
+					KeyDataProcessed()
+				EndIf
 			EndIf
 			
 			; Debug loop time and loop frequency output
@@ -84,27 +91,6 @@ EndFunc
 
 Main()
 
-; This function removes both keyStrokeUp and keyStrokeDown from a key
-Func BindRemove($num)
-	$keyMap[$num - 1][0] = ""
-	$keyMap[$num - 1][1] = ""
-EndFunc
-
-; This function takes 2 arguments and binds a character to a key, with both up and down settings
-;
-; Or takes 3 arguments and binds custom up and down stroke to a key
-Func BindKey($num, $key, $extra = 0x0)
-	If $num > $WIDTH * $HEIGHT Then Return
-	Switch @NumParams
-		Case 2
-			$keyMap[$num - 1][0] = "{" & $key & " up}"
-			$keyMap[$num - 1][1] = "{" & $key & " down}"
-		Case 3
-			$keyMap[$num - 1][0] = $key
-			$keyMap[$num - 1][1] = $extra
-	EndSwitch
-EndFunc
-
 Func ConfigLoad()
 	For $i = 1 To $WIDTH * $HEIGHT
 		BindKey($i, IniRead($iniPath, "ButtonBindings", "Button" & $i & "Up", ""), IniRead($iniPath, "ButtonBindings", "Button" & $i & "Down", ""))
@@ -113,8 +99,8 @@ EndFunc
 
 Func ConfigSave()
 	For $i = 1 To $WIDTH * $HEIGHT
-		IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Up", String($keyMap[$i - 1][0]))
-		IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Down", String($keyMap[$i - 1][1]))
+		IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Up", GetKeybindingForKey($i, $KEYSTROKEUP))
+		IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Down", GetKeybindingForKey($i, $KEYSTROKEDOWN))
 	Next
 EndFunc
 

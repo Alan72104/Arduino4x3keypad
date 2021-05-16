@@ -9,15 +9,15 @@
 #include <MsgBoxConstants.au3>
 #include "Include\CommMG.au3"
 #include "Include\LibDebug.au3"
+#include "KeypadDriver.au3"
 #include "KeypadDriver.Vars.au3"
 #include "KeypadDriver.Gui.au3"
+
+Global $_keyDataNum, $_keyDataState, $_keyDataReceived = False
 
 Global $_byteString = "", $_byte, $_byteReceived = False
 
 Global $_comPort
-
-Global $_pressedBtnNum = 0
-Global $_pressedBtnState = 0
 
 ; This function tries to connect to the keypad serial port
 Func Connect()
@@ -52,6 +52,10 @@ EndFunc
 ; This function polls the serial for new key datas
 Func PollKeys()
 	If $connectionStatus <> $CONNECTED Then Return
+	
+	; If there's still unprocessed key data in the buffers, return
+	If $_keyDataReceived Then Return
+	
 	$_byteString = _CommReadByte()
 	If @error = 3 Then
 		$connectionStatus = $CONNECTIONFAILED
@@ -61,20 +65,10 @@ Func PollKeys()
 		$_byte = Int($_byteString)
 		
 		; Key status byte - |first 4 bits for key number, 3 zero padding bits, last one bit for pressed state|
-		$_pressedBtnNum = BitShift($_byte, 4)
-		$_pressedBtnState = BitAND($_byte, 0x01)
-		
-		; c("Button: $ pressed, state: $", 1, $_pressedBtnNum, $_pressedBtnState)
-		
-		; Only sends the key stroke when the gui isn't opened
-		If $_pressedBtnNum <= $WIDTH * $HEIGHT And Not IsGuiOpened() Then
-			Switch $_pressedBtnState
-				Case $UP
-					Send($keyMap[$_pressedBtnNum - 1][0])
-				Case $DOWN
-					Send($keyMap[$_pressedBtnNum - 1][1])
-			EndSwitch
-		EndIf
+		$_keyDataNum = BitShift($_byte, 4)
+		$_keyDataState = BitAND($_byte, 0x01)
+
+		$_keyDataReceived = True
 	EndIf
 EndFunc
 
@@ -121,6 +115,22 @@ EndFunc
 
 Func GetComPort()
 	Return $_comPort
+EndFunc
+
+Func GetKeyDataNum()
+	Return $_keyDataNum
+EndFunc
+
+Func GetKeyDataState()
+	Return $_keyDataState
+EndFunc
+
+Func IsKeyDataReceived()
+	Return $_keyDataReceived
+EndFunc
+
+Func KeyDataProcessed()
+	$_keyDataReceived = False
 EndFunc
 
 Func GetByte()
