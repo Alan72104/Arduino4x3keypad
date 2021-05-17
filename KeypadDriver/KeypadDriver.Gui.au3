@@ -44,13 +44,12 @@ Global $_syncingButtonIndex = 0
 Global $_syncingRgbIndex = 0
 Global $_rgbBuffer[$WIDTH * $HEIGHT][3]
 
-; This function handles the gui messages and performs the actions
+; This function handles the gui messages and performs actions accordingly
 Func HandleMsg()
 	$_msg = GUIGetMsg()
 	Switch $_msg
-		; If no message to handle then return instantly
+		; If no message to handle then simply skip
 		Case 0
-			Return
 		
 		; The gui "x" button
 		Case $GUI_EVENT_CLOSE
@@ -128,7 +127,7 @@ Func HandleMsg()
 			EndIf
 	EndSwitch
 	
-	; Updates the connection indicator
+	; Update the connection indicator
 	Switch $connectionStatus
 		Case $NOTCONNECTED
 			GUICtrlSetData($_idLabelConnection, "Not connected, detecting the port...")
