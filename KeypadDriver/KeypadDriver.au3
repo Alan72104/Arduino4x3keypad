@@ -17,7 +17,7 @@ SetGuiOpeningKey("{F4}")
 Opt("GUICloseOnESC", 0)
 
 Func Main()
-    Local Const $_configPath = @ScriptDir & "\keypadconfig.ini"
+    Local $_configPath = @ScriptDir & "\keypadconfig.ini"
     Local Const $_scansPerSec = 1500
     Local Const $_msPerScan = 1000 / $_scansPerSec
     Local $_loopPeriod, $_loopStartTime, $_timer

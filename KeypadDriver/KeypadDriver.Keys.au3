@@ -60,7 +60,7 @@ EndFunc
 
 Func ConfigLoad(ByRef $path)
     For $i = 1 To $WIDTH * $HEIGHT
-        BindKey($i, IniRead($path, "ButtonBindings", "Button" & $i & "Up", ""), IniRead($iniPath, "ButtonBindings", "Button" & $i & "Down", ""))
+        BindKey($i, IniRead($path, "ButtonBindings", "Button" & $i & "Up", ""), IniRead($path, "ButtonBindings", "Button" & $i & "Down", ""))
     Next
 EndFunc
 
