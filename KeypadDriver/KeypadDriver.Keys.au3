@@ -5,6 +5,8 @@
 ;
 ; ================================================================================
 
+; Todo: Better name for this module
+
 #include-once
 #include "KeypadDriver.Vars.au3"
 #include "KeypadDriver.Gui.au3"
