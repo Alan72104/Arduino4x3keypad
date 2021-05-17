@@ -57,3 +57,16 @@ Func BindKey($num, $key, $extra = 0x0)
             $_keyMap[$num - 1][$KEYSTROKEDOWN] = $extra
     EndSwitch
 EndFunc
+
+Func ConfigLoad(ByRef $path)
+    For $i = 1 To $WIDTH * $HEIGHT
+        BindKey($i, IniRead($path, "ButtonBindings", "Button" & $i & "Up", ""), IniRead($iniPath, "ButtonBindings", "Button" & $i & "Down", ""))
+    Next
+EndFunc
+
+Func ConfigSave(ByRef $path)
+    For $i = 1 To $WIDTH * $HEIGHT
+        IniWrite($path, "ButtonBindings", "Button" & $i & "Up", GetKeybindingForKey($i, $KEYSTROKEUP))
+        IniWrite($path, "ButtonBindings", "Button" & $i & "Down", GetKeybindingForKey($i, $KEYSTROKEDOWN))
+    Next
+EndFunc

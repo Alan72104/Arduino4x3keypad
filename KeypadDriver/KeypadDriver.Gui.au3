@@ -62,7 +62,7 @@ Func HandleMsg()
         
         ; The "Save to config" button
         Case $_idButtonSave
-            ConfigSave()
+            Return 1
         
         ; The binding action selectors
         Case $_idRadioBind
@@ -138,6 +138,8 @@ Func HandleMsg()
         Case $CONNECTED
             GUICtrlSetData($_idLabelConnection, "Connected to " & GetComPort())
     EndSwitch
+
+    Return 0
 EndFunc
 
 ; This function retrieves the rgb info from the keypad and syncs them to the gui

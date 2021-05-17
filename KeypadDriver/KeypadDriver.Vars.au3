@@ -7,9 +7,6 @@
 
 #include-once
 
-; Path to the config file
-Global Const $iniPath = @ScriptDir & "\keypadconfig.ini"
-
 ; Size of the keypad
 Global Const $WIDTH = 4, $HEIGHT = 3
 ; Available rgb states on the keypad
