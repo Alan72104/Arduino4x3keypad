@@ -39,21 +39,21 @@ EndFunc
 
 ; This function removes both up and down strokes from a key
 Func BindRemove($num)
-	$_keyMap[$num - 1][$KEYSTROKEUP] = ""
-	$_keyMap[$num - 1][$KEYSTROKEDOWN] = ""
+    $_keyMap[$num - 1][$KEYSTROKEUP] = ""
+    $_keyMap[$num - 1][$KEYSTROKEDOWN] = ""
 EndFunc
 
 ; This function takes 2 arguments and binds a character to both up and down strokes of a key
 ;
 ; Or takes 3 arguments and binds custom up and down strokes to a key
 Func BindKey($num, $key, $extra = 0x0)
-	If $num > $WIDTH * $HEIGHT Then Return
-	Switch @NumParams
-		Case 2
-			$_keyMap[$num - 1][$KEYSTROKEUP] = "{" & $key & " up}"
-			$_keyMap[$num - 1][$KEYSTROKEDOWN] = "{" & $key & " down}"
-		Case 3
-			$_keyMap[$num - 1][$KEYSTROKEUP] = $key
-			$_keyMap[$num - 1][$KEYSTROKEDOWN] = $extra
-	EndSwitch
+    If $num > $WIDTH * $HEIGHT Then Return
+    Switch @NumParams
+        Case 2
+            $_keyMap[$num - 1][$KEYSTROKEUP] = "{" & $key & " up}"
+            $_keyMap[$num - 1][$KEYSTROKEDOWN] = "{" & $key & " down}"
+        Case 3
+            $_keyMap[$num - 1][$KEYSTROKEUP] = $key
+            $_keyMap[$num - 1][$KEYSTROKEDOWN] = $extra
+    EndSwitch
 EndFunc
