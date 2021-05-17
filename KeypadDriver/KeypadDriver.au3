@@ -13,20 +13,19 @@
 #include "KeypadDriver.Serial.au3"
 #include "KeypadDriver.Keys.au3"
 
-Global Const $_scansPerSec = 1500
-Global Const $_msPerScan = 1000 / $_scansPerSec
-Global $_loopPeriod, $_loopStartTime, $_timer
-Global $_timerRetrying
-
+Global $main_configPath = @ScriptDir & "\keypadconfig.ini"
+Global Const $main_scansPerSec = 1000
+Global Const $main_msPerScan = 1000 / $main_scansPerSec
+Global $main_loopPeriod, $main_loopStartTime, $main_timer
+Global $main_timerRetrying
+	
 SetGuiOpeningKey("{F4}")
 Opt("GUICloseOnESC", 0)
 
-Global $debug = 0
-
 Func Main()
     _CommSetDllPath(@ScriptDir & "\Include\commg.dll")
-    If FileExists($iniPath) Then  ; If the config exists then use the binding in it
-        ConfigLoad()
+    If FileExists($main_configPath) Then  ; If the config exists then use the binding in it
+        ConfigLoad($main_configPath)
     Else  ; If config doesn't exist then use the default binding
         BindKey(1, "ESC")
         BindKey(2, "`")
@@ -44,67 +43,51 @@ Func Main()
     Sleep(200)
     OpenGui()
     Connect()
-    If $debug Then
-        Local $t = 0
-        Local $tt = 0
-    EndIf
+    ; Local $t = 0
+    ; Local $tt = 0
     While 1
-        $_loopStartTime = TimerInit()
-        If (TimerDiff($_timer) >= ($_msPerScan - ($_loopPeriod > $_msPerScan ? $_msPerScan : $_loopPeriod))) Then
+        $main_loopStartTime = TimerInit()
+        If (TimerDiff($main_timer) >= ($main_msPerScan - ($main_loopPeriod > $main_msPerScan ? $main_msPerScan : $main_loopPeriod))) Then
         
             ; Because retrieving the port list takes a while, so we don't reconnect too often
-            If $connectionStatus <> $CONNECTED And TimerDiff($_timerRetrying) > 5000 Then
-                $_timerRetrying = TimerInit()
+            If $connectionStatus <> $CONNECTED And TimerDiff($main_timerRetrying) > 5000 Then
+                $main_timerRetrying = TimerInit()
                 Connect()
             EndIf
         
-            If Not $debug Then
-                PollKeys()
-                If IsKeyDataReceived() Then
-                    ; c("Button: $ pressed, state: $", 1, $_pressedBtnNum, $_pressedBtnState)
-                    SendKey(GetKeyDataNum(), GetKeyDataState())
-                    KeyDataProcessed()
-                EndIf
+            PollKeys()
+            If IsKeyDataReceived() Then
+                ; c("Button: $ pressed, state: $", 1, $_pressedBtnNum, $_pressedBtnState)
+                SendKey(GetKeyDataNum(), GetKeyDataState())
+                KeyDataProcessed()
             EndIf
             
             ; Debug loop time and loop frequency output
-            If $debug Then
-                If TimerDiff($tt) >= 1000 Then
-                    $tt = TimerInit()
-                    c($t)
-                    c($_loopPeriod)
-                    $t = 0
-                EndIf
-                $t += 1
-            EndIf
+            ; If TimerDiff($tt) >= 1000 Then
+            ;     $tt = TimerInit()
+            ;     c($t)
+            ;     c($main_loopPeriod)
+            ;     $t = 0
+            ; EndIf
+            ; $t += 1
             
             If IsGuiOpened() Then
                 SyncGuiRgb()
-                HandleMsg()
+                ; HandleMsg() only handles gui related messages, returns extra messages if need to be explicitly handled
+                Switch HandleMsg()
+                    Case 0
+                    Case 1
+                        ConfigSave($main_configPath)
+                EndSwitch
             EndIf
             
-            $_timer = TimerInit()
-            $_loopPeriod = $_loopPeriod * 0.6 + TimerDiff($_loopStartTime) * 0.4  ; Don't modify the measured loop time immediately as it might float around
+            $main_timer = TimerInit()
+            $main_loopPeriod = $main_loopPeriod * 0.6 + TimerDiff($main_loopStartTime) * 0.4  ; Don't modify the measured loop time immediately as it might float around
         EndIf
     WEnd
 EndFunc
 
 Main()
-
-; Todo: Separate these
-
-Func ConfigLoad()
-    For $i = 1 To $WIDTH * $HEIGHT
-        BindKey($i, IniRead($iniPath, "ButtonBindings", "Button" & $i & "Up", ""), IniRead($iniPath, "ButtonBindings", "Button" & $i & "Down", ""))
-    Next
-EndFunc
-
-Func ConfigSave()
-    For $i = 1 To $WIDTH * $HEIGHT
-        IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Up", GetKeybindingForKey($i, $KEYSTROKEUP))
-        IniWrite($iniPath, "ButtonBindings", "Button" & $i & "Down", GetKeybindingForKey($i, $KEYSTROKEDOWN))
-    Next
-EndFunc
 
 Func Terminate()
     Exit
