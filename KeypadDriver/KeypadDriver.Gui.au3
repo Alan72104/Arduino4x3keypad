@@ -96,8 +96,8 @@ Func HandleMsg()
                                 $gui_bindingKeys = True
                                 $gui_currentlyBinding = $j * $WIDTH + $i + 1
                                 GUICtrlSetData($gui_idLabelCurrentlyBinding, "Binding key " & $gui_currentlyBinding)
-                                GUICtrlSetData($gui_idInputKeyUp, GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEUP) == "None" ? "" : GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEUP))
-                                GUICtrlSetData($gui_idInputKeyDown, GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN) == "None" ? "" : GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN))
+                                GUICtrlSetData($gui_idInputKeyUp, GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEUP))
+                                GUICtrlSetData($gui_idInputKeyDown, GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN))
                                 ShowBindingGroup(1)
                             
                             ; Remove the bindings for the specific key
@@ -191,7 +191,7 @@ Func UpdateBtnLabels()
     For $j = 0 To $HEIGHT - 1
         For $i = 0 To $WIDTH - 1
             GUICtrlSetData($gui_idButtonBtns[$j * $WIDTH + $i], ($j * $WIDTH + $i + 1) & @CRLF & _
-                                                                GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN) == "None" ? "" : GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN))
+                                                                KeyHasBinding($j * $WIDTH + $i + 1, $KEYSTROKEDOWN) ? GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN) : "None")
         Next
     Next
 EndFunc
@@ -236,7 +236,7 @@ Func OpenGui()
         For $j = 0 To $HEIGHT - 1
             For $i = 0 To $WIDTH - 1
                 $gui_idButtonBtns[$j * $WIDTH + $i] = GUICtrlCreateButton(($j * $WIDTH + $i + 1) & @CRLF & _
-                                                                       GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN), _
+                                                                       KeyHasBinding($j * $WIDTH + $i + 1, $KEYSTROKEDOWN) ? GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN) : "None", _
                                                                        50 + 15 + $i * 85, _
                                                                        30 + 15 + $j * 85, _
                                                                        60, 60, $BS_MULTILINE)

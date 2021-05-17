@@ -27,13 +27,13 @@ Func SendKey($num, $state)
     EndIf
 EndFunc
 
+Func KeyHasBinding($num, $state)
+    Return GetKeybindingForKey($num, $state) <> "" ? True : False
+Endfunc
+
 Func GetKeybindingForKey($num, $state)
     If $num <= $WIDTH * $HEIGHT Then
-        If $keys_keyMap[$num - 1][$state] = "" Then
-            Return "None"
-        Else
-            Return $keys_keyMap[$num - 1][$state]
-        EndIf
+        Return $keys_keyMap[$num - 1][$state]
     EndIf
 EndFunc
 
