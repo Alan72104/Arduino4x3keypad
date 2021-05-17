@@ -471,13 +471,11 @@ void UpdateEffect()
 {
   static unsigned long lastEffectUpdate = 0ul;
   static float secondsElapsed = 0.0f;
+  static float delayElapsed = 0.0f;
   static uint8_t rainbowState = 0;
   static uint8_t breathingState = 0;
-  static float breathingStateElapsed = 0.0f;
   static const uint8_t breathingRainbowHues[7] = {0,32,64,96,160,176,192};
   static uint8_t spinningRainbowState = 0;
-  static float starsDelayElapsed = 0.0f;
-  static float raindropDelayElapsed = 0.0f;
 #ifdef Debug
   static unsigned long lastEffectDebug = 0;
 #endif
@@ -490,6 +488,12 @@ void UpdateEffect()
     case staticLight:
       // ========== Light when pressed ==========
 
+      // If the last state isn't the same, that means the user just switched to this effect,
+      // init the needed vars, and clear effect datas if needed
+      if (lastRgbState != staticLight)
+      {
+      }
+
       rainbowState++;
       
       for (uint8_t i = 0; i < HEIGHT; i++)
@@ -499,26 +503,26 @@ void UpdateEffect()
           leds[4*i+j] = btnState[i][j] ? CHSV((4*i+j) * 25 - (rainbowState * 1), 255, rgbBrightness) : CHSV(0, 0, 0);
         }
       }
-      
+
       break;
       // ==============================
     case rainbow:
       // ========== Rainbow ==========
       
+      if (lastRgbState != rainbow)
+      {
+      }
+      
       rainbowState++;
       
       for (uint8_t i = 0; i < WIDTH; i++)
-      {
         leds[4*0+i] = leds[4*1+i] = leds[4*2+i] = CHSV(i * 10 - (rainbowState * 1), 255, rgbBrightness);
-      }
       
       break;
       // ==============================
     case spreadOut:
       // ========== Spread lights out when pressed ==========
       
-      // If the last state isn't the same, that means the user just switched to this effect,
-      // clear the leds, and clear the effect data vector
       if (lastRgbState != spreadOut)
       {
         FastLED.clear();
@@ -545,10 +549,16 @@ void UpdateEffect()
     case breathing:
       // ========== Breathing ==========
 
-      breathingStateElapsed += secondsElapsed;
-      if (breathingStateElapsed >= 4.0f)
+      if (lastRgbState != breathing)
       {
-        breathingStateElapsed = 0.0f;
+        delayElapsed = 0.0f;
+      }
+
+      delayElapsed += secondsElapsed;
+
+      if (delayElapsed >= 4.0f)
+      {
+        delayElapsed = 0.0f;
         breathingState += 1;
         if (breathingState > 6)
           breathingState = 0;
@@ -557,7 +567,7 @@ void UpdateEffect()
       for (uint8_t i = 0; i < NUM_LEDS; i++)
       {
         leds[i] = CHSV(breathingRainbowHues[breathingState], 255, 15 + (rgbBrightness * 1.5f *
-                        (breathingStateElapsed <= 4.0f/2 ? breathingStateElapsed / 2 : (2.0f - (breathingStateElapsed - 2.0f)) / 2)) );
+                        (delayElapsed <= 4.0f/2 ? delayElapsed / 2 : (2.0f - (delayElapsed - 2.0f)) / 2)) );
       }
       
       break;
@@ -572,7 +582,11 @@ void UpdateEffect()
       // ==============================
     case spinningRainbow:
       // ========== Spinning rainbow ==========
-      
+
+      if (lastRgbState != spinningRainbow)
+      {
+      }
+
       spinningRainbowState++;
       
       FastLED.clear();
@@ -588,8 +602,6 @@ void UpdateEffect()
     case ripple:
       // ========== Water wave ==========
 
-      // If the last state isn't the same, that means the user just switched to this effect,
-      // clear the leds, and clear the effect data vector
       if (lastRgbState != ripple)
       {
         FastLED.clear();
@@ -616,8 +628,6 @@ void UpdateEffect()
     case antiRipple:
       // ========== Anti water wave ==========
 
-      // If the last state isn't the same, that means the user just switched to this effect,
-      // clear the leds, and clear the effect data vector
       if (lastRgbState != antiRipple)
       {
         FastLED.clear();
@@ -645,21 +655,19 @@ void UpdateEffect()
     case stars:
       // ========== Stars ==========
 
-      // If the last state isn't the same, that means the user just switched to this effect,
-      // init the delayElapsed, and init all the buttons to random rainbow colors
       if (lastRgbState != stars)
       {
-        starsDelayElapsed = 0.0f;
+        delayElapsed = 0.0f;
         for (uint8_t i = 0; i < NUM_LEDS; i++)
           leds[i] = CHSV(breathingRainbowHues[random(7)], 255, rgbBrightness);
         break;
       }
 
-      starsDelayElapsed += secondsElapsed;
+      delayElapsed += secondsElapsed;
 
-      if (starsDelayElapsed >= 0.1f)
+      if (delayElapsed >= 0.2f)
       {
-        starsDelayElapsed = 0.0f;
+        delayElapsed = 0.0f;
         leds[random(NUM_LEDS)] = CHSV(breathingRainbowHues[random(7)], 255, rgbBrightness);
       }
 
@@ -668,19 +676,17 @@ void UpdateEffect()
     case raindrop:
       // ========== Raindrop ==========
 
-      // If the last state isn't the same, that means the user just switched to this effect,
-      // init the delayElapsed, and clear the effect data vector
       if (lastRgbState != raindrop)
       {
-        raindropDelayElapsed = 0.0f;
+        delayElapsed = 0.0f;
         raindrops.clear();
       }
 
-      raindropDelayElapsed += secondsElapsed;
+      delayElapsed += secondsElapsed;
 
-      if (raindropDelayElapsed >= 0.3f)
+      if (delayElapsed >= 0.3f)
       {
-        raindropDelayElapsed = 0.0f;
+        delayElapsed = 0.0f;
         raindrops.push_back(MakeRaindrop(random(WIDTH), 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
       }
 
