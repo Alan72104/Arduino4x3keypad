@@ -18,7 +18,7 @@ Global Const $_msPerScan = 1000 / $_scansPerSec
 Global $_loopPeriod, $_loopStartTime, $_timer
 Global $_timerRetrying
 
-HotKeySet("{F4}", "OpenGui")
+SetGuiOpeningKey("{F4}")
 Opt("GUICloseOnESC", 0)
 
 Global $debug = 0
@@ -90,6 +90,8 @@ Func Main()
 EndFunc
 
 Main()
+
+; Todo: Separate these
 
 Func ConfigLoad()
 	For $i = 1 To $WIDTH * $HEIGHT

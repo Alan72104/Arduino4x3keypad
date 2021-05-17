@@ -218,6 +218,10 @@ Func ShowBindingGroup($state)
 	GUICtrlSetState($_idButtonCancel, $state)
 EndFunc
 
+Func SetGuiOpeningKey($key)
+	HotKeySet($key, "OpenGui")
+EndFunc
+
 ; This function creates the gui 
 Func OpenGui()
 	; If gui is already opened, activate the window
