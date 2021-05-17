@@ -19,7 +19,7 @@ Global $_keyMap[$WIDTH * $HEIGHT][$keyStrokeAmount]
     Next
 
 Func SendKey($num, $state)
-    ; Only sends the key stroke when the gui isn't opened
+    ; Only send the key stroke when the gui isn't opened
     If $num <= $WIDTH * $HEIGHT And Not IsGuiOpened() And $_keyMap[$num - 1][$state] <> "" Then
         Send($_keyMap[$num - 1][$state])
     EndIf
