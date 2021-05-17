@@ -63,15 +63,13 @@ Func Main()
             EndIf
             
             ; Debug loop time and loop frequency output
-            ; If $debug Then
-            ;     If TimerDiff($tt) >= 1000 Then
-            ;         $tt = TimerInit()
-            ;         c($t)
-            ;         c($_loopPeriod)
-            ;         $t = 0
-            ;     EndIf
-            ;     $t += 1
+            ; If TimerDiff($tt) >= 1000 Then
+            ;     $tt = TimerInit()
+            ;     c($t)
+            ;     c($_loopPeriod)
+            ;     $t = 0
             ; EndIf
+            ; $t += 1
             
             If IsGuiOpened() Then
                 SyncGuiRgb()
