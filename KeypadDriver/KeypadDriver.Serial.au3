@@ -13,11 +13,11 @@
 #include "KeypadDriver.Vars.au3"
 #include "KeypadDriver.Gui.au3"
 
-Global $_keyDataNum, $_keyDataState, $_keyDataReceived = False
+Global $serial_keyDataNum, $serial_keyDataState, $serial_keyDataReceived = False
 
-Global $_byteString = "", $_byte, $_byteReceived = False
+Global $serial_byteString = "", $serial_byte, $serial_byteReceived = False
 
-Global $_comPort
+Global $serial_comPort
 
 ; This function tries to connect to the keypad serial port
 Func Connect()
@@ -26,8 +26,8 @@ Func Connect()
     For $i = 0 To UBound($ports) - 1
         If $ports[$i][1] == "USB-SERIAL CH340" Then
             Local $errorStr = ""
-            $_comPort = $ports[$i][0]
-            _CommSetPort(Int(StringReplace($_comPort, "COM", "")), $errorStr, 19200, 8, "none", 1, 2)
+            $serial_comPort = $ports[$i][0]
+            _CommSetPort(Int(StringReplace($serial_comPort, "COM", "")), $errorStr, 19200, 8, "none", 1, 2)
             
             If Not @error Then
                 ; Connection succeed
@@ -54,21 +54,21 @@ Func PollKeys()
     If $connectionStatus <> $CONNECTED Then Return
     
     ; If there's still unprocessed key data in the buffers, return
-    If $_keyDataReceived Then Return
+    If $serial_keyDataReceived Then Return
     
-    $_byteString = _CommReadByte()
+    $serial_byteString = _CommReadByte()
     If @error = 3 Then
         $connectionStatus = $CONNECTIONFAILED
         Return
     EndIf
-    If $_byteString <> "" Then
-        $_byte = Int($_byteString)
+    If $serial_byteString <> "" Then
+        $serial_byte = Int($serial_byteString)
         
         ; Key status byte - |first 4 bits for key number, 3 zero padding bits, last one bit for pressed state|
-        $_keyDataNum = BitShift($_byte, 4)
-        $_keyDataState = BitAND($_byte, 0x01)
+        $serial_keyDataNum = BitShift($serial_byte, 4)
+        $serial_keyDataState = BitAND($serial_byte, 0x01)
 
-        $_keyDataReceived = True
+        $serial_keyDataReceived = True
     EndIf
 EndFunc
 
@@ -76,18 +76,18 @@ EndFunc
 Func PollData()
     If $connectionStatus <> $CONNECTED Then Return
     
-    ; If there's still unprocessed byte in the buffer $_byte, return
-    If $_byteReceived Then Return
+    ; If there's still unprocessed byte in the buffer $serial_byte, return
+    If $serial_byteReceived Then Return
     
-    $_byteString = _CommReadByte()
+    $serial_byteString = _CommReadByte()
     If @error = 3 Then
         $connectionStatus = $CONNECTIONFAILED
         Return
     EndIf
-    If $_byteString <> "" Then
-        $_byte = Int($_byteString)
-        ; c("Received data $", 1, $_byteString)
-        $_byteReceived = True
+    If $serial_byteString <> "" Then
+        $serial_byte = Int($serial_byteString)
+        ; c("Received data $", 1, $serial_byteString)
+        $serial_byteReceived = True
         Return
     EndIf
 EndFunc
@@ -114,33 +114,33 @@ Func SendMsgToKeypad($type, $data)
 EndFunc
 
 Func GetComPort()
-    Return $_comPort
+    Return $serial_comPort
 EndFunc
 
 Func GetKeyDataNum()
-    Return $_keyDataNum
+    Return $serial_keyDataNum
 EndFunc
 
 Func GetKeyDataState()
-    Return $_keyDataState
+    Return $serial_keyDataState
 EndFunc
 
 Func IsKeyDataReceived()
-    Return $_keyDataReceived
+    Return $serial_keyDataReceived
 EndFunc
 
 Func KeyDataProcessed()
-    $_keyDataReceived = False
+    $serial_keyDataReceived = False
 EndFunc
 
 Func GetByte()
-    Return $_byte
+    Return $serial_byte
 EndFunc
 
 Func IsByteReceived()
-    Return $_byteReceived
+    Return $serial_byteReceived
 EndFunc
 
 Func ByteProcessed()
-    $_byteReceived = False
+    $serial_byteReceived = False
 EndFunc

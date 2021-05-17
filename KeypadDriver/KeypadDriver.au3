@@ -13,19 +13,19 @@
 #include "KeypadDriver.Serial.au3"
 #include "KeypadDriver.Keys.au3"
 
+Global $main_configPath = @ScriptDir & "\keypadconfig.ini"
+Global Const $main_scansPerSec = 1000
+Global Const $main_msPerScan = 1000 / $main_scansPerSec
+Global $main_loopPeriod, $main_loopStartTime, $main_timer
+Global $main_timerRetrying
+	
 SetGuiOpeningKey("{F4}")
 Opt("GUICloseOnESC", 0)
 
 Func Main()
-    Local $_configPath = @ScriptDir & "\keypadconfig.ini"
-    Local Const $_scansPerSec = 1000
-    Local Const $_msPerScan = 1000 / $_scansPerSec
-    Local $_loopPeriod, $_loopStartTime, $_timer
-    Local $_timerRetrying
-
     _CommSetDllPath(@ScriptDir & "\Include\commg.dll")
-    If FileExists($_configPath) Then  ; If the config exists then use the binding in it
-        ConfigLoad($_configPath)
+    If FileExists($main_configPath) Then  ; If the config exists then use the binding in it
+        ConfigLoad($main_configPath)
     Else  ; If config doesn't exist then use the default binding
         BindKey(1, "ESC")
         BindKey(2, "`")
@@ -46,12 +46,12 @@ Func Main()
     ; Local $t = 0
     ; Local $tt = 0
     While 1
-        $_loopStartTime = TimerInit()
-        If (TimerDiff($_timer) >= ($_msPerScan - ($_loopPeriod > $_msPerScan ? $_msPerScan : $_loopPeriod))) Then
+        $main_loopStartTime = TimerInit()
+        If (TimerDiff($main_timer) >= ($main_msPerScan - ($main_loopPeriod > $main_msPerScan ? $main_msPerScan : $main_loopPeriod))) Then
         
             ; Because retrieving the port list takes a while, so we don't reconnect too often
-            If $connectionStatus <> $CONNECTED And TimerDiff($_timerRetrying) > 5000 Then
-                $_timerRetrying = TimerInit()
+            If $connectionStatus <> $CONNECTED And TimerDiff($main_timerRetrying) > 5000 Then
+                $main_timerRetrying = TimerInit()
                 Connect()
             EndIf
         
@@ -66,7 +66,7 @@ Func Main()
             ; If TimerDiff($tt) >= 1000 Then
             ;     $tt = TimerInit()
             ;     c($t)
-            ;     c($_loopPeriod)
+            ;     c($main_loopPeriod)
             ;     $t = 0
             ; EndIf
             ; $t += 1
@@ -77,12 +77,12 @@ Func Main()
                 Switch HandleMsg()
                     Case 0
                     Case 1
-                        ConfigSave($_configPath)
+                        ConfigSave($main_configPath)
                 EndSwitch
             EndIf
             
-            $_timer = TimerInit()
-            $_loopPeriod = $_loopPeriod * 0.6 + TimerDiff($_loopStartTime) * 0.4  ; Don't modify the measured loop time immediately as it might float around
+            $main_timer = TimerInit()
+            $main_loopPeriod = $main_loopPeriod * 0.6 + TimerDiff($main_loopStartTime) * 0.4  ; Don't modify the measured loop time immediately as it might float around
         EndIf
     WEnd
 EndFunc
