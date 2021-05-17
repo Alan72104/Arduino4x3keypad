@@ -31,6 +31,10 @@ Global $gui_idGroupBinding, $gui_idLabelCurrentlyBinding, $gui_idLabelBindingArr
 
 Global $gui_idRadioBind, $gui_idRadioRemove
 
+Global Enum $gui_MONITORRGB, $gui_MONITORKEYPRESS
+Global $gui_monitoringType = $gui_MONITORRGB
+Global $gui_idRadioMonitorRgb, $gui_idRadioMonitorKeypress
+
 Global $gui_idComboRgbState, $gui_idButtonRgbUpdate, $gui_idButtonRgbIncreaseBrightness, $gui_idButtonRgbDecreaseBrightness
 
 Global $gui_idLabelConnection
@@ -73,6 +77,17 @@ Func HandleMsg()
                 $gui_bindingKeys = False
                 ShowBindingGroup(0)
             EndIf
+        
+        ; The monitoring type selectors
+        Case $gui_idRadioMonitorRgb
+            $gui_monitoringType = $gui_MONITORRGB
+        Case $gui_idRadioMonitorKeypress
+            $gui_monitoringType = $gui_MONITORKEYPRESS
+            For $j = 0 To $HEIGHT - 1
+                For $i = 0 To $WIDTH - 1
+                    UpdateBtnLabelRgb($j * $WIDTH + $i + 1, 255, 255, 255)
+                Next
+            Next
         
         ; The rgb "Update" button
         Case $gui_idButtonRgbUpdate
@@ -174,7 +189,11 @@ Func SyncGuiRgb()
             
             ; If all the buttons' rgb have been received, update the key buttons' colors and return
             If $gui_syncingButtonIndex = $WIDTH * $HEIGHT Then
-                UpdateBtnLabelsRgb($gui_rgbBuffer)
+                For $j = 0 To $HEIGHT - 1
+                    For $i = 0 To $WIDTH - 1
+                        UpdateBtnLabelRgb($j * $WIDTH + $i + 1, $gui_rgbBuffer[$j * $WIDTH + $i][0], $gui_rgbBuffer[$j * $WIDTH + $i][1], $gui_rgbBuffer[$j * $WIDTH + $i][2])
+                    Next
+                Next
                 Return
             EndIf
             
@@ -197,14 +216,10 @@ Func UpdateBtnLabels()
 EndFunc
 
 ; This function updates the background colors of the key buttons
-Func UpdateBtnLabelsRgb(ByRef $data)
-    For $j = 0 To $HEIGHT - 1
-        For $i = 0 To $WIDTH - 1
-            GUICtrlSetBkColor($gui_idButtonBtns[$j * $WIDTH + $i], $data[$j * $WIDTH + $i][0] * 256 * 256 + _
-                                                               $data[$j * $WIDTH + $i][1] * 256 + _
-                                                               $data[$j * $WIDTH + $i][2])
-        Next
-    Next
+Func UpdateBtnLabelRgb($num, $r, $g, $b)
+    If $num <= $WIDTH * $HEIGHT Then
+        GUICtrlSetBkColor($gui_idButtonBtns[$num - 1], $r * 256 * 256 + $g * 256 + $b)
+    EndIf
 EndFunc
 
 ; This function shows or hides the "Binding" group and the inside controls
@@ -230,6 +245,8 @@ Func OpenGui()
     
     $gui_hGui = GUICreate("THE Keypad Control Panel", 750, 500, Default, Default, Default, $WS_EX_TOPMOST)
     $gui_guiOpened = True
+
+    ; vvvvvvvvvvvvvvvvvvvvvvvvv Group buttons vvvvvvvvvvvvvvvvvvvvvvvvv
     GUICtrlCreateGroup("Buttons", 50, 30, _
                                   15 + 60 + 85 * 3 + 15, _
                                   15 + 60 + 85 * 2 + 15)
@@ -243,6 +260,9 @@ Func OpenGui()
             Next
         Next
     GUICtrlCreateGroup("", -99, -99, 1, 1)
+    ; ^^^^^^^^^^^^^^^^^^^^^^^^^ Group buttons ^^^^^^^^^^^^^^^^^^^^^^^^^
+    
+    ; vvvvvvvvvvvvvvvvvvvvvvvvv Group rgb controls vvvvvvvvvvvvvvvvvvvvvvvvv
     GUICtrlCreateGroup("RGB Controls", 50, (30 + 15 + 60 + 85 * 2 + 15) + 15, _
                                            15 + 150 + 15, _
                                            15 + 25 + 8 + 25 + 15)
@@ -252,29 +272,35 @@ Func OpenGui()
         $gui_idButtonRgbIncreaseBrightness = GUICtrlCreateButton("+", 50 + 15 + 100 + 10 , (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 15, 25)
         $gui_idButtonRgbDecreaseBrightness = GUICtrlCreateButton("-", 50 + 15 + 100 + 10 + 15 + 10, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 15, 25)
     GUICtrlCreateGroup("", -99, -99, 1, 1)
+    ; ^^^^^^^^^^^^^^^^^^^^^^^^^ Group rgb controls ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    ; vvvvvvvvvvvvvvvvvvvvvvvvv Group binding vvvvvvvvvvvvvvvvvvvvvvvvv
     $gui_idGroupBinding = GUICtrlCreateGroup("Binding", (50 + 15 + 60 + 85 * 3 + 15) + 15, 30, _
-                                                     15 + 100 + 15, _
-                                                     15 + 15 + 20 + 8 + 20 + 25 + 25 + 8 + 25 + 15)
+                                                        15 + 100 + 15, _
+                                                        15 + 15 + 20 + 8 + 20 + 25 + 25 + 8 + 25 + 15)
         $gui_idLabelCurrentlyBinding = GUICtrlCreateLabel("Binding key 1", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
-                                                                        30 + 15, _
-                                                                        100, 15)
+                                                                           30 + 15, _
+                                                                           100, 15)
         $gui_idLabelBindingArrow = GUICtrlCreateLabel("=>", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
-                                                         30 + 15 + 30, _
-                                                         15, 15)
+                                                            30 + 15 + 30, _
+                                                            15, 15)
         $gui_idInputKeyUp = GUICtrlCreateInput("{UP up}", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15 + 10 + 15, _
-                                                       30 + 15 + 15, _
-                                                       75, 20)
+                                                          30 + 15 + 15, _
+                                                          75, 20)
         $gui_idInputKeyDown = GUICtrlCreateInput("{UP down}", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15 + 10 + 15, _
-                                                           30 + 15 + 15 + 20 + 8, _
-                                                           75, 20)
+                                                              30 + 15 + 15 + 20 + 8, _
+                                                              75, 20)
         $gui_idButtonConfirm = GUICtrlCreateButton("Confirm", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
-                                                           30 + 15 + 15 + 20 + 8 + 20 + 25, _
-                                                           100, 25)
+                                                              30 + 15 + 15 + 20 + 8 + 20 + 25, _
+                                                              100, 25)
         $gui_idButtonCancel = GUICtrlCreateButton("Cancel", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
-                                                         30 + 15 + 15 + 20 + 8 + 20 + 25 + 25 + 8, _
-                                                         100, 25)
+                                                            30 + 15 + 15 + 20 + 8 + 20 + 25 + 25 + 8, _
+                                                            100, 25)
     GUICtrlCreateGroup("", -99, -99, 1, 1)
     ShowBindingGroup(0)
+    ; ^^^^^^^^^^^^^^^^^^^^^^^^^ Group binding ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    ; vvvvvvvvvvvvvvvvvvvvvvvvv Group actions vvvvvvvvvvvvvvvvvvvvvvvvv
     GUICtrlCreateGroup("Actions", 750 - 50 - 15 - 100 - 15, _
                                   0 + 30, _
                                   15 + 100 + 15, _
@@ -282,14 +308,33 @@ Func OpenGui()
         $gui_idRadioBind = GUICtrlCreateRadio("Bind to new keys", 750 - 50 - 15 - 100, 30 + 15, 100, 15)
             GUICtrlSetState($gui_idRadioBind, $GUI_CHECKED)
         $gui_idRadioRemove = GUICtrlCreateRadio("Remove binding", 750 - 50 - 15 - 100, 30 + 15 + 15 + 10, 100, 15)
-    GUICtrlCreateGroup("", -99, -99, 1, 1)    
+    GUICtrlCreateGroup("", -99, -99, 1, 1)
+    ; ^^^^^^^^^^^^^^^^^^^^^^^^^ Group actions ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    ; vvvvvvvvvvvvvvvvvvvvvvvvv Group monitoring vvvvvvvvvvvvvvvvvvvvvvvvv
+    GUICtrlCreateGroup("Monitoring", 750 - 50 - 15 - 100 - 15, _
+                                  (30 + 15 + 15 + 25 * 1 + 15) + 15, _
+                                  15 + 100 + 15, _
+                                  15 + 15 + 25 * 1 + 15)
+        $gui_idRadioMonitorRgb = GUICtrlCreateRadio("RGB effect", 750 - 50 - 15 - 100, _
+                                                                  (30 + 15 + 15 + 25 * 1 + 15) + 15 + 15, _
+                                                                  100, 15)
+            GUICtrlSetState($gui_idRadioMonitorRgb, $GUI_CHECKED)
+        $gui_idRadioMonitorKeypress = GUICtrlCreateRadio("Key press", 750 - 50 - 15 - 100, _
+                                                                      (30 + 15 + 15 + 25 * 1 + 15) + 15 + 15 + 15 + 10, _
+                                                                      100, 15)
+    GUICtrlCreateGroup("", -99, -99, 1, 1)
+    ; ^^^^^^^^^^^^^^^^^^^^^^^^^ Group monitoring ^^^^^^^^^^^^^^^^^^^^^^^^^
+
     $gui_idButtonClose = GUICtrlCreateButton("Close the driver", 750 - 25 - 150, _
-                                                              500 - 25 - 25, _
-                                                              150, 25)
+                                                                 500 - 25 - 25, _
+                                                                 150, 25)
         GUICtrlSetColor($gui_idButtonClose, 0xFF0000)
     $gui_idButtonSave = GUICtrlCreateButton("Save to config", 750 - 25 - 150 + 25, _
-                                                           500 - 25 - 25 - 25 - 5, _
-                                                           100, 25)
+                                                              500 - 25 - 25 - 25 - 5, _
+                                                              100, 25)
+    
+    
     $gui_idLabelConnection = GUICtrlCreateLabel("Not connected, detecting the port...", 50, 500 - 25 - 15, 500, 15)
     
     ; Shows the gui
@@ -306,6 +351,10 @@ EndFunc
 
 Func IsGuiOpened()
     Return $gui_guiOpened
+EndFunc
+
+Func IsMonitoringKeypress()
+    Return $gui_monitoringType = $gui_MONITORKEYPRESS
 EndFunc
 
 Func ArrayFind(ByRef $a, $v)

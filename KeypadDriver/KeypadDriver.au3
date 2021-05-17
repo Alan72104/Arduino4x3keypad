@@ -56,12 +56,28 @@ Func Main()
             EndIf
         
             PollKeys()
-            If IsKeyDataReceived() Then
+            If IsKeyDataReceived() And Not IsGuiOpened() Then
                 ; c("Button: $ pressed, state: $", 1, $_pressedBtnNum, $_pressedBtnState)
                 SendKey(GetKeyDataNum(), GetKeyDataState())
-                KeyDataProcessed()
             EndIf
             
+            If IsGuiOpened() Then
+                If IsMonitoringKeypress() Then
+                    If IsKeyDataReceived() Then
+                        UpdateBtnLabelRgb(GetKeyDataNum(), 255, GetKeyDataState() ? 0 : 255, GetKeyDataState() ? 0 : 255)
+                    EndIf
+                Else
+                    SyncGuiRgb()
+                EndIf
+
+                ; HandleMsg() only handles gui related messages, returns extra messages if need to be explicitly handled
+                Switch HandleMsg()
+                    Case 0
+                    Case 1
+                        ConfigSave($main_configPath)
+                EndSwitch
+            EndIf
+                        
             ; Debug loop time and loop frequency output
             ; If TimerDiff($tt) >= 1000 Then
             ;     $tt = TimerInit()
@@ -70,16 +86,8 @@ Func Main()
             ;     $t = 0
             ; EndIf
             ; $t += 1
-            
-            If IsGuiOpened() Then
-                SyncGuiRgb()
-                ; HandleMsg() only handles gui related messages, returns extra messages if need to be explicitly handled
-                Switch HandleMsg()
-                    Case 0
-                    Case 1
-                        ConfigSave($main_configPath)
-                EndSwitch
-            EndIf
+
+            KeyDataProcessed()
             
             $main_timer = TimerInit()
             $main_loopPeriod = $main_loopPeriod * 0.6 + TimerDiff($main_loopStartTime) * 0.4  ; Don't modify the measured loop time immediately as it might float around
