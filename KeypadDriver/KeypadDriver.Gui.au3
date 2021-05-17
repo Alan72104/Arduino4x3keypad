@@ -234,10 +234,10 @@ Func OpenGui()
         For $j = 0 To $HEIGHT - 1
             For $i = 0 To $WIDTH - 1
                 $_idButtonBtns[$j * $WIDTH + $i] = GUICtrlCreateButton(($j * $WIDTH + $i + 1) & @CRLF & _
-                                                                      GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN), _
-                                                                      50 + 15 + $i * 85, _
-                                                                      30 + 15 + $j * 85, _
-                                                                      60, 60, $BS_MULTILINE)
+                                                                       GetKeybindingForKey($j * $WIDTH + $i + 1, $KEYSTROKEDOWN), _
+                                                                       50 + 15 + $i * 85, _
+                                                                       30 + 15 + $j * 85, _
+                                                                       60, 60, $BS_MULTILINE)
             Next
         Next
     GUICtrlCreateGroup("", -99, -99, 1, 1)
@@ -251,26 +251,26 @@ Func OpenGui()
         $_idButtonRgbDecreaseBrightness = GUICtrlCreateButton("-", 50 + 15 + 100 + 10 + 15 + 10, (30 + 15 + 60 + 85 * 2 + 15) + 15 + 15 + 25 + 8, 15, 25)
     GUICtrlCreateGroup("", -99, -99, 1, 1)
     $_idGroupBinding = GUICtrlCreateGroup("Binding", (50 + 15 + 60 + 85 * 3 + 15) + 15, 30, _
-                                                    15 + 100 + 15, _
-                                                    15 + 15 + 20 + 8 + 20 + 25 + 25 + 8 + 25 + 15)
+                                                     15 + 100 + 15, _
+                                                     15 + 15 + 20 + 8 + 20 + 25 + 25 + 8 + 25 + 15)
         $_idLabelCurrentlyBinding = GUICtrlCreateLabel("Binding key 1", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
-                                                                       30 + 15, _
-                                                                       100, 15)
+                                                                        30 + 15, _
+                                                                        100, 15)
         $_idLabelBindingArrow = GUICtrlCreateLabel("=>", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
-                                                        30 + 15 + 30, _
-                                                        15, 15)
+                                                         30 + 15 + 30, _
+                                                         15, 15)
         $_idInputKeyUp = GUICtrlCreateInput("{UP up}", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15 + 10 + 15, _
-                                                      30 + 15 + 15, _
-                                                      75, 20)
+                                                       30 + 15 + 15, _
+                                                       75, 20)
         $_idInputKeyDown = GUICtrlCreateInput("{UP down}", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15 + 10 + 15, _
-                                                      30 + 15 + 15 + 20 + 8, _
-                                                      75, 20)
+                                                           30 + 15 + 15 + 20 + 8, _
+                                                           75, 20)
         $_idButtonConfirm = GUICtrlCreateButton("Confirm", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
-                                                          30 + 15 + 15 + 20 + 8 + 20 + 25, _
-                                                          100, 25)
+                                                           30 + 15 + 15 + 20 + 8 + 20 + 25, _
+                                                           100, 25)
         $_idButtonCancel = GUICtrlCreateButton("Cancel", (50 + 15 + 60 + 85 * 3 + 15) + 15 + 15, _
-                                                          30 + 15 + 15 + 20 + 8 + 20 + 25 + 25 + 8, _
-                                                          100, 25)
+                                                         30 + 15 + 15 + 20 + 8 + 20 + 25 + 25 + 8, _
+                                                         100, 25)
     GUICtrlCreateGroup("", -99, -99, 1, 1)
     ShowBindingGroup(0)
     GUICtrlCreateGroup("Actions", 750 - 50 - 15 - 100 - 15, _
@@ -282,12 +282,12 @@ Func OpenGui()
         $_idRadioRemove = GUICtrlCreateRadio("Remove binding", 750 - 50 - 15 - 100, 30 + 15 + 15 + 10, 100, 15)
     GUICtrlCreateGroup("", -99, -99, 1, 1)    
     $_idButtonClose = GUICtrlCreateButton("Close the driver", 750 - 25 - 150, _
-                                                             500 - 25 - 25, _
-                                                             150, 25)
+                                                              500 - 25 - 25, _
+                                                              150, 25)
         GUICtrlSetColor($_idButtonClose, 0xFF0000)
     $_idButtonSave = GUICtrlCreateButton("Save to config", 750 - 25 - 150 + 25, _
-                                                             500 - 25 - 25 - 25 - 5, _
-                                                             100, 25)
+                                                           500 - 25 - 25 - 25 - 5, _
+                                                           100, 25)
     $_idLabelConnection = GUICtrlCreateLabel("Not connected, detecting the port...", 50, 500 - 25 - 15, 500, 15)
     
     ; Shows the gui
