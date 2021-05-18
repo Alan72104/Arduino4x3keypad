@@ -8,13 +8,16 @@ const uint8_t pinC[WIDTH] = {8, 7, 6, 5};
 const uint8_t pinR[HEIGHT] = {2, 3, 4};
 uint8_t btnStateTemp = LOW;
 uint8_t btnState[HEIGHT][WIDTH];
+uint8_t lastBtnState[HEIGHT][WIDTH];
+unsigned long debounceTime[HEIGHT][WIDTH];
+const uint16_t debounceMicros = 1500u;
 uint8_t ledState = LOW;
 unsigned long lastBlinkTime = 0ul;
 unsigned long ledBlinkLen = 5ul;
 unsigned long loopEndTime = 0ul;
 unsigned long loopStartTime = 0ul;
 unsigned long loopPeriod = 0ul;
-const uint16_t scanPerSec = 1000u;
+const uint16_t scanPerSec = 2000u;
 const uint16_t microsPerScan = 1000000u / scanPerSec;
 
 // Variables for the rgb leds
@@ -64,99 +67,35 @@ void setup() {
 }
 
 // #define Debug
-
+// void setInputFlags() {
+//   for(int i = 0; i < numOfInputs; i++)
+//   {
+//     int reading = digitalRead(inputPins[i]);
+//     if (reading != lastInputState[i])
+//     {
+//       lastDebounceTime[i] = millis();
+//     }
+//     else if ((millis() - lastDebounceTime[i]) > debounceDelay)
+//     {
+//       if (reading != inputState[i]) {
+//         inputState[i] = reading;
+//         if (inputState[i] == HIGH) {
+//           inputFlags[i] = HIGH;
+//         }
+//       }
+//     }
+//     lastInputState[i] = reading;
+//   }
+// }
+unsigned long ee;
 void loop() {
   // The start time of the FULL loop
   loopStartTime = micros();
 
+  UpdateKeys();
   UpdateLed();
   UpdateEffect();
   UpdateRgb();
-
-  // Todo: Split key detecting into its own function
-  if (micros() - loopEndTime < (microsPerScan - (loopPeriod > microsPerScan ? microsPerScan : loopPeriod))) return;
-  
-  for (uint8_t i = 0; i < HEIGHT; i++)
-  {
-    // Write the current row to LOW which is ground
-    // If a switch on the row is pressed, it pulls the corresponding column input pin to ground which is LOW
-    // According to the input_pullup characteristics, pin reading needs to be inverted
-    digitalWrite(pinR[i], LOW);
-
-    for (uint8_t j = 0; j < WIDTH; j++)
-    {
-      // Reading is inverted here
-      btnStateTemp = !digitalRead(pinC[j]);
-
-      // Only perform actions when the state changes
-      if (btnState[i][j] != btnStateTemp)
-      {
-        btnState[i][j] = btnStateTemp;
-
-#ifndef Debug
-        if (Serial.availableForWrite())
-        {
-          // Key status byte - |first 4 bits for key number, 3 zero padding bits, last one bit for pressed state|
-          Serial.write(((4*i+j+1) << 4 ) + (btnStateTemp == HIGH ? 1 : 0));
-        }
-#endif
-
-        // Modifier key handling
-        if (btnState[2][0] == HIGH)
-        {
-          if (btnState[0][3] == HIGH && millis() - lastRgbStateChange >= 150)
-          {
-            lastRgbStateChange = millis();
-            NextRgbState();
-          }
-          else if (btnState[0][0] == HIGH && millis() - lastRgbBrightnessChange >= 100)
-          {
-            lastRgbBrightnessChange = millis();
-            rgbBrightness = min(rgbBrightness + 10, 255);
-          }
-          else if (btnState[0][1] == HIGH && millis() - lastRgbBrightnessChange >= 100)
-          {
-            lastRgbBrightnessChange = millis();
-            rgbBrightness = max(0, rgbBrightness - 10);
-          }
-        }
-        
-        // State specific handling
-        switch (rgbState)
-        {
-          case spreadOut:
-            if (btnStateTemp == HIGH && balls.size() < 16)
-            {
-              CRGB color = CHSV(random(256), 255, rgbBrightness);
-              balls.push_back(MakeBall(j, i, -1, color));
-              balls.push_back(MakeBall(j, i, 1, color));
-            }
-            break;
-          
-          case fractionalDrawingTest2d:
-            if (btnState[0][0] == HIGH && fractionalDrawingTestY > 0.0f)         fractionalDrawingTestY -= 0.1f;
-            else if (btnState[1][0] == HIGH && fractionalDrawingTestY < HEIGHT)  fractionalDrawingTestY += 0.1f;
-            else if (btnState[1][2] == HIGH && fractionalDrawingTestX < WIDTH)   fractionalDrawingTestX += 0.1f;
-            else if (btnState[1][1] == HIGH && fractionalDrawingTestX > 0.0f)    fractionalDrawingTestX -= 0.1f;
-            break;
-          
-          case ripple:
-            if (btnStateTemp == HIGH && circles.size() < 16)
-              circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
-            break;
-          
-          case antiRipple:
-            if (btnStateTemp == HIGH && circles.size() < 16)
-              circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
-            break;
-          
-          default:
-            break;
-        }
-      }
-    }
-    digitalWrite(pinR[i], HIGH);
-  }
 
   // If serial has received bytes, read the driver messages
   if (Serial.available())
@@ -192,6 +131,117 @@ void loop() {
     }
   }
 
+  loopEndTime = micros();
+  // Don't change the measured loop time immediately as it might float around
+  loopPeriod = (unsigned long)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);
+}
+
+void UpdateKeys()
+{
+  static unsigned long lastKeysUpdate = 0ul;
+
+  if (micros() - lastKeysUpdate < (microsPerScan - (loopPeriod > microsPerScan ? microsPerScan : loopPeriod))) return;
+  lastKeysUpdate = micros();
+
+  for (uint8_t i = 0; i < HEIGHT; i++)
+  {
+    // Write the current row to LOW which is ground
+    // If a switch on the row is pressed, it pulls the corresponding column input pin to ground which is LOW
+    // According to the input_pullup characteristics, pin reading needs to be inverted
+    digitalWrite(pinR[i], LOW);
+
+    for (uint8_t j = 0; j < WIDTH; j++)
+    {
+      // Reading is inverted here
+      btnStateTemp = !digitalRead(pinC[j]);
+
+      if (btnStateTemp != lastBtnState[i][j])
+      {
+        if (debounceTime[i][j] == 0)
+          debounceTime[i][j] = micros();
+      }
+      
+      if ((micros() - debounceTime[i][j]) > debounceMicros && debounceTime[i][j] != 0)
+      {
+        // Serial.println(micros() - debounceTime[i][j]);
+        if (btnStateTemp != btnState[i][j])
+        {
+          // Serial.println(micros() - debounceTime[i][j]);
+          debounceTime[i][j] = 0;
+
+          btnState[i][j] = btnStateTemp;
+
+          // if (inputState[i][j] == HIGH)
+          //   btnFlags[i][j] = HIGH;
+
+#ifndef Debug
+          if (Serial.availableForWrite())
+          {
+            // Key status byte - |first 4 bits for key number, 3 zero padding bits, last one bit for pressed state|
+            Serial.write(((4*i+j+1) << 4 ) + (btnStateTemp == HIGH ? 1 : 0));
+          }
+#endif
+
+          // Modifier key handling
+          if (btnState[2][0] == HIGH)
+          {
+            if (btnState[0][3] == HIGH && millis() - lastRgbStateChange >= 150)
+            {
+              lastRgbStateChange = millis();
+              NextRgbState();
+            }
+            else if (btnState[0][0] == HIGH && millis() - lastRgbBrightnessChange >= 100)
+            {
+              lastRgbBrightnessChange = millis();
+              rgbBrightness = min(rgbBrightness + 10, 255);
+            }
+            else if (btnState[0][1] == HIGH && millis() - lastRgbBrightnessChange >= 100)
+            {
+              lastRgbBrightnessChange = millis();
+              rgbBrightness = max(0, rgbBrightness - 10);
+            }
+          }
+          
+          // State specific handling
+          switch (rgbState)
+          {
+            case spreadOut:
+              if (btnStateTemp == HIGH && balls.size() < 16)
+              {
+                CRGB color = CHSV(random(256), 255, rgbBrightness);
+                balls.push_back(MakeBall(j, i, -1, color));
+                balls.push_back(MakeBall(j, i, 1, color));
+              }
+              break;
+            
+            case fractionalDrawingTest2d:
+              if (btnState[0][0] == HIGH && fractionalDrawingTestY > 0.0f)         fractionalDrawingTestY -= 0.1f;
+              else if (btnState[1][0] == HIGH && fractionalDrawingTestY < HEIGHT)  fractionalDrawingTestY += 0.1f;
+              else if (btnState[1][2] == HIGH && fractionalDrawingTestX < WIDTH)   fractionalDrawingTestX += 0.1f;
+              else if (btnState[1][1] == HIGH && fractionalDrawingTestX > 0.0f)    fractionalDrawingTestX -= 0.1f;
+              break;
+            
+            case ripple:
+              if (btnStateTemp == HIGH && circles.size() < 16)
+                circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
+              break;
+            
+            case antiRipple:
+              if (btnStateTemp == HIGH && circles.size() < 16)
+                circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
+              break;
+            
+            default:
+              break;
+          }
+        }
+      }
+      lastBtnState[i][j] = btnStateTemp;
+    }
+    
+    digitalWrite(pinR[i], HIGH);
+  }
+
 #ifdef Debug
   // Update frequency test
   static int t;
@@ -208,10 +258,6 @@ void loop() {
     Serial.println(F(" micros"));
   }
 #endif
-
-  loopEndTime = micros();
-  // Don't change the measured loop time immediately as it might float around
-  loopPeriod = (unsigned long)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);
 }
 
 Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color)
