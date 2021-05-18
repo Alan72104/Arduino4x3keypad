@@ -12,7 +12,6 @@
 #include <StringConstants.au3>
 #include <WindowsConstants.au3>
 #include "Include\CommMG.au3"
-#include "KeypadDriver.au3"
 #include "KeypadDriver.Vars.au3"
 #include "KeypadDriver.Serial.au3"
 #include "KeypadDriver.Keys.au3"
@@ -62,11 +61,11 @@ Func HandleMsg()
         ; The "Close the driver" button
         Case $gui_idButtonClose
             CloseGui()
-            Terminate()
+            Return 1
         
         ; The "Save to config" button
         Case $gui_idButtonSave
-            Return 1
+            Return 2
         
         ; The binding action selectors
         Case $gui_idRadioBind

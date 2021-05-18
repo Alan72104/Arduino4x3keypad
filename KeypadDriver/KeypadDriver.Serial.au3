@@ -9,7 +9,6 @@
 #include <MsgBoxConstants.au3>
 #include "Include\CommMG.au3"
 #include "Include\LibDebug.au3"
-#include "KeypadDriver.au3"
 #include "KeypadDriver.Vars.au3"
 #include "KeypadDriver.Gui.au3"
 

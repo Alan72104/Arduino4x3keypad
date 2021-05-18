@@ -74,6 +74,8 @@ Func Main()
                 Switch HandleMsg()
                     Case 0
                     Case 1
+                        Terminate()
+                    Case 2
                         ConfigSave($main_configPath)
                 EndSwitch
             EndIf
