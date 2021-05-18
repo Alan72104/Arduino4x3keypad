@@ -520,7 +520,7 @@ void UpdateEffect()
   static float delayElapsed = 0.0f;
   static uint8_t rainbowState = 0;
   static uint8_t breathingState = 0;
-  static const uint8_t breathingRainbowHues[7] = {0,32,64,96,160,176,192};
+  static const uint8_t rainbowHues[7] = {0,32,64,96,160,176,192};
   static uint8_t spinningRainbowState = 0;
 #ifdef Debug
   static unsigned long lastEffectDebug = 0;
@@ -612,7 +612,7 @@ void UpdateEffect()
       
       for (uint8_t i = 0; i < NUM_LEDS; i++)
       {
-        leds[i] = CHSV(breathingRainbowHues[breathingState], 255, 15 + (rgbBrightness * 1.5f *
+        leds[i] = CHSV(rainbowHues[breathingState], 255, 15 + (rgbBrightness * 1.5f *
                         (delayElapsed <= 4.0f/2 ? delayElapsed / 2 : (2.0f - (delayElapsed - 2.0f)) / 2)) );
       }
       
@@ -705,7 +705,7 @@ void UpdateEffect()
       {
         delayElapsed = 0.0f;
         for (uint8_t i = 0; i < NUM_LEDS; i++)
-          leds[i] = CHSV(breathingRainbowHues[random(7)], 255, rgbBrightness);
+          leds[i] = CHSV(rainbowHues[random(7)], 255, rgbBrightness);
         break;
       }
 
@@ -714,7 +714,7 @@ void UpdateEffect()
       if (delayElapsed >= 0.2f)
       {
         delayElapsed = 0.0f;
-        leds[random(NUM_LEDS)] = CHSV(breathingRainbowHues[random(7)], 255, rgbBrightness);
+        leds[random(NUM_LEDS)] = CHSV(rainbowHues[random(7)], 255, rgbBrightness);
       }
 
       break;
