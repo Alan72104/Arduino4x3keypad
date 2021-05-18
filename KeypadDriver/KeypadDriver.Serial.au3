@@ -39,12 +39,12 @@ Func Connect()
                 c("Connection failed, error: $", 1, $errorStr)
             EndIf
             
-            ; Port was detected, no matter whether it's connected or not, stop searching ports, return
+            ; Port was detected, no matter whether it's connected or not, stop searching for the ports and return
             Return
         EndIf
     Next
     
-    ; If this line runs that means no port was detected, sets the status to detaction failed
+    ; If it reaches this line that means no port was detected, set the status to detection failed
     $connectionStatus = $PORTDETECTIONFAILED
 EndFunc
 
