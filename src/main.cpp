@@ -92,7 +92,7 @@ void loop() {
   // The start time of the FULL loop
   loopStartTime = micros();
 
-  UpdateKeys();
+  ScanKeys();
   UpdateLed();
   UpdateEffect();
   UpdateRgb();
@@ -136,7 +136,7 @@ void loop() {
   loopPeriod = (unsigned long)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);
 }
 
-void UpdateKeys()
+void ScanKeys()
 {
   static unsigned long lastKeysUpdate = 0ul;
 
@@ -339,7 +339,7 @@ void DrawLine(float fPos, float length, CRGB color)
 
 // This function draws a square onto the virtual 2d matrix
 // Coordinate and diameter can be float
-void DrawSquare(float fX, float fY, float diameter, CRGB color)
+void DrawSquare2d(float fX, float fY, float diameter, CRGB color)
 {
   float availFirstPixelX = 1.0f - (fX - (long)(fX));
   float availFirstPixelY = 1.0f - (fY - (long)(fY));
@@ -452,7 +452,7 @@ void DrawCircle_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB colo
 }
 
 // https://www.geeksforgeeks.org/bresenhams-circle-drawing-algorithm/
-void DrawCircle(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
+void DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
 {
     uint8_t x = 0, y = r;
     uint8_t d = 3 - 2 * r;
@@ -622,7 +622,7 @@ void UpdateEffect()
       // ========== Fractional drawing test 2D ==========
 
       FastLED.clear();
-      DrawSquare(fractionalDrawingTestX, fractionalDrawingTestY, 1.1, CRGB(CHSV(128, 255, rgbBrightness)));
+      DrawSquare2d(fractionalDrawingTestX, fractionalDrawingTestY, 1.1, CRGB(CHSV(128, 255, rgbBrightness)));
       
       break;
       // ==============================
@@ -638,10 +638,10 @@ void UpdateEffect()
       FastLED.clear();
 
       // Todo: Real spinning rainbow
-      DrawSquare(0.5f, 0.5f, 1, CRGB(CHSV(spinningRainbowState, 255, rgbBrightness)));
-      DrawSquare(2.5f, 0.5f, 1, CRGB(CHSV(spinningRainbowState + 64, 255, rgbBrightness)));
-      DrawSquare(0.5f, 1.5f, 1, CRGB(CHSV(spinningRainbowState + 64 * 2, 255, rgbBrightness)));
-      DrawSquare(2.5f, 1.5f, 1, CRGB(CHSV(spinningRainbowState + 64 * 3, 255, rgbBrightness)));
+      DrawSquare2d(0.5f, 0.5f, 1, CRGB(CHSV(spinningRainbowState, 255, rgbBrightness)));
+      DrawSquare2d(2.5f, 0.5f, 1, CRGB(CHSV(spinningRainbowState + 64, 255, rgbBrightness)));
+      DrawSquare2d(0.5f, 1.5f, 1, CRGB(CHSV(spinningRainbowState + 64 * 2, 255, rgbBrightness)));
+      DrawSquare2d(2.5f, 1.5f, 1, CRGB(CHSV(spinningRainbowState + 64 * 3, 255, rgbBrightness)));
 
       break;
       // ==============================
@@ -661,7 +661,7 @@ void UpdateEffect()
       {
         circle->radius += 15.0f * secondsElapsed;
         
-        DrawCircle(circle->x, circle->y, circle->radius, circle->color);
+        DrawCircle2d(circle->x, circle->y, circle->radius, circle->color);
 
         if(circle->radius >= 5.0f)
           circles.erase(circle);
@@ -688,7 +688,7 @@ void UpdateEffect()
         circle->radius -= 15.0f * secondsElapsed;
         
         if (circle->radius > 0.0f)
-          DrawCircle(circle->x, circle->y, circle->radius, circle->color);
+          DrawCircle2d(circle->x, circle->y, circle->radius, circle->color);
 
         if(circle->radius <= 0.0f)
           circles.erase(circle);
@@ -742,7 +742,7 @@ void UpdateEffect()
       {
         raindrop->y += 4.0f * secondsElapsed;
         
-        DrawSquare(raindrop->x, raindrop->y, 1.0f, raindrop->color);
+        DrawSquare2d(raindrop->x, raindrop->y, 1.0f, raindrop->color);
 
         if(raindrop->y >= HEIGHT)
           raindrops.erase(raindrop);

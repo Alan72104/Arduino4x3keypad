@@ -43,16 +43,16 @@ typedef struct {
 
 void setup();
 void loop();
-void UpdateKeys();
+void ScanKeys();
 Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color);
 Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color);
 Raindrop MakeRaindrop(uint8_t x, float y, CRGB color);
 CRGB ColorFraction(CRGB colorIn, float fraction);
 void DrawPixel2d(int x, int y, CRGB color);
 void DrawLine(float fPos, float length, CRGB color);
-void DrawSquare(float fX, float fY, float length, CRGB color);
-void DrawCircle_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color);
-void DrawCircle(uint8_t xc, uint8_t yc, uint8_t r, CRGB color);
+void DrawSquare2d(float fX, float fY, float length, CRGB color);
+void DrawCircle2d_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color);
+void DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color);
 void NextRgbState();
 void UpdateEffect();
 void UpdateRgb();
