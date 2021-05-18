@@ -439,7 +439,7 @@ void DrawSquare2d(float fX, float fY, float diameter, CRGB color)
   }
 }
 
-void DrawCircle_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color)
+void DrawCircle2d_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color)
 {
     DrawPixel2d(xc+x, yc+y, color);
     DrawPixel2d(xc-x, yc+y, color);
@@ -456,7 +456,7 @@ void DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
 {
     uint8_t x = 0, y = r;
     uint8_t d = 3 - 2 * r;
-    DrawCircle_internal(xc, yc, x, y, color);
+    DrawCircle2d_internal(xc, yc, x, y, color);
     while (y >= x)
     {
         // for each point we will
@@ -472,7 +472,7 @@ void DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
         }
         else
             d = d + 4 * x + 6;
-        DrawCircle_internal(xc, yc, x, y, color);
+        DrawCircle2d_internal(xc, yc, x, y, color);
     }
 }
 
