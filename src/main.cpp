@@ -599,6 +599,7 @@ void UpdateEffect()
       if (lastRgbState != breathing)
       {
         delayElapsed = 0.0f;
+        breathingState = 0;
       }
 
       delayElapsed += secondsElapsed;
