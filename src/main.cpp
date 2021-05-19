@@ -733,7 +733,7 @@ void UpdateEffect()
 
       delayElapsed += secondsElapsed;
 
-      if (delayElapsed >= 0.2f)
+      if (delayElapsed >= 0.3f)
       {
         delayElapsed = 0.0f;
         raindrops.push_back(MakeRaindrop(Random(WIDTH), 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
