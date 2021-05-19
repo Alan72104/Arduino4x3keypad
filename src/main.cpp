@@ -714,7 +714,7 @@ void UpdateEffect()
       if (delayElapsed >= 0.2f)
       {
         delayElapsed = 0.0f;
-        leds[random(NUM_LEDS)] = CHSV(rainbowHues[random(7)], 255, rgbBrightness);
+        leds[Random(NUM_LEDS)] = CHSV(rainbowHues[random(7)], 255, rgbBrightness);
       }
 
       break;
@@ -733,7 +733,7 @@ void UpdateEffect()
       if (delayElapsed >= 0.3f)
       {
         delayElapsed = 0.0f;
-        raindrops.push_back(MakeRaindrop(random(WIDTH), 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
+        raindrops.push_back(MakeRaindrop(Random(WIDTH), 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
       }
 
       FastLED.clear();
@@ -791,6 +791,22 @@ void UpdateLed()
       ledState = LOW;
       digitalWrite(LED_BUILTIN, ledState);
     }
+  }
+}
+
+// Random without repeat
+long Random(long max)
+{
+  static long last = 0l;
+  if (max == 0)
+    return 0;
+  else
+  {
+    long rtn = random(max);
+    while (rtn == last)
+      rtn = random(max);
+    last = rtn;
+    return rtn;
   }
 }
 

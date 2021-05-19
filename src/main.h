@@ -57,4 +57,5 @@ void NextRgbState();
 void UpdateEffect();
 void UpdateRgb();
 void UpdateLed();
+long Random(long max);
 int usedRam();
