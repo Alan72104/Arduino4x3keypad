@@ -521,7 +521,6 @@ void UpdateEffect()
   static uint8_t rainbowState = 0;
   static uint8_t breathingState = 0;
   static const uint8_t rainbowHues[7] = {0,32,64,96,160,176,192};
-  static uint8_t spinningRainbowState = 0;
 #ifdef Debug
   static unsigned long lastEffectDebug = 0;
 #endif
@@ -538,6 +537,7 @@ void UpdateEffect()
       // init the needed vars, and clear effect datas if needed
       if (lastRgbState != staticLight)
       {
+        rainbowState = 0;
       }
 
       rainbowState++;
@@ -557,6 +557,7 @@ void UpdateEffect()
       
       if (lastRgbState != rainbow)
       {
+        rainbowState = 0;
       }
       
       rainbowState++;
@@ -631,17 +632,18 @@ void UpdateEffect()
 
       if (lastRgbState != spinningRainbow)
       {
+        rainbowState = 0;
       }
 
-      spinningRainbowState++;
+      rainbowState++;
       
       FastLED.clear();
 
       // Todo: Real spinning rainbow
-      DrawSquare2d(0.5f, 0.5f, 1, CRGB(CHSV(spinningRainbowState, 255, rgbBrightness)));
-      DrawSquare2d(2.5f, 0.5f, 1, CRGB(CHSV(spinningRainbowState + 64, 255, rgbBrightness)));
-      DrawSquare2d(0.5f, 1.5f, 1, CRGB(CHSV(spinningRainbowState + 64 * 2, 255, rgbBrightness)));
-      DrawSquare2d(2.5f, 1.5f, 1, CRGB(CHSV(spinningRainbowState + 64 * 3, 255, rgbBrightness)));
+      DrawSquare2d(0.5f, 0.5f, 1, CRGB(CHSV(rainbowState, 255, rgbBrightness)));
+      DrawSquare2d(2.5f, 0.5f, 1, CRGB(CHSV(rainbowState + 64, 255, rgbBrightness)));
+      DrawSquare2d(0.5f, 1.5f, 1, CRGB(CHSV(rainbowState + 64 * 2, 255, rgbBrightness)));
+      DrawSquare2d(2.5f, 1.5f, 1, CRGB(CHSV(rainbowState + 64 * 3, 255, rgbBrightness)));
 
       break;
       // ==============================
