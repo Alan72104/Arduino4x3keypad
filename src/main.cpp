@@ -229,7 +229,7 @@ void ScanKeys()
                   moleIsHere = false;
                 }
               break;
-            
+
             default:
               break;
           }
@@ -531,6 +531,7 @@ void UpdateEffect()
   static uint8_t snakeY = 0;
   static std::deque<std::pair<uint8_t, uint8_t>> snakePaths;
   static float moleSpawningDelay = 0.0f;
+  static uint8_t moleSpawnCount = 0;
 #ifdef Debug
   static unsigned long lastEffectDebug = 0;
 #endif
@@ -822,52 +823,60 @@ void UpdateEffect()
         switch (moleState)
         {
           case ready:
-            if (delayElapsed >= 0.0f && delayElapsed < 1.0f)
-              for (uint8_t j = 0; j < HEIGHT; j++)
-                leds[j * WIDTH + 0] = CHSV(HUE_RED, 255, rgbBrightness);
-            else if (delayElapsed >= 1.0f && delayElapsed < 2.0f)
-              for (uint8_t i = 0; i < 2; i++)
-                for (uint8_t j = 0; j < HEIGHT; j++)
-                  leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
-            else if (delayElapsed >= 2.0f && delayElapsed < 3.0f)
-              for (uint8_t i = 0; i < 3; i++)
-                for (uint8_t j = 0; j < HEIGHT; j++)
-                  leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
-            else if (delayElapsed >= 3.0f)
+            if (delayElapsed >= 4.0f)
             {
-              for (uint8_t i = 0; i < 4; i++)
-                for (uint8_t j = 0; j < HEIGHT; j++)
-                  leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
-              if (delayElapsed >= 4.0f)
-              {
-                delayElapsed = 0.0f;
-                moleState = playing;
-                moleSpawningDelay = 0.0f;
-                moleScore = 0;
-              }
+              delayElapsed = 0.0f;
+              moleState = playing;
+              moleSpawningDelay = 0.0f;
+              moleSpawnCount = 0;
+              moleScore = 0;
+              // Fall through...
             }
-            break;
+            else
+            {
+              if (delayElapsed >= 0.0f && delayElapsed < 1.0f)
+                for (uint8_t j = 0; j < HEIGHT; j++)
+                  leds[j * WIDTH + 0] = CHSV(HUE_RED, 255, rgbBrightness);
+              else if (delayElapsed >= 1.0f && delayElapsed < 2.0f)
+                for (uint8_t i = 0; i < 2; i++)
+                  for (uint8_t j = 0; j < HEIGHT; j++)
+                    leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
+              else if (delayElapsed >= 2.0f && delayElapsed < 3.0f)
+                for (uint8_t i = 0; i < 3; i++)
+                  for (uint8_t j = 0; j < HEIGHT; j++)
+                    leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
+              else if (delayElapsed >= 3.0f)
+              {
+                for (uint8_t i = 0; i < 4; i++)
+                  for (uint8_t j = 0; j < HEIGHT; j++)
+                    leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
+              }
+              break;
+            }
 
           case playing:
-            if (delayElapsed > 15.0f)
+            if (moleSpawnCount >= 30)
             {
               delayElapsed = 0.0f;
               moleState = score;
               moleIsHere = false;
+              // Fall through...
+            }
+            else
+            {
+              moleSpawningDelay += secondsElapsed;
+              if (moleSpawningDelay >= 0.5f)
+              {
+                moleSpawningDelay = 0.0f;
+                moleX = random(WIDTH);
+                moleY = random(HEIGHT);
+                moleIsHere = true;
+                moleSpawnCount++;
+              }
+              if (moleIsHere)
+                leds[moleY * WIDTH + moleX] = CHSV(random(256), 255, rgbBrightness);
               break;
             }
-
-            moleSpawningDelay += secondsElapsed;
-            if (moleSpawningDelay >= 1.0)
-            {
-              moleSpawningDelay = 0.0f;
-              moleX = random(WIDTH);
-              moleY = random(HEIGHT);
-              moleIsHere = true;
-            }
-            if (moleIsHere)
-              leds[moleY * WIDTH + moleX] = CHSV(random(256), 255, rgbBrightness);
-            break;
 
           case score:
             if (delayElapsed > 5.0f)
@@ -877,7 +886,7 @@ void UpdateEffect()
               break;
             }
 
-            DrawLine(0.0f, map(moleScore, 0, 15, 0, NUM_LEDS), CHSV(HUE_RED, 255, rgbBrightness));
+            DrawLine(0.0f, map(moleScore, 0, 30, 0, NUM_LEDS), CHSV(HUE_RED, 255, rgbBrightness));
             break;
         }
 
