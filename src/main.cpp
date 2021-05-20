@@ -68,28 +68,6 @@ void setup() {
   rgbState = snake;
 }
 
-// #define Debug
-// void setInputFlags() {
-//   for(int i = 0; i < numOfInputs; i++)
-//   {
-//     int reading = digitalRead(inputPins[i]);
-//     if (reading != lastInputState[i])
-//     {
-//       lastDebounceTime[i] = millis();
-//     }
-//     else if ((millis() - lastDebounceTime[i]) > debounceDelay)
-//     {
-//       if (reading != inputState[i]) {
-//         inputState[i] = reading;
-//         if (inputState[i] == HIGH) {
-//           inputFlags[i] = HIGH;
-//         }
-//       }
-//     }
-//     lastInputState[i] = reading;
-//   }
-// }
-unsigned long ee;
 void loop() {
   // The start time of the FULL loop
   loopStartTime = micros();
@@ -137,6 +115,8 @@ void loop() {
   // Don't change the measured loop time immediately as it might float around
   loopPeriod = (unsigned long)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);
 }
+
+// #define Debug
 
 void ScanKeys()
 {
