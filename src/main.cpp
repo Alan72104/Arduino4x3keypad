@@ -764,7 +764,7 @@ void UpdateEffect()
 
       break;
       // ==============================
-      case snake:
+    case snake:
       // ========== Snake ==========
       
       if (lastRgbState != snake)
