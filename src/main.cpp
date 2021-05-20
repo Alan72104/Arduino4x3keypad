@@ -531,12 +531,8 @@ void UpdateEffect()
       rainbowState++;
       
       for (uint8_t i = 0; i < HEIGHT; i++)
-      {
         for (uint8_t j = 0; j < WIDTH; j++)
-        {
           leds[4*i+j] = btnState[i][j] ? CHSV((4*i+j) * 25 - (rainbowState * 1), 255, rgbBrightness) : CHSV(0, 0, 0);
-        }
-      }
 
       break;
       // ==============================
@@ -601,10 +597,8 @@ void UpdateEffect()
       }
       
       for (uint8_t i = 0; i < NUM_LEDS; i++)
-      {
         leds[i] = CHSV(rainbowHues[breathingState], 255, 15 + (rgbBrightness * 1.5f *
                         (delayElapsed <= 4.0f/2 ? delayElapsed / 2 : (2.0f - (delayElapsed - 2.0f)) / 2)) );
-      }
       
       break;
       // ==============================
