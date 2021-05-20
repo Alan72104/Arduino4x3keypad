@@ -883,6 +883,7 @@ void UpdateEffect()
             {
               delayElapsed = 0.0f;
               moleState = ready;
+              moleIsHere = false;
               break;
             }
 
