@@ -65,7 +65,6 @@ void setup() {
   // Wait until the serial system starts
   while (!Serial) {}
   Serial.begin(19200);
-  rgbState = snake;
 }
 
 void loop() {
