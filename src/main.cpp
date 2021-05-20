@@ -36,6 +36,10 @@ float fractionalDrawingTestX = 0.0f;
 std::vector<Circle> circles;
 std::vector<Raindrop> raindrops;
 
+// Todo: Real spinning rainbow
+// Todo: Make sure UpdateEffect() doesn't generate delay spikes
+// Todo: Split rising edge/falling edge debouncing, delayed rising, straight falling
+
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -144,16 +148,11 @@ void ScanKeys()
       
       if ((micros() - debounceTime[i][j]) > debounceMicros && debounceTime[i][j] != 0)
       {
-        // Serial.println(micros() - debounceTime[i][j]);
         if (btnStateTemp != btnState[i][j])
         {
-          // Serial.println(micros() - debounceTime[i][j]);
           debounceTime[i][j] = 0;
 
           btnState[i][j] = btnStateTemp;
-
-          // if (inputState[i][j] == HIGH)
-          //   btnFlags[i][j] = HIGH;
 
 #ifndef Debug
           if (Serial.availableForWrite())
@@ -622,7 +621,6 @@ void UpdateEffect()
       
       FastLED.clear();
 
-      // Todo: Real spinning rainbow
       DrawSquare2d(0.5f, 0.5f, 1, CRGB(CHSV(rainbowState, 255, rgbBrightness)));
       DrawSquare2d(2.5f, 0.5f, 1, CRGB(CHSV(rainbowState + 64, 255, rgbBrightness)));
       DrawSquare2d(0.5f, 1.5f, 1, CRGB(CHSV(rainbowState + 64 * 2, 255, rgbBrightness)));
