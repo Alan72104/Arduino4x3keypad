@@ -176,16 +176,19 @@ void ScanKeys()
             {
               lastRgbStateChange = millis();
               NextRgbState();
+              continue;
             }
             else if (btnState[0][0] == HIGH && millis() - lastRgbBrightnessChange >= 100)
             {
               lastRgbBrightnessChange = millis();
               rgbBrightness = min(rgbBrightness + 10, 255);
+              continue;
             }
             else if (btnState[0][1] == HIGH && millis() - lastRgbBrightnessChange >= 100)
             {
               lastRgbBrightnessChange = millis();
               rgbBrightness = max(0, rgbBrightness - 10);
+              continue;
             }
           }
           
