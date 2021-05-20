@@ -46,6 +46,7 @@ uint8_t moleScore = 0;
 // Todo: Split rising edge/falling edge debouncing, delayed rising, straight falling
 // Todo: Split codes
 // Todo: Double byte messages
+// Todo: Fill up the last 40% of the flash with more effects!
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
