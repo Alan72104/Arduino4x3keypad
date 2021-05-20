@@ -879,6 +879,7 @@ void UpdateEffect()
             break;
         }
 
+        break;
       // ==============================
 
   }
