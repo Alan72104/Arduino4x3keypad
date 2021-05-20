@@ -525,6 +525,7 @@ void UpdateEffect()
   static uint8_t snakeX = 0;
   static uint8_t snakeY = 0;
   static std::deque<std::pair<uint8_t, uint8_t>> snakePaths;
+  static float moleSpawningDelay = 0.0f;
 #ifdef Debug
   static unsigned long lastEffectDebug = 0;
 #endif
@@ -808,7 +809,7 @@ void UpdateEffect()
         moleIsHere = false;
         delayElapsed = 0.0f;
       }
-      static float moleSpawningDelay = 0.0f;
+
       delayElapsed += secondsElapsed;
 
       FastLED.clear();
