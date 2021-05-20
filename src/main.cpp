@@ -39,6 +39,8 @@ std::vector<Raindrop> raindrops;
 // Todo: Real spinning rainbow
 // Todo: Make sure UpdateEffect() doesn't generate delay spikes
 // Todo: Split rising edge/falling edge debouncing, delayed rising, straight falling
+// Todo: Split codes
+// Todo: Double byte messages
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
