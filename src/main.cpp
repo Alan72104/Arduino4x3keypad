@@ -35,6 +35,11 @@ float fractionalDrawingTestY = 0.0f;
 float fractionalDrawingTestX = 0.0f;
 std::vector<Circle> circles;
 std::vector<Raindrop> raindrops;
+MoleState moleState = ready;
+bool moleIsHere = false;
+uint8_t moleX = 0;
+uint8_t moleY = 0;
+uint8_t moleScore = 0;
 
 // Todo: Real spinning rainbow
 // Todo: Make sure UpdateEffect() doesn't generate delay spikes
@@ -213,6 +218,13 @@ void ScanKeys()
                 circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
               break;
             
+            case whacAMole:
+              if (btnStateTemp == HIGH && moleIsHere)
+                if (i == moleY && j == moleX)
+                {
+                  moleScore++;
+                  moleIsHere = false;
+                }
             default:
               break;
           }
@@ -491,6 +503,9 @@ void NextRgbState()
       break;
     case raindrop:
       rgbState = snake;
+      break;
+    case snake:
+      rgbState = whacAMole;
       break;
     default:
       rgbState = staticLight;
@@ -783,6 +798,83 @@ void UpdateEffect()
       DrawPixel2d(snakeX, snakeY, CRGB(CHSV(snakeHue, 255, rgbBrightness)));
 
       break;
+      // ==============================
+      case whacAMole:
+      // ========== Whac-A-Mole ==========
+      
+      if (lastRgbState != whacAMole)
+      {
+        moleState = ready;
+        moleIsHere = false;
+        delayElapsed = 0.0f;
+      }
+      static float moleSpawningDelay = 0.0f;
+      delayElapsed += secondsElapsed;
+
+      FastLED.clear();
+
+      switch (moleState)
+      {
+        case ready:
+          if (delayElapsed >= 0.0f && delayElapsed < 1.0f)
+            for (uint8_t j = 0; j < HEIGHT; j++)
+              leds[j * WIDTH + 0] = CHSV(HUE_RED, 255, rgbBrightness);
+          else if (delayElapsed >= 1.0f && delayElapsed < 2.0f)
+            for (uint8_t i = 0; i < 2; i++)
+              for (uint8_t j = 0; j < HEIGHT; j++)
+                leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
+          else if (delayElapsed >= 2.0f && delayElapsed < 3.0f)
+            for (uint8_t i = 0; i < 3; i++)
+              for (uint8_t j = 0; j < HEIGHT; j++)
+                leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
+          else if (delayElapsed >= 3.0f)
+          {
+            for (uint8_t i = 0; i < 4; i++)
+              for (uint8_t j = 0; j < HEIGHT; j++)
+                leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
+            if (delayElapsed >= 4.0f)
+            {
+              delayElapsed = 0.0f;
+              moleState = playing;
+              moleSpawningDelay = 0.0f;
+              moleScore = 0;
+            }
+          }
+          break;
+
+        case playing:
+          if (delayElapsed > 15.0f)
+          {
+            delayElapsed = 0.0f;
+            moleState = score;
+            moleIsHere = false;
+            break;
+          }
+
+          moleSpawningDelay += secondsElapsed;
+          if (moleSpawningDelay >= 1.0)
+          {
+            moleSpawningDelay = 0.0f;
+            moleX = random(WIDTH);
+            moleY = random(HEIGHT);
+            moleIsHere = true;
+          }
+          if (moleIsHere)
+            leds[moleY * WIDTH + moleX] = CHSV(random(256), 255, rgbBrightness);
+          break;
+
+        case score:
+          if (delayElapsed > 5.0f)
+          {
+            delayElapsed = 0.0f;
+            moleState = ready;
+            break;
+          }
+
+          DrawLine(0.0f, map(moleScore, 0, 15, 0, NUM_LEDS), CHSV(HUE_RED, 255, rgbBrightness));
+          break;
+      }
+
       // ==============================
 
   }

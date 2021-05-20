@@ -19,7 +19,14 @@ enum RgbState {
   antiRipple,
   stars,
   raindrop,
-  snake
+  snake,
+  whacAMole
+};
+
+enum MoleState {
+  ready,
+  playing,
+  score
 };
 
 typedef struct {
