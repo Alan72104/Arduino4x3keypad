@@ -10,7 +10,7 @@
 ; Size of the keypad
 Global Const $WIDTH = 4, $HEIGHT = 3
 ; Available rgb states on the keypad
-Global $rgbStates = ["staticLight","rainbow","spreadOut","breathing","fractionalDrawingTest2d","spinningRainbow","ripple","antiRipple","stars","raindrop"]
+Global $rgbStates = ["staticLight","rainbow","spreadOut","breathing","fractionalDrawingTest2d","spinningRainbow","ripple","antiRipple","stars","raindrop","snake"]
 
 ; Global variables for the connection status
 Global Enum $NOTCONNECTED, $CONNECTIONFAILED, $PORTDETECTIONFAILED, $CONNECTED

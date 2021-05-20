@@ -18,7 +18,8 @@ enum RgbState {
   ripple,
   antiRipple,
   stars,
-  raindrop
+  raindrop,
+  snake
 };
 
 typedef struct {

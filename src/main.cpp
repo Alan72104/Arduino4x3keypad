@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include <vector>
+#include <deque>
 #include "main.h"
 
 // Variables required to run the keypad
@@ -64,6 +65,7 @@ void setup() {
   // Wait until the serial system starts
   while (!Serial) {}
   Serial.begin(19200);
+  rgbState = snake;
 }
 
 // #define Debug
@@ -507,6 +509,9 @@ void NextRgbState()
     case stars:
       rgbState = raindrop;
       break;
+    case raindrop:
+      rgbState = snake;
+      break;
     default:
       rgbState = staticLight;
       break;
@@ -521,6 +526,10 @@ void UpdateEffect()
   static uint8_t rainbowState = 0;
   static uint8_t breathingState = 0;
   static const uint8_t rainbowHues[7] = {0,32,64,96,160,176,192};
+  static uint8_t snakeHue = 0;
+  static uint8_t snakeX = 0;
+  static uint8_t snakeY = 0;
+  static std::deque<std::pair<uint8_t, uint8_t>> snakePaths;
 #ifdef Debug
   static unsigned long lastEffectDebug = 0;
 #endif
@@ -755,6 +764,54 @@ void UpdateEffect()
 
       break;
       // ==============================
+      case snake:
+      // ========== Snake ==========
+      
+      if (lastRgbState != snake)
+      {
+        snakeX = random(WIDTH);
+        snakeY = random(HEIGHT);
+        snakeHue = random(256);
+        snakePaths.clear();
+        delayElapsed = 0.0f;
+      }
+
+      delayElapsed += secondsElapsed;
+
+      if (delayElapsed >= 0.15f)
+      {
+        delayElapsed = 0.0f;
+
+        snakePaths.push_back(std::make_pair(snakeX, snakeY));
+        if (snakePaths.size() >= 4)
+          snakePaths.pop_front();
+        
+        if (random(2))
+          if (snakeX == 0)
+            snakeX += 1;
+          else if (snakeX == WIDTH - 1)
+            snakeX -= 1;
+          else
+            snakeX += random(2) ? -1 : 1;
+        else
+          if (snakeY == 0)
+            snakeY += 1;
+          else if (snakeY == HEIGHT - 1)
+            snakeY -= 1;
+          else
+            snakeY += random(2) ? -1 : 1;
+      }
+
+      FastLED.clear();
+
+      for (uint8_t i = 0; i < snakePaths.size(); i++)
+        DrawPixel2d(snakePaths[i].first, snakePaths[i].second, CRGB(CHSV(snakeHue - 31, 255, ((rgbBrightness / snakePaths.size()) * (i + 1)) )));
+
+      DrawPixel2d(snakeX, snakeY, CRGB(CHSV(snakeHue, 255, rgbBrightness)));
+
+      break;
+      // ==============================
+
   }
 
   lastRgbState = rgbState;
