@@ -228,6 +228,8 @@ void ScanKeys()
                   moleScore++;
                   moleIsHere = false;
                 }
+              break;
+            
             default:
               break;
           }
