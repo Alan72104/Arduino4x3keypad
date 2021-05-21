@@ -49,6 +49,7 @@ std::vector<Particle> particles;
 // Todo: Split codes
 // Todo: Double byte messages
 // Todo: Fill up the last 40% of the flash with more effects!
+// Todo: Why tf does ScanKeys() run 3k times per sec???
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -837,122 +838,120 @@ void UpdateEffect()
       DrawPixel2d(snakeX, snakeY, CRGB(CHSV(snakeHue, 255, rgbBrightness)));
 
       break;
-        // ==============================
-      case whacAMole:
-        // ========== Whac-A-Mole ==========
-      
-        if (lastRgbState != whacAMole)
-        {
-          moleState = ready;
-          moleIsHere = false;
-          delayElapsed = 0.0f;
-        }
+      // ==============================
+    case whacAMole:
+      // ========== Whac-A-Mole ==========
+    
+      if (lastRgbState != whacAMole)
+      {
+        moleState = ready;
+        moleIsHere = false;
+        delayElapsed = 0.0f;
+      }
 
-        delayElapsed += secondsElapsed;
+      delayElapsed += secondsElapsed;
 
-        FastLED.clear();
+      FastLED.clear();
 
-        switch (moleState)
-        {
-          case ready:
-            if (delayElapsed >= 4.0f)
-            {
-              delayElapsed = 0.0f;
-              moleState = playing;
-              moleSpawningDelay = 0.0f;
-              moleSpawnCount = 0;
-              moleScore = 0;
-              // Fall through...
-            }
-            else
-            {
-              if (delayElapsed >= 0.0f && delayElapsed < 1.0f)
-                for (uint8_t j = 0; j < HEIGHT; j++)
-                  leds[j * WIDTH + 0] = CHSV(HUE_RED, 255, rgbBrightness);
-              else if (delayElapsed >= 1.0f && delayElapsed < 2.0f)
-                for (uint8_t i = 0; i < 2; i++)
-                  for (uint8_t j = 0; j < HEIGHT; j++)
-                    leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
-              else if (delayElapsed >= 2.0f && delayElapsed < 3.0f)
-                for (uint8_t i = 0; i < 3; i++)
-                  for (uint8_t j = 0; j < HEIGHT; j++)
-                    leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
-              else if (delayElapsed >= 3.0f)
-              {
-                for (uint8_t i = 0; i < 4; i++)
-                  for (uint8_t j = 0; j < HEIGHT; j++)
-                    leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
-              }
-              break;
-            }
-
-          case playing:
-            if (moleSpawnCount >= 30)
-            {
-              delayElapsed = 0.0f;
-              moleState = score;
-              moleIsHere = false;
-              // Fall through...
-            }
-            else
-            {
-              moleSpawningDelay += secondsElapsed;
-              if (moleSpawningDelay >= 0.5f)
-              {
-                moleSpawningDelay = 0.0f;
-                moleX = random(WIDTH);
-                moleY = random(HEIGHT);
-                moleIsHere = true;
-                moleSpawnCount++;
-              }
-              if (moleIsHere)
-                leds[moleY * WIDTH + moleX] = CHSV(random(256), 255, rgbBrightness);
-              break;
-            }
-
-          case score:
-            if (delayElapsed > 5.0f)
-            {
-              delayElapsed = 0.0f;
-              moleState = ready;
-              moleIsHere = false;
-              break;
-            }
-
-            DrawLine(0.0f, map(moleScore, 0, 30, 0, NUM_LEDS), CHSV(HUE_RED, 255, rgbBrightness));
-            break;
-        }
-
-        break;
-        // ==============================
-      case shootingParticles:
-        // ========== Shooting particles ==========
-
-        if (lastRgbState != shootingParticles)
-        {
-          FastLED.clear();
-          break;
-        }
-
-        FastLED.clear();
-
-        for (auto particle = particles.begin(); particle != particles.end(); )
-        {
-          particle->x += particle->vX * secondsElapsed;
-          particle->y += particle->vY * secondsElapsed;
-
-          DrawSquare2d(particle->x, particle->y, 1.0f, particle->color);
-
-          if (particle->x <= -1.0f || particle->x >= WIDTH + 1.0f || particle->y <= -1.0f || particle->y >= HEIGHT + 1.0f)
-            particles.erase(particle);
+      switch (moleState)
+      {
+        case ready:
+          if (delayElapsed >= 4.0f)
+          {
+            delayElapsed = 0.0f;
+            moleState = playing;
+            moleSpawningDelay = 0.0f;
+            moleSpawnCount = 0;
+            moleScore = 0;
+            // Fall through...
+          }
           else
-            particle++;
-        }
+          {
+            if (delayElapsed >= 0.0f && delayElapsed < 1.0f)
+              for (uint8_t j = 0; j < HEIGHT; j++)
+                leds[j * WIDTH + 0] = CHSV(HUE_RED, 255, rgbBrightness);
+            else if (delayElapsed >= 1.0f && delayElapsed < 2.0f)
+              for (uint8_t i = 0; i < 2; i++)
+                for (uint8_t j = 0; j < HEIGHT; j++)
+                  leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
+            else if (delayElapsed >= 2.0f && delayElapsed < 3.0f)
+              for (uint8_t i = 0; i < 3; i++)
+                for (uint8_t j = 0; j < HEIGHT; j++)
+                  leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
+            else if (delayElapsed >= 3.0f)
+            {
+              for (uint8_t i = 0; i < 4; i++)
+                for (uint8_t j = 0; j < HEIGHT; j++)
+                  leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
+            }
+            break;
+          }
 
+        case playing:
+          if (moleSpawnCount >= 30)
+          {
+            delayElapsed = 0.0f;
+            moleState = score;
+            moleIsHere = false;
+            // Fall through...
+          }
+          else
+          {
+            moleSpawningDelay += secondsElapsed;
+            if (moleSpawningDelay >= 0.5f)
+            {
+              moleSpawningDelay = 0.0f;
+              moleX = random(WIDTH);
+              moleY = random(HEIGHT);
+              moleIsHere = true;
+              moleSpawnCount++;
+            }
+            if (moleIsHere)
+              leds[moleY * WIDTH + moleX] = CHSV(random(256), 255, rgbBrightness);
+            break;
+          }
+
+        case score:
+          if (delayElapsed > 5.0f)
+          {
+            delayElapsed = 0.0f;
+            moleState = ready;
+            moleIsHere = false;
+            break;
+          }
+
+          DrawLine(0.0f, map(moleScore, 0, 30, 0, NUM_LEDS), CHSV(HUE_RED, 255, rgbBrightness));
+          break;
+      }
+
+      break;
+      // ==============================
+    case shootingParticles:
+      // ========== Shooting particles ==========
+
+      if (lastRgbState != shootingParticles)
+      {
+        FastLED.clear();
         break;
+      }
 
-        // ==============================
+      FastLED.clear();
 
+      for (auto particle = particles.begin(); particle != particles.end(); )
+      {
+        particle->x += particle->vX * secondsElapsed;
+        particle->y += particle->vY * secondsElapsed;
+
+        DrawSquare2d(particle->x, particle->y, 1.0f, particle->color);
+
+        if (particle->x <= -1.0f || particle->x >= WIDTH + 1.0f || particle->y <= -1.0f || particle->y >= HEIGHT + 1.0f)
+          particles.erase(particle);
+        else
+          particle++;
+      }
+
+      break;
+      // ==============================
   }
 
   lastRgbState = rgbState;
