@@ -75,5 +75,5 @@ void NextRgbState();
 void UpdateEffect();
 void UpdateRgb();
 void UpdateLed();
-long Random(long max);
+uint16_t Random(uint16_t max);
 int usedRam();
