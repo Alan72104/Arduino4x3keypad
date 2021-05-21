@@ -10,26 +10,26 @@ const uint8_t pinR[HEIGHT] = {2, 3, 4};
 uint8_t btnStateTemp = LOW;
 uint8_t btnState[HEIGHT][WIDTH];
 uint8_t lastBtnState[HEIGHT][WIDTH];
-unsigned long debounceTime[HEIGHT][WIDTH];
+uint32_t debounceTime[HEIGHT][WIDTH];
 const uint16_t debounceMicros = 1500u;
 uint8_t ledState = LOW;
-unsigned long lastBlinkTime = 0ul;
-unsigned long ledBlinkLen = 5ul;
-unsigned long loopEndTime = 0ul;
-unsigned long loopStartTime = 0ul;
-unsigned long loopPeriod = 0ul;
+uint32_t lastBlinkTime = 0ul;
+uint32_t ledBlinkLen = 5ul;
+uint32_t loopEndTime = 0ul;
+uint32_t loopStartTime = 0ul;
+uint32_t loopPeriod = 0ul;
 const uint16_t scanPerSec = 2000u;
 const uint16_t microsPerScan = 1000000u / scanPerSec;
 
 // Variables for the rgb leds
 CRGB leds[NUM_LEDS];
 uint8_t rgbBrightness = 63;
-unsigned long lastRgbBrightnessChange = 0ul;
+uint32_t lastRgbBrightnessChange = 0ul;
 
 // Variables for the rgb effects
 RgbState rgbState = staticLight;
 RgbState lastRgbState = staticLight;
-unsigned long lastRgbStateChange = 0ul;
+uint32_t lastRgbStateChange = 0ul;
 std::vector<Ball> balls;
 float fractionalDrawingTestY = 0.0f;
 float fractionalDrawingTestX = 0.0f;
@@ -125,14 +125,14 @@ void loop() {
 
   loopEndTime = micros();
   // Don't change the measured loop time immediately as it might float around
-  loopPeriod = (unsigned long)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);
+  loopPeriod = (uint32_t)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);
 }
 
 // #define Debug
 
 void ScanKeys()
 {
-  static unsigned long lastKeysUpdate = 0ul;
+  static uint32_t lastKeysUpdate = 0ul;
 
   if (micros() - lastKeysUpdate < (microsPerScan - (loopPeriod > microsPerScan ? microsPerScan : loopPeriod))) return;
   lastKeysUpdate = micros();
@@ -257,7 +257,7 @@ void ScanKeys()
 #ifdef Debug
   // Update frequency test
   static int t;
-  static unsigned long tt;
+  static uint32_t tt;
   t++;
   if (millis() - tt >= 1000)
   {
@@ -331,7 +331,7 @@ void DrawPixel2d(int x, int y, CRGB color)
 void DrawLine(float fPos, float length, CRGB color)
 {
   // Calculate how much the first pixel will hold
-  float availFirstPixel = 1.0f - (fPos - (long)(fPos));
+  float availFirstPixel = 1.0f - (fPos - (uint8_t)(fPos));
   float amtFirstPixel = min(availFirstPixel, length);
   float remaining = min(length, NUM_LEDS - fPos);
   int iPos = fPos;
@@ -364,8 +364,8 @@ void DrawLine(float fPos, float length, CRGB color)
 // Coordinate and diameter can be float
 void DrawSquare2d(float fX, float fY, float diameter, CRGB color)
 {
-  float availFirstPixelX = 1.0f - (fX - (long)(fX));
-  float availFirstPixelY = 1.0f - (fY - (long)(fY));
+  float availFirstPixelX = 1.0f - (fX - (uint8_t)(fX));
+  float availFirstPixelY = 1.0f - (fY - (uint8_t)(fY));
   float amtFirstPixelX = min(availFirstPixelX, diameter);
   float amtFirstPixelY = min(availFirstPixelY, diameter);
   float remainingX = min(diameter, WIDTH - fX);
@@ -547,7 +547,7 @@ void NextRgbState()
 
 void UpdateEffect()
 {
-  static unsigned long lastEffectUpdate = 0ul;
+  static uint32_t lastEffectUpdate = 0ul;
   static float secondsElapsed = 0.0f;
   static float delayElapsed = 0.0f;
   static uint8_t rainbowState = 0;
@@ -560,7 +560,7 @@ void UpdateEffect()
   static float moleSpawningDelay = 0.0f;
   static uint8_t moleSpawnCount = 0;
 #ifdef Debug
-  static unsigned long lastEffectDebug = 0;
+  static uint32_t lastEffectDebug = 0;
 #endif
   if (micros() - lastEffectUpdate < 33333 /* 30 fps */) return;
   secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 1000.0f;
@@ -965,7 +965,7 @@ void UpdateEffect()
 
 void UpdateRgb()
 {
-  static unsigned long lastRgbUpdate = 0ul;
+  static uint32_t lastRgbUpdate = 0ul;
   if (micros() - lastRgbUpdate < 33333 /* 30 fps */) return;
   lastRgbUpdate = micros();
   FastLED.show();
@@ -992,14 +992,14 @@ void UpdateLed()
 }
 
 // Random without repeat
-long Random(long max)
+uint16_t Random(uint16_t max)
 {
-  static long last = 0l;
+  static uint16_t last = 0l;
   if (max == 0)
     return 0;
   else
   {
-    long rtn = random(max);
+    uint16_t rtn = random(max);
     while (rtn == last)
       rtn = random(max);
     last = rtn;
