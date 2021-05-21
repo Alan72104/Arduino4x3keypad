@@ -20,8 +20,8 @@ enum RgbState {
   stars,
   raindrop,
   snake,
+  shootingParticles,
   whacAMole,
-  shootingParticles
 };
 
 enum MoleState {

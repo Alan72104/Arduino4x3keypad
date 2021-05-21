@@ -36,6 +36,7 @@ float fractionalDrawingTestX = 0.0f;
 std::vector<Circle> circles;
 std::vector<Raindrop> raindrops;
 std::deque<std::pair<uint8_t, uint8_t>> snakePaths;
+std::vector<Particle> particles;
 MoleState moleState = ready;
 bool moleIsHere = false;
 uint8_t moleX = 0;
