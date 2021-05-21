@@ -35,6 +35,7 @@ float fractionalDrawingTestY = 0.0f;
 float fractionalDrawingTestX = 0.0f;
 std::vector<Circle> circles;
 std::vector<Raindrop> raindrops;
+std::deque<std::pair<uint8_t, uint8_t>> snakePaths;
 MoleState moleState = ready;
 bool moleIsHere = false;
 uint8_t moleX = 0;
@@ -499,6 +500,8 @@ void DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
     }
 }
 
+// This function sets the rgb effect to the next effect,
+// and also frees the arrays used by the last effect
 void NextRgbState()
 {
   switch (rgbState)
@@ -510,6 +513,7 @@ void NextRgbState()
       rgbState = spreadOut;
       break;
     case spreadOut:
+      std::vector<Ball>().swap(balls);
       rgbState = breathing;
       break;
     case breathing:
@@ -522,24 +526,29 @@ void NextRgbState()
       rgbState = ripple;
       break;
     case ripple:
+      circles.clear();
       rgbState = antiRipple;
       break;
     case antiRipple:
+      std::vector<Circle>().swap(circles);
       rgbState = stars;
       break;
     case stars:
       rgbState = raindrop;
       break;
     case raindrop:
+      std::vector<Raindrop>().swap(raindrops);
       rgbState = snake;
       break;
     case snake:
+      snakePaths.clear();
       rgbState = whacAMole;
       break;
     case whacAMole:
       rgbState = shootingParticles;
       break;
-    default:
+    case shootingParticles:
+      std::vector<Particle>().swap(particles);
       rgbState = staticLight;
       break;
   }
@@ -556,7 +565,6 @@ void UpdateEffect()
   static uint8_t snakeHue = 0;
   static uint8_t snakeX = 0;
   static uint8_t snakeY = 0;
-  static std::deque<std::pair<uint8_t, uint8_t>> snakePaths;
   static float moleSpawningDelay = 0.0f;
   static uint8_t moleSpawnCount = 0;
 #ifdef Debug
@@ -572,7 +580,9 @@ void UpdateEffect()
       // ========== Light when pressed ==========
 
       // If the last state isn't the same, that means the user just switched to this effect,
-      // init the needed vars, and clear effect datas if needed
+      // init the needed vars, and clear garbage effect datas if needed,
+      // exception is that the effect data arrays will be freed/cleared when calling NextRgbState(),
+      // so no need to init data arrays in there
       if (lastRgbState != staticLight)
       {
         rainbowState = 0;
@@ -607,7 +617,6 @@ void UpdateEffect()
       if (lastRgbState != spreadOut)
       {
         FastLED.clear();
-        balls.clear();
         break;
       }
 
@@ -685,7 +694,6 @@ void UpdateEffect()
       if (lastRgbState != ripple)
       {
         FastLED.clear();
-        circles.clear();
         break;
       }
 
@@ -711,7 +719,6 @@ void UpdateEffect()
       if (lastRgbState != antiRipple)
       {
         FastLED.clear();
-        circles.clear();
         break;
       }
 
@@ -759,7 +766,6 @@ void UpdateEffect()
       if (lastRgbState != raindrop)
       {
         delayElapsed = 0.0f;
-        raindrops.clear();
       }
 
       delayElapsed += secondsElapsed;
@@ -794,7 +800,6 @@ void UpdateEffect()
         snakeX = random(WIDTH);
         snakeY = random(HEIGHT);
         snakeHue = random(256);
-        snakePaths.clear();
         delayElapsed = 0.0f;
       }
 
@@ -926,7 +931,6 @@ void UpdateEffect()
         if (lastRgbState != shootingParticles)
         {
           FastLED.clear();
-          particles.clear();
           break;
         }
 
@@ -1007,7 +1011,7 @@ uint16_t Random(uint16_t max)
   }
 }
 
-int usedRam() 
+int availableMem() 
 {
   extern int __heap_start, *__brkval;
   int v;

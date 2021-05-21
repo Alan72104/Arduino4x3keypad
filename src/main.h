@@ -76,4 +76,4 @@ void UpdateEffect();
 void UpdateRgb();
 void UpdateLed();
 uint16_t Random(uint16_t max);
-int usedRam();
+int availableMem();
