@@ -235,8 +235,8 @@ void ScanKeys()
             case shootingParticles:
               if (btnStateTemp == HIGH && particles.size() < 16)
               {
-                float vX = WIDTH / 2 - j;
-                float vY = HEIGHT / 2 - i;
+                float vX = WIDTH / 2 - (j + 0.5f);
+                float vY = HEIGHT / 2 - (i + 0.5f);
                 float l = sqrt(vX * vX + vY * vY);
                 particles.push_back(MakeParticle(j, i, (vX / l) * 8.0f, (vY / l) * 8.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
               }
