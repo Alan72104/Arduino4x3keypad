@@ -500,8 +500,8 @@ void DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
     }
 }
 
-// This function sets the rgb effect to the next effect,
-// and also frees the arrays used by the last effect
+// This function frees the arrays used by the current effect,
+// and sets the rgb effect to the next effect
 void NextRgbState()
 {
   switch (rgbState)
