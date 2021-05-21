@@ -225,15 +225,6 @@ void ScanKeys()
                 circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
               break;
             
-            case whacAMole:
-              if (btnStateTemp == HIGH && moleIsHere)
-                if (i == moleY && j == moleX)
-                {
-                  moleScore++;
-                  moleIsHere = false;
-                }
-              break;
-
             case shootingParticles:
               if (btnStateTemp == HIGH && particles.size() < 16)
               {
@@ -243,6 +234,15 @@ void ScanKeys()
                 // Normalize the vector because we only want the direction, not also scaling the speed by the distance between the key and center
                 particles.push_back(MakeParticle(j, i, (vX / l) * 8.0f, (vY / l) * 8.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
               }
+              break;
+
+            case whacAMole:
+              if (btnStateTemp == HIGH && moleIsHere)
+                if (i == moleY && j == moleX)
+                {
+                  moleScore++;
+                  moleIsHere = false;
+                }
               break;
 
             default:
@@ -545,11 +545,11 @@ void NextRgbState()
       snakePaths.clear();
       rgbState = whacAMole;
       break;
-    case whacAMole:
-      rgbState = shootingParticles;
-      break;
     case shootingParticles:
       std::vector<Particle>().swap(particles);
+      rgbState = whacAMole;
+      break;
+    case whacAMole:
       rgbState = staticLight;
       break;
   }
@@ -839,6 +839,32 @@ void UpdateEffect()
 
       break;
       // ==============================
+    case shootingParticles:
+      // ========== Shooting particles ==========
+
+      if (lastRgbState != shootingParticles)
+      {
+        FastLED.clear();
+        break;
+      }
+
+      FastLED.clear();
+
+      for (auto particle = particles.begin(); particle != particles.end(); )
+      {
+        particle->x += particle->vX * secondsElapsed;
+        particle->y += particle->vY * secondsElapsed;
+
+        DrawSquare2d(particle->x, particle->y, 1.0f, particle->color);
+
+        if (particle->x <= -1.0f || particle->x >= WIDTH + 1.0f || particle->y <= -1.0f || particle->y >= HEIGHT + 1.0f)
+          particles.erase(particle);
+        else
+          particle++;
+      }
+
+      break;
+      // ==============================
     case whacAMole:
       // ========== Whac-A-Mole ==========
     
@@ -922,32 +948,6 @@ void UpdateEffect()
 
           DrawLine(0.0f, map(moleScore, 0, 30, 0, NUM_LEDS), CHSV(HUE_RED, 255, rgbBrightness));
           break;
-      }
-
-      break;
-      // ==============================
-    case shootingParticles:
-      // ========== Shooting particles ==========
-
-      if (lastRgbState != shootingParticles)
-      {
-        FastLED.clear();
-        break;
-      }
-
-      FastLED.clear();
-
-      for (auto particle = particles.begin(); particle != particles.end(); )
-      {
-        particle->x += particle->vX * secondsElapsed;
-        particle->y += particle->vY * secondsElapsed;
-
-        DrawSquare2d(particle->x, particle->y, 1.0f, particle->color);
-
-        if (particle->x <= -1.0f || particle->x >= WIDTH + 1.0f || particle->y <= -1.0f || particle->y >= HEIGHT + 1.0f)
-          particles.erase(particle);
-        else
-          particle++;
       }
 
       break;
