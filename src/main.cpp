@@ -40,6 +40,7 @@ bool moleIsHere = false;
 uint8_t moleX = 0;
 uint8_t moleY = 0;
 uint8_t moleScore = 0;
+std::vector<Particle> particles;
 
 // Todo: Real spinning rainbow
 // Todo: Make sure UpdateEffect() doesn't generate delay spikes
@@ -231,6 +232,16 @@ void ScanKeys()
                 }
               break;
 
+            case shootingParticles:
+              if (btnStateTemp == HIGH && particles.size() < 16)
+              {
+                float vX = WIDTH / 2 - j;
+                float vY = HEIGHT / 2 - i;
+                float l = sqrt(vX * vX + vY * vY);
+                particles.push_back(MakeParticle(j, i, (vX / l) * 8.0f, (vY / l) * 8.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
+              }
+              break;
+
             default:
               break;
           }
@@ -287,6 +298,17 @@ Raindrop MakeRaindrop(uint8_t x, float y, CRGB color)
   newRaindrop.y = y;
   newRaindrop.color = color;
   return newRaindrop;
+}
+
+Particle MakeParticle(float x, float y, float vX, float vY, CRGB color)
+{
+  Particle newParticle;
+  newParticle.x = x;
+  newParticle.y = y;
+  newParticle.vX = vX;
+  newParticle.vY = vY;
+  newParticle.color = color;
+  return newParticle;
 }
 
 // This function fades the color brightness to the fraction
@@ -512,6 +534,9 @@ void NextRgbState()
       break;
     case snake:
       rgbState = whacAMole;
+      break;
+    case whacAMole:
+      rgbState = shootingParticles;
       break;
     default:
       rgbState = staticLight;
@@ -801,14 +826,14 @@ void UpdateEffect()
       FastLED.clear();
 
       for (uint8_t i = 0; i < snakePaths.size(); i++)
-        DrawPixel2d(snakePaths[i].first, snakePaths[i].second, CRGB(CHSV(snakeHue - 31, 255, ((rgbBrightness / snakePaths.size()) * (i + 1)) )));
+        DrawPixel2d(snakePaths[i].first, snakePaths[i].second, CRGB(CHSV(snakeHue - 31, 255, ((rgbBrightness / snakePaths.size()) * (i + 1)))));
 
       DrawPixel2d(snakeX, snakeY, CRGB(CHSV(snakeHue, 255, rgbBrightness)));
 
       break;
-      // ==============================
+        // ==============================
       case whacAMole:
-      // ========== Whac-A-Mole ==========
+        // ========== Whac-A-Mole ==========
       
         if (lastRgbState != whacAMole)
         {
@@ -893,7 +918,35 @@ void UpdateEffect()
         }
 
         break;
-      // ==============================
+        // ==============================
+      case shootingParticles:
+        // ========== Shooting particles ==========
+
+        if (lastRgbState != shootingParticles)
+        {
+          FastLED.clear();
+          particles.clear();
+          break;
+        }
+
+        FastLED.clear();
+
+        for (auto particle = particles.begin(); particle != particles.end(); )
+        {
+          particle->x += particle->vX * secondsElapsed;
+          particle->y += particle->vY * secondsElapsed;
+
+          DrawSquare2d(particle->x, particle->y, 1.0f, particle->color);
+
+          if (particle->x <= -1.0f || particle->x >= WIDTH + 1.0f || particle->y <= -1.0f || particle->y >= HEIGHT + 1.0f)
+            particles.erase(particle);
+          else
+            particle++;
+        }
+
+        break;
+
+        // ==============================
 
   }
 

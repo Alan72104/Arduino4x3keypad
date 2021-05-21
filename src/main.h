@@ -20,7 +20,8 @@ enum RgbState {
   stars,
   raindrop,
   snake,
-  whacAMole
+  whacAMole,
+  shootingParticles
 };
 
 enum MoleState {
@@ -49,12 +50,21 @@ typedef struct {
   CRGB color;
 } Raindrop;
 
+typedef struct {
+  float x;
+  float y;
+  float vX;
+  float vY;
+  CRGB color;
+} Particle;
+
 void setup();
 void loop();
 void ScanKeys();
 Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color);
 Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color);
 Raindrop MakeRaindrop(uint8_t x, float y, CRGB color);
+Particle MakeParticle(float x, float y, float vX, float vY, CRGB color);
 CRGB ColorFraction(CRGB colorIn, float fraction);
 void DrawPixel2d(int x, int y, CRGB color);
 void DrawLine(float fPos, float length, CRGB color);
