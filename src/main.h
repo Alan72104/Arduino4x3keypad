@@ -22,12 +22,21 @@ enum RgbState {
   snake,
   shootingParticles,
   whacAMole,
+  tictactoe
 };
 
 enum MoleState {
   ready,
   playing,
   score
+};
+
+enum TttObject {
+  // Starts at -1 for possible score calculations
+  user = -1,
+  tie,
+  ai,
+  empty
 };
 
 typedef struct {
@@ -73,6 +82,8 @@ void DrawCircle2d_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB co
 void DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color);
 void NextRgbState();
 void UpdateEffect();
+TttObject TttCheckWinner();
+int8_t TttGetMinimaxBestscore(bool isMaximizing);
 void UpdateRgb();
 void UpdateLed();
 uint16_t Random(uint16_t max);

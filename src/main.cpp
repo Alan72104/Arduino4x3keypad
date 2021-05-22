@@ -42,7 +42,9 @@ bool moleIsHere = false;
 uint8_t moleX = 0;
 uint8_t moleY = 0;
 uint8_t moleScore = 0;
-std::vector<Particle> particles;
+TttObject tttBoard[HEIGHT][WIDTH];
+MoleState tttState = ready;
+TttObject tttCurrentPlayer = ai;
 
 // Todo: Real spinning rainbow
 // Todo: Make sure UpdateEffect() doesn't generate delay spikes
@@ -51,6 +53,7 @@ std::vector<Particle> particles;
 // Todo: Double byte messages
 // Todo: Fill up the last 40% of the flash with more effects!
 // Todo: Why tf does ScanKeys() run 3k times per sec???
+// Todo: Fix tic tac toe taking minutes to calculate a move
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -246,6 +249,15 @@ void ScanKeys()
                 }
               break;
 
+            case tictactoe:
+              if (tttCurrentPlayer == user)
+                if (tttBoard[i][j] == empty)
+                {
+                  tttBoard[i][j] = user;
+                  tttCurrentPlayer = ai;
+                }
+              break;
+            
             default:
               break;
           }
@@ -551,6 +563,9 @@ void NextRgbState()
       rgbState = whacAMole;
       break;
     case whacAMole:
+      rgbState = tictactoe;
+      break;
+    case tictactoe:
       rgbState = staticLight;
       break;
   }
@@ -569,6 +584,7 @@ void UpdateEffect()
   static uint8_t snakeY = 0;
   static float moleSpawningDelay = 0.0f;
   static uint8_t moleSpawnCount = 0;
+  static TttObject tttWinner = empty;
 #ifdef Debug
   static uint32_t lastEffectDebug = 0;
 #endif
@@ -953,6 +969,150 @@ void UpdateEffect()
 
       break;
       // ==============================
+    case tictactoe:
+      // ========== Tic-tac-toe ==========
+      
+      if (lastRgbState != tictactoe)
+      {
+        std::fill_n(&tttBoard[0][0], WIDTH * HEIGHT, empty);
+        tttState = ready;
+        tttCurrentPlayer = user;
+        tttWinner = empty;
+        delayElapsed = 0.0f;
+      }
+
+      FastLED.clear();
+
+      switch (tttState)
+      {
+        case ready:
+          delayElapsed += secondsElapsed;
+
+          if (delayElapsed >= 4.0f)
+          {
+            delayElapsed = 0.0f;
+            tttState = playing;
+            // Fall through...
+          }
+          else
+          {
+            if (delayElapsed >= 0.0f && delayElapsed < 1.0f)
+              for (uint8_t j = 0; j < HEIGHT; j++)
+                leds[j * WIDTH + 0] = CHSV(HUE_AQUA, 255, rgbBrightness);
+            else if (delayElapsed >= 1.0f && delayElapsed < 2.0f)
+              for (uint8_t i = 0; i < 2; i++)
+                for (uint8_t j = 0; j < HEIGHT; j++)
+                  leds[j * WIDTH + i] = CHSV(HUE_AQUA, 255, rgbBrightness);
+            else if (delayElapsed >= 2.0f && delayElapsed < 3.0f)
+              for (uint8_t i = 0; i < 3; i++)
+                for (uint8_t j = 0; j < HEIGHT; j++)
+                  leds[j * WIDTH + i] = CHSV(HUE_AQUA, 255, rgbBrightness);
+            else if (delayElapsed >= 3.0f)
+            {
+              for (uint8_t i = 0; i < 4; i++)
+                for (uint8_t j = 0; j < HEIGHT; j++)
+                  leds[j * WIDTH + i] = CHSV(HUE_AQUA, 255, rgbBrightness);
+            }
+            break;
+          }
+
+        case playing:
+          tttWinner = TttCheckWinner();
+          if (tttWinner != empty)
+          {
+            // Only start the timer when there is a winner,
+            // if so show the score after 5 seconds
+            delayElapsed += secondsElapsed;
+            if (delayElapsed > 5.0f)
+            {
+              delayElapsed = 0.0f;
+              tttState = score;
+              // Fall through...
+            }
+          }
+          else
+          {
+            if (tttCurrentPlayer == ai)
+            {
+              int8_t bestScore = -128;
+              uint8_t moveX = 0;
+              uint8_t moveY = 0;
+              for (uint8_t j = 0; j < HEIGHT; j++)
+                for (uint8_t i = 0; i < WIDTH; i++)
+                  if (tttBoard[j][i] == empty)
+                  {
+                    tttBoard[j][i] = ai;
+                    int8_t score = TttGetMinimaxBestscore(false);
+                    tttBoard[j][i] = empty;
+                    if (score > bestScore)
+                    {
+                      bestScore = score;
+                      moveX = j;
+                      moveY = i;
+                    }
+                  }
+              tttBoard[moveX][moveY] = ai;
+              tttCurrentPlayer = user;
+            }
+
+            FastLED.clear();
+            
+            for (uint8_t j = 0; j < HEIGHT; j++)
+              for (uint8_t i = 0; i < WIDTH; i++)
+                switch (tttBoard[j][i])
+                {
+                  case empty:
+                    break;
+                  case ai:
+                    DrawPixel2d(j, i, CHSV(HUE_BLUE, 255, rgbBrightness));
+                    break;
+                  case user:
+                    DrawPixel2d(j, i, CHSV(HUE_RED, 255, rgbBrightness));
+                    break;
+                }
+            break;
+          }
+
+        case score:
+          delayElapsed += secondsElapsed;
+          if (delayElapsed > 5.0f)
+          {
+            std::fill_n(&tttBoard[0][0], WIDTH * HEIGHT, empty);
+            tttState = ready;
+            tttCurrentPlayer = user;
+            tttWinner = empty;
+            delayElapsed = 0.0f;
+            break;
+          }
+
+          switch (tttWinner)
+          {
+            case ai:
+              DrawPixel2d(0, 0, CHSV(HUE_RED, 255, rgbBrightness));
+              DrawPixel2d(0, 3, CHSV(HUE_RED, 255, rgbBrightness));
+              DrawPixel2d(1, 1, CHSV(HUE_RED, 255, rgbBrightness));
+              DrawPixel2d(1, 2, CHSV(HUE_RED, 255, rgbBrightness));
+              DrawPixel2d(2, 0, CHSV(HUE_RED, 255, rgbBrightness));
+              DrawPixel2d(2, 3, CHSV(HUE_RED, 255, rgbBrightness));
+              break;
+            case user:
+              DrawPixel2d(0, 1, CHSV(HUE_RED, 255, rgbBrightness));
+              DrawPixel2d(0, 2, CHSV(HUE_RED, 255, rgbBrightness));
+              DrawPixel2d(1, 0, CHSV(HUE_RED, 255, rgbBrightness));
+              DrawPixel2d(1, 3, CHSV(HUE_RED, 255, rgbBrightness));
+              DrawPixel2d(2, 1, CHSV(HUE_RED, 255, rgbBrightness));
+              DrawPixel2d(2, 2, CHSV(HUE_RED, 255, rgbBrightness));
+              break;
+            case tie:
+              for (uint8_t i = 0; i < WIDTH; i++)
+                DrawPixel2d(1, i, CHSV(HUE_RED, 255, rgbBrightness));
+              break;
+          }
+          break;
+      }
+
+      break;
+      // ==============================
   }
 
   lastRgbState = rgbState;
@@ -965,6 +1125,74 @@ void UpdateEffect()
     Serial.println(F(" micros"));
   }
 #endif
+}
+
+TttObject TttCheckWinner()
+{
+  // Horizontal
+  for (uint8_t i = 0; i < WIDTH - 2; i++)
+    for (uint8_t j = 0; j < HEIGHT; j++)
+      if (tttBoard[j][i] != empty && tttBoard[j][i] == tttBoard[j][i+1] && tttBoard[j][i+1] == tttBoard[j][i+2])
+      {
+        return tttBoard[j][i];
+      }
+  // Vertical
+  for (uint8_t i = 0; i < WIDTH; i++)
+    if (tttBoard[0][i] != empty && tttBoard[0][i] == tttBoard[1][i] && tttBoard[1][i] == tttBoard[2][i])
+    {
+      return tttBoard[0][i];
+    }
+  // Diagonal
+  for (uint8_t i = 0; i < WIDTH - 2; i++)
+    if (tttBoard[0][i] != empty && tttBoard[0][i] == tttBoard[1][i+1] && tttBoard[1][i+1] == tttBoard[2][i+2])
+    {
+      return tttBoard[0][i];
+    }
+  // Check for tie, no empty slots
+  uint8_t emptySlots = 0;
+  for (uint8_t j = 0; j < HEIGHT; j++)
+    for (uint8_t i = 0; i < WIDTH; i++)
+      if (tttBoard[j][i] == empty)
+        emptySlots++;
+  if (emptySlots == 0)
+    return tie;
+  return empty;
+}
+
+int8_t TttGetMinimaxBestscore(bool isMaximizing)
+{
+  TttObject result = TttCheckWinner();
+  if (result != empty)
+    return (int8_t)result;
+
+  if (isMaximizing)
+  {
+    int8_t bestScore = -128;
+    for (uint8_t j = 0; j < HEIGHT; j++)
+      for (uint8_t i = 0; i < WIDTH; i++)
+        if (tttBoard[j][i] == empty)
+        {
+          tttBoard[j][i] = ai;
+          int8_t score = TttGetMinimaxBestscore(false);
+          tttBoard[j][i] = empty;
+          bestScore = max(score, bestScore);
+        }
+    return bestScore;
+  }
+  else
+  {
+    int8_t bestScore = 127;
+    for (uint8_t j = 0; j < HEIGHT; j++)
+      for (uint8_t i = 0; i < WIDTH; i++)
+        if (tttBoard[j][i] == empty)
+        {
+          tttBoard[j][i] = user;
+          int8_t score = TttGetMinimaxBestscore(true);
+          tttBoard[j][i] = empty;
+          bestScore = min(score, bestScore);
+        }
+    return bestScore;
+  }
 }
 
 void UpdateRgb()
