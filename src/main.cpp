@@ -956,6 +956,9 @@ void UpdateEffect()
 
           DrawLine(0.0f, moleScore * NUM_LEDS / 30.0f, CHSV(HUE_RED, 255, rgbBrightness));
           break;
+        
+        default:
+          break;
       }
 
       break;
@@ -1086,6 +1089,9 @@ void UpdateEffect()
                 DrawPixel2d(1, i, CHSV(HUE_RED, 255, rgbBrightness));
               break;
           }
+          break;
+        
+        default:
           break;
       }
 
