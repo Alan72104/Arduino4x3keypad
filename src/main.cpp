@@ -949,7 +949,7 @@ void UpdateEffect()
             break;
           }
 
-          DrawLine(0.0f, map(moleScore, 0, 30, 0, NUM_LEDS), CHSV(HUE_RED, 255, rgbBrightness));
+          DrawLine(0.0f, moleScore * NUM_LEDS / 30.0f, CHSV(HUE_RED, 255, rgbBrightness));
           break;
       }
 
