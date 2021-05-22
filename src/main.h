@@ -32,7 +32,7 @@ enum MoleState {
 };
 
 enum TttObject {
-  // Starts at -1 for possible score calculations
+  // Starts at -1 for score calculations
   user = -1,
   tie,
   ai,
