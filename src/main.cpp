@@ -910,23 +910,9 @@ void UpdateEffect()
           }
           else
           {
-            if (delayElapsed >= 0.0f && delayElapsed < 1.0f)
+            for (uint8_t i = 0; i < min((int)delayElapsed, 3) + 1; i++)
               for (uint8_t j = 0; j < HEIGHT; j++)
-                leds[j * WIDTH + 0] = CHSV(HUE_RED, 255, rgbBrightness);
-            else if (delayElapsed >= 1.0f && delayElapsed < 2.0f)
-              for (uint8_t i = 0; i < 2; i++)
-                for (uint8_t j = 0; j < HEIGHT; j++)
-                  leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
-            else if (delayElapsed >= 2.0f && delayElapsed < 3.0f)
-              for (uint8_t i = 0; i < 3; i++)
-                for (uint8_t j = 0; j < HEIGHT; j++)
-                  leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
-            else if (delayElapsed >= 3.0f)
-            {
-              for (uint8_t i = 0; i < 4; i++)
-                for (uint8_t j = 0; j < HEIGHT; j++)
-                  leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
-            }
+                leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
             break;
           }
 
@@ -996,23 +982,9 @@ void UpdateEffect()
           }
           else
           {
-            if (delayElapsed >= 0.0f && delayElapsed < 1.0f)
+            for (uint8_t i = 0; i < min((int)delayElapsed, 3) + 1; i++)
               for (uint8_t j = 0; j < HEIGHT; j++)
-                leds[j * WIDTH + 0] = CHSV(HUE_AQUA, 255, rgbBrightness);
-            else if (delayElapsed >= 1.0f && delayElapsed < 2.0f)
-              for (uint8_t i = 0; i < 2; i++)
-                for (uint8_t j = 0; j < HEIGHT; j++)
-                  leds[j * WIDTH + i] = CHSV(HUE_AQUA, 255, rgbBrightness);
-            else if (delayElapsed >= 2.0f && delayElapsed < 3.0f)
-              for (uint8_t i = 0; i < 3; i++)
-                for (uint8_t j = 0; j < HEIGHT; j++)
-                  leds[j * WIDTH + i] = CHSV(HUE_AQUA, 255, rgbBrightness);
-            else if (delayElapsed >= 3.0f)
-            {
-              for (uint8_t i = 0; i < 4; i++)
-                for (uint8_t j = 0; j < HEIGHT; j++)
-                  leds[j * WIDTH + i] = CHSV(HUE_AQUA, 255, rgbBrightness);
-            }
+                leds[j * WIDTH + i] = CHSV(HUE_AQUA, 255, rgbBrightness);
             break;
           }
 
