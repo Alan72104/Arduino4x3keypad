@@ -556,7 +556,7 @@ void NextRgbState()
       break;
     case snake:
       snakePaths.clear();
-      rgbState = whacAMole;
+      rgbState = shootingParticles;
       break;
     case shootingParticles:
       std::vector<Particle>().swap(particles);
