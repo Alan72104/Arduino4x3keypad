@@ -892,13 +892,13 @@ void UpdateEffect()
         delayElapsed = 0.0f;
       }
 
-      delayElapsed += secondsElapsed;
-
       FastLED.clear();
 
       switch (moleState)
       {
         case ready:
+          delayElapsed += secondsElapsed;
+
           if (delayElapsed >= 4.0f)
           {
             delayElapsed = 0.0f;
@@ -919,10 +919,14 @@ void UpdateEffect()
         case playing:
           if (moleSpawnCount >= 30)
           {
-            delayElapsed = 0.0f;
-            moleState = score;
-            moleIsHere = false;
-            // Fall through...
+            delayElapsed += secondsElapsed;
+            if (delayElapsed > 0.5f)
+            {
+              moleState = score;
+              moleIsHere = false;
+              // Fall through...
+            }
+            else break;
           }
           else
           {
@@ -941,6 +945,7 @@ void UpdateEffect()
           }
 
         case score:
+          delayElapsed += secondsElapsed;
           if (delayElapsed > 5.0f)
           {
             delayElapsed = 0.0f;
@@ -1001,6 +1006,7 @@ void UpdateEffect()
               tttState = score;
               // Fall through...
             }
+            else break;
           }
           else
           {
