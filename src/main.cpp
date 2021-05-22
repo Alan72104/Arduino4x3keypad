@@ -956,9 +956,6 @@ void UpdateEffect()
 
           DrawLine(0.0f, moleScore * NUM_LEDS / 30.0f, CHSV(HUE_RED, 255, rgbBrightness));
           break;
-        
-        default:
-          break;
       }
 
       break;
@@ -1050,6 +1047,8 @@ void UpdateEffect()
                   case user:
                     DrawPixel2d(j, i, CHSV(HUE_RED, 255, rgbBrightness));
                     break;
+                  case tie: // Not used for board
+                    break;
                 }
             break;
           }
@@ -1088,10 +1087,9 @@ void UpdateEffect()
               for (uint8_t i = 0; i < WIDTH; i++)
                 DrawPixel2d(1, i, CHSV(HUE_RED, 255, rgbBrightness));
               break;
+            case empty: // Winner won't be empty in there
+              break;
           }
-          break;
-        
-        default:
           break;
       }
 
