@@ -235,7 +235,8 @@ void ScanKeys()
                 float vX = WIDTH / 2 - (j + 0.5f);
                 float vY = HEIGHT / 2 - (i + 0.5f);
                 float l = sqrt(vX * vX + vY * vY);
-                // Normalize the vector because we only want the direction, not also scaling the speed by the distance between the key and center
+                // The length of the vector we got by subtracting the key coordinate from the center is proportional to (or scaled by) the distance between the key and the center,
+                // first normalize the vector to equalize the different "speeds" we could get, because we only want the "direction" here, after then we could scale it back by a constant we want
                 particles.push_back(MakeParticle(j, i, (vX / l) * 8.0f, (vY / l) * 8.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
               }
               break;
