@@ -1116,21 +1116,19 @@ TttObject TttCheckWinner()
   for (uint8_t i = 0; i < WIDTH - 2; i++)
     for (uint8_t j = 0; j < HEIGHT; j++)
       if (tttBoard[j][i] != empty && tttBoard[j][i] == tttBoard[j][i+1] && tttBoard[j][i+1] == tttBoard[j][i+2])
-      {
         return tttBoard[j][i];
-      }
   // Vertical
   for (uint8_t i = 0; i < WIDTH; i++)
     if (tttBoard[0][i] != empty && tttBoard[0][i] == tttBoard[1][i] && tttBoard[1][i] == tttBoard[2][i])
-    {
       return tttBoard[0][i];
-    }
   // Diagonal
   for (uint8_t i = 0; i < WIDTH - 2; i++)
+  {
     if (tttBoard[0][i] != empty && tttBoard[0][i] == tttBoard[1][i+1] && tttBoard[1][i+1] == tttBoard[2][i+2])
-    {
       return tttBoard[0][i];
-    }
+    if (tttBoard[2][i] != empty && tttBoard[2][i] == tttBoard[1][i+1] && tttBoard[1][i+1] == tttBoard[1][i+2])
+      return tttBoard[2][i];
+  }
   // Check for tie, no empty slots
   uint8_t emptySlots = 0;
   for (uint8_t j = 0; j < HEIGHT; j++)
