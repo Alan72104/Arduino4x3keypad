@@ -9,7 +9,7 @@
 #define NUM_LEDS WIDTH * HEIGHT
 
 enum RgbState {
-  staticLight,
+  staticRainbow,
   rainbow,
   spreadOut,
   breathing,

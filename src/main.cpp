@@ -27,8 +27,8 @@ uint8_t rgbBrightness = 63;
 uint32_t lastRgbBrightnessChange = 0ul;
 
 // Variables for the rgb effects
-RgbState rgbState = staticLight;
-RgbState lastRgbState = staticLight;
+RgbState rgbState = staticRainbow;
+RgbState lastRgbState = staticRainbow;
 uint32_t lastRgbStateChange = 0ul;
 std::vector<Ball> balls;
 float fractionalDrawingTestY = 0.0f;
@@ -521,7 +521,7 @@ void NextRgbState()
 {
   switch (rgbState)
   {
-    case staticLight:
+    case staticRainbow:
       rgbState = rainbow;
       break;
     case rainbow:
@@ -567,7 +567,7 @@ void NextRgbState()
       rgbState = tictactoe;
       break;
     case tictactoe:
-      rgbState = staticLight;
+      rgbState = staticRainbow;
       break;
   }
 }
@@ -595,14 +595,14 @@ void UpdateEffect()
   
   switch (rgbState)
   {
-    case staticLight:
+    case staticRainbow:
       // ========== Light when pressed ==========
 
       // If the last state isn't the same, that means the user just switched to this effect,
       // init the needed vars, and clear garbage effect datas if needed,
       // exception is that the effect data arrays will be freed/cleared when calling NextRgbState(),
       // so no need to init data arrays in there
-      if (lastRgbState != staticLight)
+      if (lastRgbState != staticRainbow)
       {
         rainbowState = 0;
       }
