@@ -12,6 +12,7 @@ enum RgbState {
   staticRainbow,
   rainbow,
   spreadOut,
+  staticLight,
   breathing,
   fractionalDrawingTest2d,
   spinningRainbow,

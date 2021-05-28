@@ -30,6 +30,7 @@ uint32_t lastRgbBrightnessChange = 0ul;
 RgbState rgbState = staticRainbow;
 RgbState lastRgbState = staticRainbow;
 uint32_t lastRgbStateChange = 0ul;
+uint8_t staticLightState = 0;
 std::vector<Ball> balls;
 float fractionalDrawingTestY = 0.0f;
 float fractionalDrawingTestX = 0.0f;
@@ -196,6 +197,12 @@ void ScanKeys()
             {
               lastRgbBrightnessChange = millis();
               rgbBrightness = max(0, rgbBrightness - 10);
+              continue;
+            }
+            else if (btnState[0][2] == HIGH && rgbState == staticLight && millis() - lastRgbBrightnessChange >= 100)
+            {
+              staticLightState++;
+              if (staticLightState >= 8) staticLightState = 0;
               continue;
             }
           }
@@ -529,6 +536,9 @@ void NextRgbState()
       break;
     case spreadOut:
       std::vector<Ball>().swap(balls);
+      rgbState = staticLight;
+      break;
+    case staticLight:
       rgbState = breathing;
       break;
     case breathing:
@@ -577,9 +587,9 @@ void UpdateEffect()
   static uint32_t lastEffectUpdate = 0ul;
   static float secondsElapsed = 0.0f;
   static float delayElapsed = 0.0f;
+  static const uint8_t rainbowHues[7] = {0,32,64,96,160,176,192};
   static uint8_t rainbowState = 0;
   static uint8_t breathingState = 0;
-  static const uint8_t rainbowHues[7] = {0,32,64,96,160,176,192};
   static uint8_t snakeHue = 0;
   static uint8_t snakeX = 0;
   static uint8_t snakeY = 0;
@@ -653,6 +663,24 @@ void UpdateEffect()
           ball++;
       }
 
+      break;
+      // ==============================
+    case staticLight:
+      // ========== Static light ==========
+
+      if (lastRgbState != staticLight)
+      {
+        staticLightState = 0;
+      }
+      
+      for (uint8_t i = 0; i < NUM_LEDS; i++)
+      {
+        if (staticLightState == 7)
+          leds[i] = CRGB(rgbBrightness, rgbBrightness, rgbBrightness);
+        else
+          leds[i] = CRGB(CHSV(rainbowHues[staticLightState], 255, rgbBrightness));
+      }
+      
       break;
       // ==============================
     case breathing:
