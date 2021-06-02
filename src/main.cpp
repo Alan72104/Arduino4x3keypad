@@ -349,7 +349,7 @@ void DrawPixel2d(int x, int y, CRGB color)
     leds[WIDTH * y + x] = color;
 }
 
-// This function draws a line onto the 1d strip
+// This function draws a line onto the 1ed strip
 // Position and length can be float
 void DrawLine(float fPos, float length, CRGB color)
 {
