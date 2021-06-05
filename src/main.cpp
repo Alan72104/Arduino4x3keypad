@@ -396,8 +396,8 @@ void DrawLine(float fPos, float length, CRGB color)
 // Coordinate and diameter can be float
 void DrawSquare2d(float fX, float fY, float diameter, CRGB color)
 {
-  float availFirstPixelX = 1.0f - (fX - (uint8_t)(fX));
-  float availFirstPixelY = 1.0f - (fY - (uint8_t)(fY));
+  float availFirstPixelX = 1.0f - (fX - (int)fX);
+  float availFirstPixelY = 1.0f - (fY - (int)fY);
   float amtFirstPixelX = min(availFirstPixelX, diameter);
   float amtFirstPixelY = min(availFirstPixelY, diameter);
   float remainingX = min(diameter, WIDTH - fX);
