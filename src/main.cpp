@@ -180,95 +180,10 @@ void ScanKeys()
 
           // Modifier key handling
           if (btnState[2][0] == HIGH)
-          {
-            if (btnState[0][3] == HIGH && millis() - lastRgbStateChange >= 150)
-            {
-              lastRgbStateChange = millis();
-              NextRgbState();
-              continue;
-            }
-            else if (btnState[0][0] == HIGH && millis() - lastRgbBrightnessChange >= 100)
-            {
-              lastRgbBrightnessChange = millis();
-              rgbBrightness = min(rgbBrightness + 10, 255);
-              continue;
-            }
-            else if (btnState[0][1] == HIGH && millis() - lastRgbBrightnessChange >= 100)
-            {
-              lastRgbBrightnessChange = millis();
-              rgbBrightness = max(0, rgbBrightness - 10);
-              continue;
-            }
-            else if (btnState[0][2] == HIGH && rgbState == staticLight && millis() - lastRgbBrightnessChange >= 100)
-            {
-              staticLightState++;
-              if (staticLightState >= 8) staticLightState = 0;
-              continue;
-            }
-          }
+            if (HandleModifier()) continue;
           
-          // State specific handling
-          switch (rgbState)
-          {
-            case spreadOut:
-              if (btnStateTemp == HIGH && balls.size() < 16)
-              {
-                CRGB color = CHSV(random(256), 255, rgbBrightness);
-                balls.push_back(MakeBall(j, i, -1, color));
-                balls.push_back(MakeBall(j, i, 1, color));
-              }
-              break;
-            
-            case fractionalDrawingTest2d:
-              if (btnState[0][0] == HIGH && fractionalDrawingTestY > 0.0f)         fractionalDrawingTestY -= 0.1f;
-              else if (btnState[1][0] == HIGH && fractionalDrawingTestY < HEIGHT)  fractionalDrawingTestY += 0.1f;
-              else if (btnState[1][2] == HIGH && fractionalDrawingTestX < WIDTH)   fractionalDrawingTestX += 0.1f;
-              else if (btnState[1][1] == HIGH && fractionalDrawingTestX > 0.0f)    fractionalDrawingTestX -= 0.1f;
-              break;
-            
-            case ripple:
-              if (btnStateTemp == HIGH && circles.size() < 16)
-                circles.push_back(MakeCircle(j, i, 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
-              break;
-            
-            case antiRipple:
-              if (btnStateTemp == HIGH && circles.size() < 16)
-                circles.push_back(MakeCircle(j, i, 5.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
-              break;
-            
-            case shootingParticles:
-              if (btnStateTemp == HIGH && particles.size() < 16)
-              {
-                float vX = WIDTH / 2 - (j + 0.5f);
-                float vY = HEIGHT / 2 - (i + 0.5f);
-                float l = sqrt(vX * vX + vY * vY);
-                // The length of the vector we got by subtracting the key coordinate from the center is proportional to (or scaled by) the distance between the key and the center,
-                // first normalize the vector to equalize the different "speeds" we could get, because we only want the "direction" here, after then we could scale it back by a constant we want
-                particles.push_back(MakeParticle(j, i, (vX / l) * 8.0f, (vY / l) * 8.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
-              }
-              break;
-
-            case whacAMole:
-              if (btnStateTemp == HIGH && moleIsHere)
-                if (i == moleY && j == moleX)
-                {
-                  moleScore++;
-                  moleIsHere = false;
-                }
-              break;
-
-            case tictactoe:
-              if (tttCurrentPlayer == user)
-                if (tttBoard[i][j] == empty)
-                {
-                  tttBoard[i][j] = user;
-                  tttCurrentPlayer = ai;
-                }
-              break;
-            
-            default:
-              break;
-          }
+          // State specific key handling
+          EffectHandleKey(btnStateTemp, j, i);
         }
       }
       lastBtnState[i][j] = btnStateTemp;
@@ -293,6 +208,100 @@ void ScanKeys()
     Serial.println(F(" micros"));
   }
 #endif
+}
+
+bool HandleModifier()
+{
+  if (btnState[0][3] == HIGH && millis() - lastRgbStateChange >= 150)
+  {
+    lastRgbStateChange = millis();
+    NextRgbState();
+    return true;
+  }
+  else if (btnState[0][0] == HIGH && millis() - lastRgbBrightnessChange >= 100)
+  {
+    lastRgbBrightnessChange = millis();
+    rgbBrightness = min(rgbBrightness + 10, 255);
+    return true;
+  }
+  else if (btnState[0][1] == HIGH && millis() - lastRgbBrightnessChange >= 100)
+  {
+    lastRgbBrightnessChange = millis();
+    rgbBrightness = max(0, rgbBrightness - 10);
+    return true;
+  }
+  else if (btnState[0][2] == HIGH && rgbState == staticLight && millis() - lastRgbBrightnessChange >= 100)
+  {
+    staticLightState++;
+    if (staticLightState >= 8) staticLightState = 0;
+    return true;
+  }
+  return false;
+}
+
+void EffectHandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY)
+{
+  switch (rgbState)
+  {
+    case spreadOut:
+      if (currentState == HIGH && balls.size() < 16)
+      {
+        CRGB color = CHSV(random(256), 255, rgbBrightness);
+        balls.push_back(MakeBall(keyX, keyY, -1, color));
+        balls.push_back(MakeBall(keyX, keyY, 1, color));
+      }
+      break;
+    
+    case fractionalDrawingTest2d:
+      if (btnState[0][0] == HIGH && fractionalDrawingTestY > 0.0f)         fractionalDrawingTestY -= 0.1f;
+      else if (btnState[1][0] == HIGH && fractionalDrawingTestY < HEIGHT)  fractionalDrawingTestY += 0.1f;
+      else if (btnState[1][2] == HIGH && fractionalDrawingTestX < WIDTH)   fractionalDrawingTestX += 0.1f;
+      else if (btnState[1][1] == HIGH && fractionalDrawingTestX > 0.0f)    fractionalDrawingTestX -= 0.1f;
+      break;
+    
+    case ripple:
+      if (currentState == HIGH && circles.size() < 16)
+        circles.push_back(MakeCircle(keyX, keyY, 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
+      break;
+    
+    case antiRipple:
+      if (currentState == HIGH && circles.size() < 16)
+        circles.push_back(MakeCircle(keyX, keyY, 5.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
+      break;
+    
+    case shootingParticles:
+      if (currentState == HIGH && particles.size() < 16)
+      {
+        float vX = WIDTH / 2 - (keyX + 0.5f);
+        float vY = HEIGHT / 2 - (keyY + 0.5f);
+        float l = sqrt(vX * vX + vY * vY);
+        // The length of the vector we got by subtracting the key coordinate from the center is proportional to (or scaled by) the distance between the key and the center,
+        // first normalize the vector to equalize the different "speeds" we could get, because we only want the "direction" here, after then we could scale it back by a constant we want
+        particles.push_back(MakeParticle(keyX, keyY, (vX / l) * 8.0f, (vY / l) * 8.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
+      }
+      break;
+
+    case whacAMole:
+      if (currentState == HIGH && moleIsHere)
+        if (keyY == moleY && keyX == moleX)
+        {
+          moleScore++;
+          moleIsHere = false;
+        }
+      break;
+
+    case tictactoe:
+      if (tttCurrentPlayer == user)
+        if (tttBoard[keyY][keyX] == empty)
+        {
+          tttBoard[keyY][keyX] = user;
+          tttCurrentPlayer = ai;
+        }
+      break;
+    
+    default:
+      break;
+  }
 }
 
 Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color)

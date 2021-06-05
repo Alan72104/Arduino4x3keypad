@@ -71,6 +71,8 @@ typedef struct {
 void setup();
 void loop();
 void ScanKeys();
+bool HandleModifier();
+void EffectHandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY);
 Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color);
 Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color);
 Raindrop MakeRaindrop(uint8_t x, float y, CRGB color);
