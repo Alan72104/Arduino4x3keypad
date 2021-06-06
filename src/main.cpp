@@ -178,12 +178,11 @@ void ScanKeys()
           }
 #endif
 
-          // Modifier key handling
-          if (btnState[2][0] == HIGH)
-            if (HandleModifier()) continue;
-          
-          // State specific key handling
-          EffectHandleKey(btnStateTemp, j, i);
+          // This looks much simpler than // if (!(btnState[2][0] == HIGH && HandleModifier())) EffectHandleKey(btnStateTemp, j, i); //
+          if (btnState[2][0] == HIGH && HandleModifier())
+            ;
+          else
+            EffectHandleKey(btnStateTemp, j, i);
         }
       }
       lastBtnState[i][j] = btnStateTemp;
