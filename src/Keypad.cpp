@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "main.h"
 #include "Keypad.h"
 
 void Keypad::Init()
@@ -27,6 +28,7 @@ void Keypad::Init()
 
 void Keypad::ScanKeys()
 {
+    if (micros() - lastScanTime < (microsPerScan - (scanPeriod > microsPerScan) ? microsPerScan : scanPeriod)) return;
     lastScanTime = micros();
 
     for (uint8_t i = 0; i < HEIGHT; i++)
@@ -85,9 +87,11 @@ void Keypad::ScanKeys()
         Serial.print(F("Updates per second: "));
         Serial.println(t);
         t = 0;
-        Serial.print(F("Loop took: "));
-        Serial.print(loopPeriod);
+        Serial.print(F("Scan took: "));
+        Serial.print(scanPeriod);
         Serial.println(F(" micros"));
     }
 #endif
+
+    scanPeriod = micros() - lastScanTime;
 }

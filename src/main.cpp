@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <FastLED.h>
+#include "main.h"
 #include "KeypadParams.h"
 #include "Keypad.h"
 #include "Led.h"
