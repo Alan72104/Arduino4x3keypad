@@ -7,8 +7,10 @@
 class Keypad
 {
     private:
-        const uint8_t pinC[WIDTH] = {8, 7, 6, 5};
-        const uint8_t pinR[HEIGHT] = {2, 3, 4};
+        uint32_t lastScanTime;
+
+        const uint8_t pinC[WIDTH] = PINC;
+        const uint8_t pinR[HEIGHT] = PINR;
         const uint16_t scanPerSec = 2000u;
         const uint16_t microsPerScan = 1000000u / scanPerSec;
         uint8_t btnStateTemp;
@@ -18,6 +20,7 @@ class Keypad
         uint32_t debounceTime[HEIGHT][WIDTH];
     public:
         void Init();
+        void ScanKeys();
 };
 
 #endif

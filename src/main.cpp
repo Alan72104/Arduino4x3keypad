@@ -21,7 +21,6 @@ void setup()
 
     keypad.Init();
 
-
     // Wait until the serial system starts
     while (!Serial) {}
     Serial.begin(19200);
@@ -29,5 +28,5 @@ void setup()
 
 void loop()
 {
-
+    keypad.ScanKeys();
 }
