@@ -7,12 +7,12 @@
 class Keypad
 {
     private:
+        const uint16_t microsPerScan = 1000000u / KEYSCANSPERSEC;
         uint32_t lastScanTime;
         uint32_t scanPeriod;
 
         const uint8_t pinC[WIDTH] = PINCOLUMNS;
         const uint8_t pinR[HEIGHT] = PINROWS;
-        const uint16_t microsPerScan = 1000000u / KEYSCANSPERSEC;
         uint8_t btnStateTemp;
         uint8_t btnState[HEIGHT][WIDTH];
         uint8_t lastBtnState[HEIGHT][WIDTH];
