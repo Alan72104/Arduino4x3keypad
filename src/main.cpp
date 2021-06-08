@@ -38,13 +38,13 @@ std::vector<Circle> circles;
 std::vector<Raindrop> raindrops;
 std::deque<std::pair<uint8_t, uint8_t>> snakePaths;
 std::vector<Particle> particles;
-MoleState moleState = ready;
+GameState moleState = ready;
 bool moleIsHere = false;
 uint8_t moleX = 0;
 uint8_t moleY = 0;
 uint8_t moleScore = 0;
 TttObject tttBoard[HEIGHT][WIDTH];
-MoleState tttState = ready;
+GameState tttState = ready;
 TttObject tttCurrentPlayer = ai;
 
 // Todo: Real spinning rainbow

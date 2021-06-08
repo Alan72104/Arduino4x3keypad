@@ -26,7 +26,7 @@ enum RgbState {
   tictactoe
 };
 
-enum MoleState {
+enum GameState {
   ready,
   playing,
   score
