@@ -95,3 +95,31 @@ void Keypad::ScanKeys()
 
     scanPeriod = micros() - lastScanTime;
 }
+
+bool Keypad::HandleModifier()
+{
+    if (btnState[0][3] == HIGH && millis() - lastRgbStateChange >= 150)
+    {
+        lastRgbStateChange = millis();
+        // NextRgbState();
+        return true;
+    }
+    else if (btnState[0][0] == HIGH && millis() - lastRgbBrightnessChange >= 100)
+    {
+        lastRgbBrightnessChange = millis();
+        // led.SetRgbBrightness(min(led.GetRgbBrightness() + 10, 255));
+        return true;
+    }
+    else if (btnState[0][1] == HIGH && millis() - lastRgbBrightnessChange >= 100)
+    {
+        lastRgbBrightnessChange = millis();
+        // led.SetRgbBrightness(max(0, led.GetRgbBrightness() - 10));
+        return true;
+    }
+    // else if (btnState[0][2] == HIGH && led.GetRgbState() == staticLight && millis() - lastRgbBrightnessChange >= 100)
+    // {
+    //     (StaticLight)GetEffect(staticLight).NextStaticLightState();
+    //     return true;
+    // }
+    return false;
+}

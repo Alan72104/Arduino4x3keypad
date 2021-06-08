@@ -18,9 +18,13 @@ class Keypad
         uint8_t lastBtnState[HEIGHT][WIDTH];
         const uint16_t debounceMicros = 1500u;
         uint32_t debounceTime[HEIGHT][WIDTH];
+
+        uint32_t lastRgbBrightnessChange;
+        uint32_t lastRgbStateChange;
     public:
         void Init();
         void ScanKeys();
+        bool HandleModifier();
 };
 
 #endif
