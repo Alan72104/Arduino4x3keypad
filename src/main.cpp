@@ -6,6 +6,7 @@
 #include "Led.h"
 
 Keypad keypad;
+Led led;
 
 // Todo: Real spinning rainbow
 // Todo: Make sure UpdateEffect() doesn't generate delay spikes
@@ -21,6 +22,7 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT);
 
     keypad.Init();
+    led.Init();
 
     // Wait until the serial system starts
     while (!Serial) {}
@@ -30,4 +32,5 @@ void setup()
 void loop()
 {
     keypad.ScanKeys();
+    led.Draw();
 }
