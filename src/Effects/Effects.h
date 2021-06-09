@@ -11,3 +11,4 @@
 #include "Raindrop.h"
 #include "Snake.h"
 #include "ShootingParticles.h"
+#include "WhacAMole.h"
