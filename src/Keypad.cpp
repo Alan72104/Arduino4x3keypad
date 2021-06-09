@@ -66,7 +66,7 @@ void Keypad::ScanKeys()
                     }
 #endif
                     // This looks much simpler than // if (!(btnState[2][0] == HIGH && HandleModifier())) EffectHandleKey(btnStateTemp, j, i); //
-                    if (btnState[2][0] == HIGH && HandleModifier())
+                    if (btnState[2][0] == HIGH && HandleModifiedKeys())
                         ;
                     // else
                     //     EffectHandleKey(btnStateTemp, j, i);
@@ -98,7 +98,7 @@ void Keypad::ScanKeys()
     scanPeriod = micros() - lastScanTime;
 }
 
-bool Keypad::HandleModifier()
+bool Keypad::HandleModifiedKeys()
 {
     if (btnState[0][3] == HIGH && millis() - lastRgbStateChange >= 150)
     {

@@ -25,7 +25,7 @@ public:
     void Init();
     uint8_t GetKey(uint8_t x, uint8_t y);
     void ScanKeys();
-    bool HandleModifier();
+    bool HandleModifiedKeys();
 };
 
 #endif
