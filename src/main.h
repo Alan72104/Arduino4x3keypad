@@ -1,93 +1,24 @@
-#include <Arduino.h>
-#include <FastLED.h>
+#ifndef MAIN_H
+#define MAIN_H
 
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
-#define WIDTH 4
-#define HEIGHT 3
-#define RGB_PIN 10
-#define NUM_LEDS WIDTH * HEIGHT
+#include "Keypad.h"
+#include "Rgb.h"
+#include "EffectManager.h"
 
-enum RgbState {
-  staticRainbow,
-  rainbow,
-  spreadOut,
-  staticLight,
-  breathing,
-  fractionalDrawingTest2d,
-  spinningRainbow,
-  ripple,
-  antiRipple,
-  stars,
-  raindrop,
-  snake,
-  shootingParticles,
-  whacAMole,
-  tictactoe
-};
+#undef min
+#undef max
+#define min(a,b) (((a)<(b))?(a):(b))
+#define max(a,b) (((a)>(b))?(a):(b))
 
-enum GameState {
-  ready,
-  playing,
-  score
-};
+// #define Debug
 
-enum TttObject {
-  // Starts at -1 for score calculations
-  user = -1,
-  tie,
-  ai,
-  empty
-};
+extern Keypad keypad;
+extern Rgb rgb;
+extern EffectManager effectManager;
 
-typedef struct {
-  float x;
-  uint8_t y;
-  int8_t direction;
-  CRGB color;
-} Ball;
-
-typedef struct {
-  uint8_t x;
-  uint8_t y;
-  float radius;
-  CRGB color;
-} Circle;
-
-typedef struct {
-  uint8_t x;
-  float y;
-  CRGB color;
-} Raindrop;
-
-typedef struct {
-  float x;
-  float y;
-  float vX;
-  float vY;
-  CRGB color;
-} Particle;
-
-void setup();
-void loop();
-void ScanKeys();
-bool HandleModifier();
-void EffectHandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY);
-Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color);
-Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color);
-Raindrop MakeRaindrop(uint8_t x, float y, CRGB color);
-Particle MakeParticle(float x, float y, float vX, float vY, CRGB color);
-CRGB ColorFraction(CRGB colorIn, float fraction);
-void DrawPixel2d(int x, int y, CRGB color);
-void DrawLine(float fPos, float length, CRGB color);
-void DrawSquare2d(float fX, float fY, float length, CRGB color);
-void DrawCircle2d_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color);
-void DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color);
-void NextRgbState();
-void UpdateEffect();
-TttObject TttCheckWinner();
-int8_t TttGetMinimaxBestscore(bool isMaximizing);
-void UpdateRgb();
+uint32_t GetLoopTime();
 void UpdateLed();
+void CheckSerialMessage();
 uint16_t Random(uint16_t max);
-int availableMem();
+
+#endif

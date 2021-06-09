@@ -1,1264 +1,153 @@
 #include <Arduino.h>
 #include <FastLED.h>
-#include <vector>
-#include <deque>
 #include "main.h"
+#include "KeypadParams.h"
+#include "Keypad.h"
+#include "Rgb.h"
+#include "Effect.h"
+#include "EffectManager.h"
+#include "Effects/Effects.h"
 
-// Variables required to run the keypad
-const uint8_t pinC[WIDTH] = {8, 7, 6, 5};
-const uint8_t pinR[HEIGHT] = {2, 3, 4};
-uint8_t btnStateTemp = LOW;
-uint8_t btnState[HEIGHT][WIDTH];
-uint8_t lastBtnState[HEIGHT][WIDTH];
-uint32_t debounceTime[HEIGHT][WIDTH];
-const uint16_t debounceMicros = 1500u;
-uint8_t ledState = LOW;
-uint32_t lastBlinkTime = 0ul;
-uint32_t ledBlinkLen = 5ul;
-uint32_t loopEndTime = 0ul;
-uint32_t loopStartTime = 0ul;
-uint32_t loopPeriod = 0ul;
-const uint16_t scanPerSec = 2000u;
-const uint16_t microsPerScan = 1000000u / scanPerSec;
-
-// Variables for the rgb leds
-CRGB leds[NUM_LEDS];
-uint8_t rgbBrightness = 63;
-uint32_t lastRgbBrightnessChange = 0ul;
-
-// Variables for the rgb effects
-RgbState rgbState = staticRainbow;
-RgbState lastRgbState = staticRainbow;
-uint32_t lastRgbStateChange = 0ul;
-uint8_t staticLightState = 0;
-std::vector<Ball> balls;
-float fractionalDrawingTestY = 0.0f;
-float fractionalDrawingTestX = 0.0f;
-std::vector<Circle> circles;
-std::vector<Raindrop> raindrops;
-std::deque<std::pair<uint8_t, uint8_t>> snakePaths;
-std::vector<Particle> particles;
-GameState moleState = ready;
-bool moleIsHere = false;
-uint8_t moleX = 0;
-uint8_t moleY = 0;
-uint8_t moleScore = 0;
-TttObject tttBoard[HEIGHT][WIDTH];
-GameState tttState = ready;
-TttObject tttCurrentPlayer = ai;
+Keypad keypad;
+Rgb rgb;
+EffectManager effectManager;
+uint32_t loopStart;
+uint32_t loopPeriod;
 
 // Todo: Real spinning rainbow
 // Todo: Make sure UpdateEffect() doesn't generate delay spikes
 // Todo: Split rising edge/falling edge debouncing, delayed rising, straight falling
-// Todo: Split codes
 // Todo: Double byte messages
-// Todo: Fill up the last 40% of the flash with more effects!
-// Todo: Why tf does ScanKeys() run 3k times per sec???
 // Todo: Fix tic tac toe taking minutes to calculate a move
 
-void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
-
-  // Columns are pulled up inputs
-  // Leaving the pin normally HIGH
-  // When connected to ground, the pin is pulled down to LOW
-  for (uint8_t i : pinC)
-  {
-    pinMode(i, INPUT_PULLUP);
-  }
-
-  // Rows are voltage outputs
-  // When writing to LOW, the pin will be grounded
-  // When writing to HIGH, the pin will be connected to 5v
-  for (uint8_t i : pinR)
-  {
-    pinMode(i, OUTPUT);
-    digitalWrite(i, HIGH);
-  }
-
-  for (uint8_t j = 0; j < HEIGHT; j++)
-    for (uint8_t i = 0; i < WIDTH; i++)
-      btnState[j][i] = LOW;
-  
-  FastLED.addLeds<WS2812B, RGB_PIN, GRB>(leds, NUM_LEDS);
-
-  // Wait until the serial system starts
-  while (!Serial) {}
-  Serial.begin(19200);
-}
-
-void loop() {
-  // The start time of the FULL loop
-  loopStartTime = micros();
-
-  ScanKeys();
-  UpdateLed();
-  UpdateEffect();
-  UpdateRgb();
-
-  // If serial has received bytes, read the driver messages
-  if (Serial.available())
-  {
-    static unsigned char incomingByte;
-    static unsigned char incomingData;
-
-    incomingByte = Serial.read();
-    incomingData = incomingByte & 0b00111111;
-    switch (incomingByte >> 6)
-    {
-      case 0: // UPDATERGBSTATE
-        rgbState = (RgbState)incomingData;
-        break;
-      case 1: // GETRGBDATA
-        static CHSV rgbToHsv;
-        static CRGB brightenRgb;
-        for (int i = 0; i < WIDTH * HEIGHT; i++)
-        {
-          rgbToHsv = rgb2hsv_approximate(leds[i]);
-          brightenRgb.setHSV(rgbToHsv[0], rgbToHsv[1], (255 - 200) * (rgbToHsv[2] - 0) / (255 - 0) + 200);
-          Serial.write(brightenRgb[0]);
-          Serial.write(brightenRgb[1]);
-          Serial.write(brightenRgb[2]);
-        }
-        break;
-      case 2: // INCREASERGBBRIGHTNESS
-        rgbBrightness = min(rgbBrightness + 10, 255);
-        break;
-      case 3: // DECREASERGBBRIGHTNESS
-        rgbBrightness = max(0, rgbBrightness - 10);
-        break;
-    }
-  }
-
-  loopEndTime = micros();
-  // Don't change the measured loop time immediately as it might float around
-  loopPeriod = (uint32_t)(loopPeriod * 0.6f) + ((micros() - loopStartTime) * 0.4f);
-}
-
-// #define Debug
-
-void ScanKeys()
+void setup()
 {
-  static uint32_t lastKeysUpdate = 0ul;
+    pinMode(LED_BUILTIN, OUTPUT);
 
-  if (micros() - lastKeysUpdate < (microsPerScan - (loopPeriod > microsPerScan ? microsPerScan : loopPeriod))) return;
-  lastKeysUpdate = micros();
+    keypad.Init();
+    rgb.Init();
+    effectManager.AddEffect(new StaticRainbow());
+    effectManager.AddEffect(new Rainbow());
+    effectManager.AddEffect(new SpreadOut());
+    effectManager.AddEffect(new StaticLight());
+    effectManager.AddEffect(new Breathing());
+    effectManager.AddEffect(new FractionalDrawingTest2d());
+    effectManager.AddEffect(new SpinningRainbow());
+    effectManager.AddEffect(new Ripple());
+    effectManager.AddEffect(new AntiRipple());
+    effectManager.AddEffect(new Stars());
+    effectManager.AddEffect(new Raindrop());
+    effectManager.AddEffect(new Snake());
+    effectManager.AddEffect(new ShootingParticles());
+    effectManager.AddEffect(new WhacAMole());
+    effectManager.AddEffect(new TicTacToe());
 
-  for (uint8_t i = 0; i < HEIGHT; i++)
-  {
-    // Write the current row to LOW which is ground
-    // If a switch on the row is pressed, it pulls the corresponding column input pin to ground which is LOW
-    // According to the input_pullup characteristics, pin reading needs to be inverted
-    digitalWrite(pinR[i], LOW);
+    // Wait until the serial system starts
+    while (!Serial) {}
+    Serial.begin(19200);
+}
 
-    for (uint8_t j = 0; j < WIDTH; j++)
-    {
-      // Reading is inverted here
-      btnStateTemp = !digitalRead(pinC[j]);
-
-      if (btnStateTemp != lastBtnState[i][j])
-      {
-        if (debounceTime[i][j] == 0)
-          debounceTime[i][j] = micros();
-      }
-      
-      if ((micros() - debounceTime[i][j]) > debounceMicros && debounceTime[i][j] != 0)
-      {
-        if (btnStateTemp != btnState[i][j])
-        {
-          debounceTime[i][j] = 0;
-
-          btnState[i][j] = btnStateTemp;
-
-#ifndef Debug
-          if (Serial.availableForWrite())
-          {
-            // Key status byte - |first 4 bits for key number, 3 zero padding bits, last one bit for pressed state|
-            Serial.write(((4*i+j+1) << 4 ) + (btnStateTemp == HIGH ? 1 : 0));
-          }
-#endif
-
-          // This looks much simpler than // if (!(btnState[2][0] == HIGH && HandleModifier())) EffectHandleKey(btnStateTemp, j, i); //
-          if (btnState[2][0] == HIGH && HandleModifier())
-            ;
-          else
-            EffectHandleKey(btnStateTemp, j, i);
-        }
-      }
-      lastBtnState[i][j] = btnStateTemp;
-    }
+void loop()
+{
+    loopStart = micros();
     
-    digitalWrite(pinR[i], HIGH);
-  }
+    UpdateLed();
+    keypad.ScanKeys();
+    effectManager.UpdateEffect();
+    rgb.Draw();
+    CheckSerialMessage();
 
+    // Don't change the measured loop time immediately as it might float around
+    loopPeriod = (uint32_t)((loopPeriod * 0.8f) + ((micros() - loopStart) * 0.2f));
 #ifdef Debug
-  // Update frequency test
-  static int t;
-  static uint32_t tt;
-  t++;
-  if (millis() - tt >= 1000)
-  {
-    tt = millis();
-    Serial.print(F("Updates per second: "));
-    Serial.println(t);
-    t = 0;
-    Serial.print(F("Loop took: "));
-    Serial.print(loopPeriod);
-    Serial.println(F(" micros"));
-  }
+    static uint32_t t = 0ul;
+    if (millis() - t >= 1000)
+    {
+        t = millis();
+        Serial.print(F("Main loop took: "));
+        Serial.print(loopPeriod);
+        Serial.println(F(" micros"));
+    }
 #endif
 }
 
-bool HandleModifier()
-{
-  if (btnState[0][3] == HIGH && millis() - lastRgbStateChange >= 150)
-  {
-    lastRgbStateChange = millis();
-    NextRgbState();
-    return true;
-  }
-  else if (btnState[0][0] == HIGH && millis() - lastRgbBrightnessChange >= 100)
-  {
-    lastRgbBrightnessChange = millis();
-    rgbBrightness = min(rgbBrightness + 10, 255);
-    return true;
-  }
-  else if (btnState[0][1] == HIGH && millis() - lastRgbBrightnessChange >= 100)
-  {
-    lastRgbBrightnessChange = millis();
-    rgbBrightness = max(0, rgbBrightness - 10);
-    return true;
-  }
-  else if (btnState[0][2] == HIGH && rgbState == staticLight && millis() - lastRgbBrightnessChange >= 100)
-  {
-    staticLightState++;
-    if (staticLightState >= 8) staticLightState = 0;
-    return true;
-  }
-  return false;
-}
+uint32_t GetLoopTime() { return loopPeriod; }
 
-void EffectHandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY)
+void CheckSerialMessage()
 {
-  switch (rgbState)
-  {
-    case spreadOut:
-      if (currentState == HIGH && balls.size() < 16)
-      {
-        CRGB color = CHSV(random(256), 255, rgbBrightness);
-        balls.push_back(MakeBall(keyX, keyY, -1, color));
-        balls.push_back(MakeBall(keyX, keyY, 1, color));
-      }
-      break;
-    
-    case fractionalDrawingTest2d:
-      if (btnState[0][0] == HIGH && fractionalDrawingTestY > 0.0f)         fractionalDrawingTestY -= 0.1f;
-      else if (btnState[1][0] == HIGH && fractionalDrawingTestY < HEIGHT)  fractionalDrawingTestY += 0.1f;
-      else if (btnState[1][2] == HIGH && fractionalDrawingTestX < WIDTH)   fractionalDrawingTestX += 0.1f;
-      else if (btnState[1][1] == HIGH && fractionalDrawingTestX > 0.0f)    fractionalDrawingTestX -= 0.1f;
-      break;
-    
-    case ripple:
-      if (currentState == HIGH && circles.size() < 16)
-        circles.push_back(MakeCircle(keyX, keyY, 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
-      break;
-    
-    case antiRipple:
-      if (currentState == HIGH && circles.size() < 16)
-        circles.push_back(MakeCircle(keyX, keyY, 5.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
-      break;
-    
-    case shootingParticles:
-      if (currentState == HIGH && particles.size() < 16)
-      {
-        float vX = WIDTH / 2 - (keyX + 0.5f);
-        float vY = HEIGHT / 2 - (keyY + 0.5f);
-        float l = sqrt(vX * vX + vY * vY);
-        // The length of the vector we got by subtracting the key coordinate from the center is proportional to (or scaled by) the distance between the key and the center,
-        // first normalize the vector to equalize the different "speeds" we could get, because we only want the "direction" here, after then we could scale it back by a constant we want
-        particles.push_back(MakeParticle(keyX, keyY, (vX / l) * 8.0f, (vY / l) * 8.0f, CRGB(CHSV(random(256), 255, rgbBrightness))));
-      }
-      break;
+    // If serial has received bytes, read the driver messages
+    if (Serial.available())
+    {
+        static unsigned char incomingByte;
+        static unsigned char incomingData;
 
-    case whacAMole:
-      if (currentState == HIGH && moleIsHere)
-        if (keyY == moleY && keyX == moleX)
+        incomingByte = Serial.read();
+        incomingData = incomingByte & 0b00111111;
+        switch (incomingByte >> 6)
         {
-          moleScore++;
-          moleIsHere = false;
-        }
-      break;
-
-    case tictactoe:
-      if (tttCurrentPlayer == user)
-        if (tttBoard[keyY][keyX] == empty)
-        {
-          tttBoard[keyY][keyX] = user;
-          tttCurrentPlayer = ai;
-        }
-      break;
-    
-    default:
-      break;
-  }
-}
-
-Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color)
-{
-  Ball newBall;
-  newBall.x = x;
-  newBall.y = y;
-  newBall.direction = direction;
-  newBall.color = color;
-  return newBall;
-}
-
-Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color)
-{
-  Circle newCircle;
-  newCircle.x = x;
-  newCircle.y = y;
-  newCircle.radius = radius;
-  newCircle.color = color;
-  return newCircle;
-}
-
-Raindrop MakeRaindrop(uint8_t x, float y, CRGB color)
-{
-  Raindrop newRaindrop;
-  newRaindrop.x = x;
-  newRaindrop.y = y;
-  newRaindrop.color = color;
-  return newRaindrop;
-}
-
-Particle MakeParticle(float x, float y, float vX, float vY, CRGB color)
-{
-  Particle newParticle;
-  newParticle.x = x;
-  newParticle.y = y;
-  newParticle.vX = vX;
-  newParticle.vY = vY;
-  newParticle.color = color;
-  return newParticle;
-}
-
-// This function fades the color brightness to the fraction
-CRGB ColorFraction(CRGB colorIn, float fraction)
-{
-  fraction = min(1.0f, fraction);
-  return CRGB(colorIn).fadeToBlackBy(255 * (1.0f - fraction));
-}
-
-// This function takes both x and y coordinates and draws the corresponding led mapped to the virtual 2d matrix
-void DrawPixel2d(int x, int y, CRGB color)
-{
-  if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT)
-    leds[WIDTH * y + x] = color;
-}
-
-// This function draws a line onto the 1ed strip
-// Position and length can be float
-void DrawLine(float fPos, float length, CRGB color)
-{
-  // Calculate how much the first pixel will hold
-  float availFirstPixel = 1.0f - (fPos - (uint8_t)(fPos));
-  float amtFirstPixel = min(availFirstPixel, length);
-  float remaining = min(length, NUM_LEDS - fPos);
-  int iPos = fPos;
-  
-  // Blend in the color of the first partial pixel
-  if (remaining > 0.0f)
-  {
-    if (0 <= iPos && iPos < NUM_LEDS)
-      leds[iPos++] += ColorFraction(color, amtFirstPixel);
-    remaining -= amtFirstPixel;
-  }
-  
-  // Now draw every full pixels in the middle
-  while (remaining > 1.0f)
-  {
-    if (0 <= iPos && iPos < NUM_LEDS)
-      leds[iPos++] += color;
-    remaining--;
-  }
-  
-  // Draw tail pixel, up to a single full pixel
-  if (remaining > 0.0f)
-  {
-    if (0 <= iPos && iPos < NUM_LEDS)
-      leds[iPos] += ColorFraction(color, remaining);
-  }
-}
-
-// This function draws a square onto the virtual 2d matrix
-// Coordinate and diameter can be float
-void DrawSquare2d(float fX, float fY, float diameter, CRGB color)
-{
-  float availFirstPixelX = 1.0f - (fX - (int)fX);
-  float availFirstPixelY = 1.0f - (fY - (int)fY);
-  float amtFirstPixelX = min(availFirstPixelX, diameter);
-  float amtFirstPixelY = min(availFirstPixelY, diameter);
-  float remainingX = min(diameter, WIDTH - fX);
-  float remainingY = min(diameter, HEIGHT - fY);
-  int iX = fX;
-  int iY = fY;
-
-  // Draw the first row
-  if (remainingY > 0.0f)
-  {
-    // Blend in the color of the first partial pixel of the first row
-    if (remainingX > 0.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX++] += ColorFraction(color, amtFirstPixelX * amtFirstPixelY / 1 * 1);
-      remainingX -= amtFirstPixelX;
-    }
-    
-    // Draw every pixels in the middle of the first row
-    while (remainingX > 1.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX++] += ColorFraction(color, 1 * amtFirstPixelY / 1 * 1);
-      remainingX--;
-    }
-    
-    // Draw the tail pixel of the first row, up to a single full pixel
-    if (remainingX > 0.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX] += ColorFraction(color, remainingX * amtFirstPixelY / 1 * 1);
-    }
-  }
-
-  // Draw every middle rows
-  while (remainingY > 1.0f)
-  {
-    remainingX = min(diameter, WIDTH - fX);
-    iX = fX;
-    iY++;
-    // Blend in the color of the first partial pixels of the middle rows
-    if (remainingX > 0.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX++] += ColorFraction(color, amtFirstPixelX * 1 / 1 * 1);
-      remainingX -= amtFirstPixelX;
-    }
-    
-    // Draw every pixels in the middle of the middle rows
-    while (remainingX > 1.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX++] += color;
-      remainingX--;
-    }
-    
-    // Draw the tail pixels of the middle rows
-    if (remainingX > 0.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-      leds[WIDTH * iY + iX] += ColorFraction(color, remainingX * 1 / 1 * 1);
-    }
-    remainingY--;
-  }
-
-  // Finally, draw the last row
-  if (remainingY > 0.0f)
-  {
-    remainingX = min(diameter, WIDTH - fX);
-    iX = fX;
-    iY++;
-    // Blend in the color of the first partial pixel of the last row
-    if (remainingX > 0.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX++] += ColorFraction(color, remainingX * remainingY / 1 * 1);
-      remainingX -= amtFirstPixelX;
-    }
-    
-    // Draw every pixels in the middle of the last row
-    while (remainingX > 1.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX++] += ColorFraction(color, 1 * remainingY / 1 * 1);
-      remainingX--;
-    }
-    
-    // Draw the tail pixel of the last row
-    if (remainingX > 0.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX] += ColorFraction(color, remainingX * remainingY / 1 * 1);
-    }
-  }
-}
-
-void DrawCircle2d_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color)
-{
-    DrawPixel2d(xc+x, yc+y, color);
-    DrawPixel2d(xc-x, yc+y, color);
-    DrawPixel2d(xc+x, yc-y, color);
-    DrawPixel2d(xc-x, yc-y, color);
-    DrawPixel2d(xc+y, yc+x, color);
-    DrawPixel2d(xc-y, yc+x, color);
-    DrawPixel2d(xc+y, yc-x, color);
-    DrawPixel2d(xc-y, yc-x, color);
-}
-
-// https://www.geeksforgeeks.org/bresenhams-circle-drawing-algorithm/
-void DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
-{
-    uint8_t x = 0, y = r;
-    uint8_t d = 3 - 2 * r;
-    DrawCircle2d_internal(xc, yc, x, y, color);
-    while (y >= x)
-    {
-        // for each point we will
-        // draw all eight pixels
-        x++;
-        // check for decision parameter
-        // and correspondingly
-        // update d, x, y
-        if (d > 0)
-        {
-            y--;
-            d = d + 4 * (x - y) + 10;
-        }
-        else
-            d = d + 4 * x + 6;
-        DrawCircle2d_internal(xc, yc, x, y, color);
-    }
-}
-
-// This function frees the arrays used by the current effect,
-// and sets the rgb effect to the next effect
-void NextRgbState()
-{
-  switch (rgbState)
-  {
-    case staticRainbow:
-      rgbState = rainbow;
-      break;
-    case rainbow:
-      rgbState = spreadOut;
-      break;
-    case spreadOut:
-      std::vector<Ball>().swap(balls);
-      rgbState = staticLight;
-      break;
-    case staticLight:
-      rgbState = breathing;
-      break;
-    case breathing:
-      rgbState = fractionalDrawingTest2d;
-      break;
-    case fractionalDrawingTest2d:
-      rgbState = spinningRainbow;
-      break;
-    case spinningRainbow:
-      rgbState = ripple;
-      break;
-    case ripple:
-      circles.clear();
-      rgbState = antiRipple;
-      break;
-    case antiRipple:
-      std::vector<Circle>().swap(circles);
-      rgbState = stars;
-      break;
-    case stars:
-      rgbState = raindrop;
-      break;
-    case raindrop:
-      std::vector<Raindrop>().swap(raindrops);
-      rgbState = snake;
-      break;
-    case snake:
-      snakePaths.clear();
-      rgbState = shootingParticles;
-      break;
-    case shootingParticles:
-      std::vector<Particle>().swap(particles);
-      rgbState = whacAMole;
-      break;
-    case whacAMole:
-      rgbState = tictactoe;
-      break;
-    case tictactoe:
-      rgbState = staticRainbow;
-      break;
-  }
-}
-
-void UpdateEffect()
-{
-  static uint32_t lastEffectUpdate = 0ul;
-  static float secondsElapsed = 0.0f;
-  static float delayElapsed = 0.0f;
-  static const uint8_t rainbowHues[7] = {0,32,64,96,160,176,192};
-  static uint8_t rainbowState = 0;
-  static uint8_t breathingState = 0;
-  static uint8_t snakeHue = 0;
-  static uint8_t snakeX = 0;
-  static uint8_t snakeY = 0;
-  static float moleSpawningDelay = 0.0f;
-  static uint8_t moleSpawnCount = 0;
-  static TttObject tttWinner = empty;
-#ifdef Debug
-  static uint32_t lastEffectDebug = 0;
-#endif
-  if (micros() - lastEffectUpdate < 33333 /* 30 fps */) return;
-  secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 1000.0f;
-  lastEffectUpdate = micros();
-  
-  switch (rgbState)
-  {
-    case staticRainbow:
-      // ========== Light when pressed ==========
-
-      // If the last state isn't the same, that means the user just switched to this effect,
-      // init the needed vars, and clear garbage effect datas if needed,
-      // exception is that the effect data arrays will be freed/cleared when calling NextRgbState(),
-      // so no need to init data arrays in there
-      if (lastRgbState != staticRainbow)
-      {
-        rainbowState = 0;
-      }
-
-      rainbowState++;
-      
-      for (uint8_t i = 0; i < HEIGHT; i++)
-        for (uint8_t j = 0; j < WIDTH; j++)
-          leds[4*i+j] = btnState[i][j] ? CHSV((4*i+j) * 25 - (rainbowState * 1), 255, rgbBrightness) : CHSV(0, 0, 0);
-
-      break;
-      // ==============================
-    case rainbow:
-      // ========== Rainbow ==========
-      
-      if (lastRgbState != rainbow)
-      {
-        rainbowState = 0;
-      }
-      
-      rainbowState++;
-      
-      for (uint8_t i = 0; i < WIDTH; i++)
-        leds[4*0+i] = leds[4*1+i] = leds[4*2+i] = CHSV(i * 10 - (rainbowState * 1), 255, rgbBrightness);
-      
-      break;
-      // ==============================
-    case spreadOut:
-      // ========== Spread lights out when pressed ==========
-      
-      if (lastRgbState != spreadOut)
-      {
-        FastLED.clear();
-        break;
-      }
-
-      FastLED.clear();
-
-      for (auto ball = balls.begin(); ball != balls.end(); )
-      {
-        ball->x += ball->direction * 10.0f * secondsElapsed;
-        
-        DrawLine(4 * ball->y + constrain(ball->x, 0.5f, 3.5f) - 0.5f, 1, ball->color);
-
-        if (ball->x < 0.0f || ball->x >= 4.0f)
-          balls.erase(ball);
-        else
-          ball++;
-      }
-
-      break;
-      // ==============================
-    case staticLight:
-      // ========== Static light ==========
-
-      if (lastRgbState != staticLight)
-      {
-        staticLightState = 0;
-      }
-      
-      for (uint8_t i = 0; i < NUM_LEDS; i++)
-      {
-        if (staticLightState == 7)
-          leds[i] = CRGB(rgbBrightness, rgbBrightness, rgbBrightness);
-        else
-          leds[i] = CRGB(CHSV(rainbowHues[staticLightState], 255, rgbBrightness));
-      }
-      
-      break;
-      // ==============================
-    case breathing:
-      // ========== Breathing ==========
-
-      if (lastRgbState != breathing)
-      {
-        delayElapsed = 0.0f;
-        breathingState = 0;
-      }
-
-      delayElapsed += secondsElapsed;
-
-      if (delayElapsed >= 4.0f)
-      {
-        delayElapsed = 0.0f;
-        breathingState += 1;
-        if (breathingState > 6)
-          breathingState = 0;
-      }
-      
-      for (uint8_t i = 0; i < NUM_LEDS; i++)
-        leds[i] = CHSV(rainbowHues[breathingState], 255, (max(127, rgbBrightness) *
-                        (delayElapsed <= 4.0f/2 ? delayElapsed / 2 : (2.0f - (delayElapsed - 2.0f)) / 2)) );
-      
-      break;
-      // ==============================
-    case fractionalDrawingTest2d:
-      // ========== Fractional drawing test 2D ==========
-
-      FastLED.clear();
-      DrawSquare2d(fractionalDrawingTestX, fractionalDrawingTestY, 1.1, CRGB(CHSV(128, 255, rgbBrightness)));
-      
-      break;
-      // ==============================
-    case spinningRainbow:
-      // ========== Spinning rainbow ==========
-
-      if (lastRgbState != spinningRainbow)
-      {
-        rainbowState = 0;
-      }
-
-      rainbowState++;
-      
-      FastLED.clear();
-
-      DrawSquare2d(0.5f, 0.5f, 1, CRGB(CHSV(rainbowState, 255, rgbBrightness)));
-      DrawSquare2d(2.5f, 0.5f, 1, CRGB(CHSV(rainbowState + 64, 255, rgbBrightness)));
-      DrawSquare2d(0.5f, 1.5f, 1, CRGB(CHSV(rainbowState + 64 * 2, 255, rgbBrightness)));
-      DrawSquare2d(2.5f, 1.5f, 1, CRGB(CHSV(rainbowState + 64 * 3, 255, rgbBrightness)));
-
-      break;
-      // ==============================
-    case ripple:
-      // ========== Water wave ==========
-
-      if (lastRgbState != ripple)
-      {
-        FastLED.clear();
-        break;
-      }
-
-      FastLED.clear();
-
-      for (auto circle = circles.begin(); circle != circles.end(); )
-      {
-        circle->radius += 15.0f * secondsElapsed;
-        
-        DrawCircle2d(circle->x, circle->y, circle->radius, circle->color);
-
-        if(circle->radius >= 5.0f)
-          circles.erase(circle);
-        else
-          circle++;
-      }
-
-      break;
-      // ==============================
-    case antiRipple:
-      // ========== Anti water wave ==========
-
-      if (lastRgbState != antiRipple)
-      {
-        FastLED.clear();
-        break;
-      }
-
-      FastLED.clear();
-
-      for (auto circle = circles.begin(); circle != circles.end(); )
-      {
-        circle->radius -= 15.0f * secondsElapsed;
-        
-        if (circle->radius > 0.0f)
-          DrawCircle2d(circle->x, circle->y, circle->radius, circle->color);
-
-        if(circle->radius <= 0.0f)
-          circles.erase(circle);
-        else
-          circle++;
-      }
-
-      break;
-      // ==============================
-    case stars:
-      // ========== Stars ==========
-
-      if (lastRgbState != stars)
-      {
-        delayElapsed = 0.0f;
-        for (uint8_t i = 0; i < NUM_LEDS; i++)
-          leds[i] = CHSV(rainbowHues[random(7)], 255, rgbBrightness);
-        break;
-      }
-
-      delayElapsed += secondsElapsed;
-
-      if (delayElapsed >= 0.2f)
-      {
-        delayElapsed = 0.0f;
-        leds[Random(NUM_LEDS)] = CHSV(rainbowHues[random(7)], 255, rgbBrightness);
-      }
-
-      break;
-      // ==============================
-    case raindrop:
-      // ========== Raindrop ==========
-
-      if (lastRgbState != raindrop)
-      {
-        delayElapsed = 0.0f;
-      }
-
-      delayElapsed += secondsElapsed;
-
-      if (delayElapsed >= 0.3f)
-      {
-        delayElapsed = 0.0f;
-        raindrops.push_back(MakeRaindrop(Random(WIDTH), 0, CRGB(CHSV(random(256), 255, rgbBrightness))));
-      }
-
-      FastLED.clear();
-
-      for (auto raindrop = raindrops.begin(); raindrop != raindrops.end(); )
-      {
-        raindrop->y += 4.0f * secondsElapsed;
-        
-        DrawSquare2d(raindrop->x, raindrop->y, 1.0f, raindrop->color);
-
-        if(raindrop->y >= HEIGHT)
-          raindrops.erase(raindrop);
-        else
-          raindrop++;
-      }
-
-      break;
-      // ==============================
-    case snake:
-      // ========== Snake ==========
-      
-      if (lastRgbState != snake)
-      {
-        snakeX = random(WIDTH);
-        snakeY = random(HEIGHT);
-        snakeHue = random(256);
-        delayElapsed = 0.0f;
-      }
-
-      delayElapsed += secondsElapsed;
-
-      if (delayElapsed >= 0.15f)
-      {
-        delayElapsed = 0.0f;
-
-        snakePaths.push_back(std::make_pair(snakeX, snakeY));
-        if (snakePaths.size() >= 4)
-          snakePaths.pop_front();
-        
-        if (random(2))
-          if (snakeX == 0)
-            snakeX += 1;
-          else if (snakeX == WIDTH - 1)
-            snakeX -= 1;
-          else
-            snakeX += random(2) ? -1 : 1;
-        else
-          if (snakeY == 0)
-            snakeY += 1;
-          else if (snakeY == HEIGHT - 1)
-            snakeY -= 1;
-          else
-            snakeY += random(2) ? -1 : 1;
-      }
-
-      FastLED.clear();
-
-      for (uint8_t i = 0; i < snakePaths.size(); i++)
-        DrawPixel2d(snakePaths[i].first, snakePaths[i].second, CRGB(CHSV(snakeHue - 31, 255, ((rgbBrightness / snakePaths.size()) * (i + 1)))));
-
-      DrawPixel2d(snakeX, snakeY, CRGB(CHSV(snakeHue, 255, rgbBrightness)));
-
-      break;
-      // ==============================
-    case shootingParticles:
-      // ========== Shooting particles ==========
-
-      if (lastRgbState != shootingParticles)
-      {
-        FastLED.clear();
-        break;
-      }
-
-      FastLED.clear();
-
-      for (auto particle = particles.begin(); particle != particles.end(); )
-      {
-        particle->x += particle->vX * secondsElapsed;
-        particle->y += particle->vY * secondsElapsed;
-
-        DrawSquare2d(particle->x, particle->y, 1.0f, particle->color);
-
-        if (particle->x <= -1.0f || particle->x >= WIDTH + 1.0f || particle->y <= -1.0f || particle->y >= HEIGHT + 1.0f)
-          particles.erase(particle);
-        else
-          particle++;
-      }
-
-      break;
-      // ==============================
-    case whacAMole:
-      // ========== Whac-A-Mole ==========
-    
-      if (lastRgbState != whacAMole)
-      {
-        moleState = ready;
-        moleIsHere = false;
-        delayElapsed = 0.0f;
-      }
-
-      FastLED.clear();
-
-      switch (moleState)
-      {
-        case ready:
-          delayElapsed += secondsElapsed;
-
-          if (delayElapsed >= 4.0f)
-          {
-            delayElapsed = 0.0f;
-            moleState = playing;
-            moleSpawningDelay = 0.0f;
-            moleSpawnCount = 0;
-            moleScore = 0;
-            // Fall through...
-          }
-          else
-          {
-            for (uint8_t i = 0; i < min((int)delayElapsed, 3) + 1; i++)
-              for (uint8_t j = 0; j < HEIGHT; j++)
-                leds[j * WIDTH + i] = CHSV(HUE_RED, 255, rgbBrightness);
-            break;
-          }
-
-        case playing:
-          if (moleSpawnCount >= 30)
-          {
-            delayElapsed += secondsElapsed;
-            if (delayElapsed > 0.5f)
-            {
-              moleState = score;
-              moleIsHere = false;
-              // Fall through...
-            }
-            else break;
-          }
-          else
-          {
-            moleSpawningDelay += secondsElapsed;
-            if (moleSpawningDelay >= 0.5f)
-            {
-              moleSpawningDelay = 0.0f;
-              moleX = random(WIDTH);
-              moleY = random(HEIGHT);
-              moleIsHere = true;
-              moleSpawnCount++;
-            }
-            if (moleIsHere)
-              leds[moleY * WIDTH + moleX] = CHSV(random(256), 255, rgbBrightness);
-            break;
-          }
-
-        case score:
-          delayElapsed += secondsElapsed;
-          if (delayElapsed > 5.0f)
-          {
-            delayElapsed = 0.0f;
-            moleState = ready;
-            moleIsHere = false;
-            break;
-          }
-
-          DrawLine(0.0f, moleScore * NUM_LEDS / 30.0f, CHSV(HUE_RED, 255, rgbBrightness));
-          break;
-      }
-
-      break;
-      // ==============================
-    case tictactoe:
-      // ========== Tic-tac-toe ==========
-      
-      if (lastRgbState != tictactoe)
-      {
-        std::fill_n(&tttBoard[0][0], WIDTH * HEIGHT, empty);
-        tttState = ready;
-        tttCurrentPlayer = user;
-        tttWinner = empty;
-        delayElapsed = 0.0f;
-      }
-
-      FastLED.clear();
-
-      switch (tttState)
-      {
-        case ready:
-          delayElapsed += secondsElapsed;
-
-          if (delayElapsed >= 4.0f)
-          {
-            delayElapsed = 0.0f;
-            tttState = playing;
-            // Fall through...
-          }
-          else
-          {
-            for (uint8_t i = 0; i < min((int)delayElapsed, 3) + 1; i++)
-              for (uint8_t j = 0; j < HEIGHT; j++)
-                leds[j * WIDTH + i] = CHSV(HUE_AQUA, 255, rgbBrightness);
-            break;
-          }
-
-        case playing:
-          tttWinner = TttCheckWinner();
-          if (tttWinner != empty)
-          {
-            // Only start the timer when there is a winner,
-            // if so show the score after 5 seconds
-            delayElapsed += secondsElapsed;
-            if (delayElapsed > 5.0f)
-            {
-              delayElapsed = 0.0f;
-              tttState = score;
-              // Fall through...
-            }
-            else break;
-          }
-          else
-          {
-            if (tttCurrentPlayer == ai)
-            {
-              int8_t bestScore = -128;
-              uint8_t moveX = 0;
-              uint8_t moveY = 0;
-              for (uint8_t j = 0; j < HEIGHT; j++)
-                for (uint8_t i = 0; i < WIDTH; i++)
-                  if (tttBoard[j][i] == empty)
-                  {
-                    tttBoard[j][i] = ai;
-                    int8_t score = TttGetMinimaxBestscore(false);
-                    tttBoard[j][i] = empty;
-                    if (score > bestScore)
-                    {
-                      bestScore = score;
-                      moveX = j;
-                      moveY = i;
-                    }
-                  }
-              tttBoard[moveX][moveY] = ai;
-              tttCurrentPlayer = user;
-            }
-
-            FastLED.clear();
-            
-            for (uint8_t j = 0; j < HEIGHT; j++)
-              for (uint8_t i = 0; i < WIDTH; i++)
-                switch (tttBoard[j][i])
+            case 0: // UPDATERGBSTATE
+                effectManager.SetEffect(incomingData);
+                break;
+            case 1: // GETRGBDATA
+                static CHSV rgbToHsv;
+                static CRGB brightenRgb;
+                for (int i = 0; i < WIDTH * HEIGHT; i++)
                 {
-                  case empty:
-                    break;
-                  case ai:
-                    DrawPixel2d(j, i, CHSV(HUE_BLUE, 255, rgbBrightness));
-                    break;
-                  case user:
-                    DrawPixel2d(j, i, CHSV(HUE_RED, 255, rgbBrightness));
-                    break;
-                  case tie: // Not used for board
-                    break;
+                    rgbToHsv = rgb2hsv_approximate(rgb.GetColor(i));
+                    brightenRgb.setHSV(rgbToHsv[0], rgbToHsv[1], (255 - 200) * (rgbToHsv[2] - 0) / (255 - 0) + 200);
+                    Serial.write(brightenRgb[0]);
+                    Serial.write(brightenRgb[1]);
+                    Serial.write(brightenRgb[2]);
                 }
-            break;
-          }
-
-        case score:
-          delayElapsed += secondsElapsed;
-          if (delayElapsed > 5.0f)
-          {
-            std::fill_n(&tttBoard[0][0], WIDTH * HEIGHT, empty);
-            tttState = ready;
-            tttCurrentPlayer = user;
-            tttWinner = empty;
-            delayElapsed = 0.0f;
-            break;
-          }
-
-          switch (tttWinner)
-          {
-            case ai:
-              DrawPixel2d(0, 0, CHSV(HUE_RED, 255, rgbBrightness));
-              DrawPixel2d(0, 3, CHSV(HUE_RED, 255, rgbBrightness));
-              DrawPixel2d(1, 1, CHSV(HUE_RED, 255, rgbBrightness));
-              DrawPixel2d(1, 2, CHSV(HUE_RED, 255, rgbBrightness));
-              DrawPixel2d(2, 0, CHSV(HUE_RED, 255, rgbBrightness));
-              DrawPixel2d(2, 3, CHSV(HUE_RED, 255, rgbBrightness));
-              break;
-            case user:
-              DrawPixel2d(0, 1, CHSV(HUE_RED, 255, rgbBrightness));
-              DrawPixel2d(0, 2, CHSV(HUE_RED, 255, rgbBrightness));
-              DrawPixel2d(1, 0, CHSV(HUE_RED, 255, rgbBrightness));
-              DrawPixel2d(1, 3, CHSV(HUE_RED, 255, rgbBrightness));
-              DrawPixel2d(2, 1, CHSV(HUE_RED, 255, rgbBrightness));
-              DrawPixel2d(2, 2, CHSV(HUE_RED, 255, rgbBrightness));
-              break;
-            case tie:
-              for (uint8_t i = 0; i < WIDTH; i++)
-                DrawPixel2d(1, i, CHSV(HUE_RED, 255, rgbBrightness));
-              break;
-            case empty: // Winner won't be empty in there
-              break;
-          }
-          break;
-      }
-
-      break;
-      // ==============================
-  }
-
-  lastRgbState = rgbState;
-#ifdef Debug
-  if (millis() - lastEffectDebug > 1000)
-  {
-    lastEffectDebug = millis();
-    Serial.print(F("Effect update took: "));
-    Serial.print(micros() - lastEffectUpdate);
-    Serial.println(F(" micros"));
-  }
-#endif
-}
-
-TttObject TttCheckWinner()
-{
-  // Horizontal
-  for (uint8_t i = 0; i < WIDTH - 2; i++)
-    for (uint8_t j = 0; j < HEIGHT; j++)
-      if (tttBoard[j][i] != empty && tttBoard[j][i] == tttBoard[j][i+1] && tttBoard[j][i+1] == tttBoard[j][i+2])
-        return tttBoard[j][i];
-  // Vertical
-  for (uint8_t i = 0; i < WIDTH; i++)
-    if (tttBoard[0][i] != empty && tttBoard[0][i] == tttBoard[1][i] && tttBoard[1][i] == tttBoard[2][i])
-      return tttBoard[0][i];
-  // Diagonal
-  for (uint8_t i = 0; i < WIDTH - 2; i++)
-  {
-    if (tttBoard[0][i] != empty && tttBoard[0][i] == tttBoard[1][i+1] && tttBoard[1][i+1] == tttBoard[2][i+2])
-      return tttBoard[0][i];
-    if (tttBoard[2][i] != empty && tttBoard[2][i] == tttBoard[1][i+1] && tttBoard[1][i+1] == tttBoard[1][i+2])
-      return tttBoard[2][i];
-  }
-  // Check for tie, no empty slots
-  uint8_t emptySlots = 0;
-  for (uint8_t j = 0; j < HEIGHT; j++)
-    for (uint8_t i = 0; i < WIDTH; i++)
-      if (tttBoard[j][i] == empty)
-        emptySlots++;
-  if (emptySlots == 0)
-    return tie;
-  return empty;
-}
-
-int8_t TttGetMinimaxBestscore(bool isMaximizing)
-{
-  TttObject result = TttCheckWinner();
-  if (result != empty)
-    return (int8_t)result;
-
-  if (isMaximizing)
-  {
-    int8_t bestScore = -128;
-    for (uint8_t j = 0; j < HEIGHT; j++)
-      for (uint8_t i = 0; i < WIDTH; i++)
-        if (tttBoard[j][i] == empty)
-        {
-          tttBoard[j][i] = ai;
-          int8_t score = TttGetMinimaxBestscore(false);
-          tttBoard[j][i] = empty;
-          bestScore = max(score, bestScore);
+                break;
+            case 2: // INCREASERGBBRIGHTNESS
+                rgb.IncreaseBrightness();
+                break;
+            case 3: // DECREASERGBBRIGHTNESS
+                rgb.DecreaseBrightness();
+                break;
         }
-    return bestScore;
-  }
-  else
-  {
-    int8_t bestScore = 127;
-    for (uint8_t j = 0; j < HEIGHT; j++)
-      for (uint8_t i = 0; i < WIDTH; i++)
-        if (tttBoard[j][i] == empty)
-        {
-          tttBoard[j][i] = user;
-          int8_t score = TttGetMinimaxBestscore(true);
-          tttBoard[j][i] = empty;
-          bestScore = min(score, bestScore);
-        }
-    return bestScore;
-  }
-}
-
-void UpdateRgb()
-{
-  static uint32_t lastRgbUpdate = 0ul;
-  if (micros() - lastRgbUpdate < 33333 /* 30 fps */) return;
-  lastRgbUpdate = micros();
-  FastLED.show();
-}
-
-void UpdateLed()
-{
-  if (ledState == LOW)
-  {
-    if (millis() - lastBlinkTime > 1000ul - ledBlinkLen)
-    {
-      lastBlinkTime = millis();
-      ledState = HIGH;
-      digitalWrite(LED_BUILTIN, ledState);
     }
-  } else {
-    if (millis() - lastBlinkTime > ledBlinkLen)
-    {
-      lastBlinkTime = millis();
-      ledState = LOW;
-      digitalWrite(LED_BUILTIN, ledState);
-    }
-  }
 }
 
 // Random without repeat
 uint16_t Random(uint16_t max)
 {
-  static uint16_t last = 0l;
-  if (max == 0)
-    return 0;
-  else
-  {
-    uint16_t rtn = random(max);
-    while (rtn == last)
-      rtn = random(max);
-    last = rtn;
-    return rtn;
-  }
+    static uint16_t last = 0l;
+    if (max == 0)
+        return 0;
+    else
+    {
+        uint16_t rtn = random(max);
+        while (rtn == last)
+            rtn = random(max);
+        last = rtn;
+        return rtn;
+    }
 }
 
-int availableMem() 
+void UpdateLed()
 {
-  extern int __heap_start, *__brkval;
-  int v;
-  return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
+    static uint8_t ledState = LOW;
+    static uint32_t lastBlinkTime = 0ul;
+    static const uint32_t ledBlinkLen = 5ul;
+
+    if (ledState == LOW)
+    {
+        if (millis() - lastBlinkTime > 1000ul - ledBlinkLen)
+        {
+            lastBlinkTime = millis();
+            ledState = HIGH;
+            digitalWrite(LED_BUILTIN, ledState);
+        }
+    }
+    else
+    {
+        if (millis() - lastBlinkTime > ledBlinkLen)
+        {
+            lastBlinkTime = millis();
+            ledState = LOW;
+            digitalWrite(LED_BUILTIN, ledState);
+        }
+    }
 }
