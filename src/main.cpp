@@ -11,6 +11,8 @@
 Keypad keypad;
 Rgb rgb;
 EffectManager effectManager;
+uint32_t loopStart;
+uint32_t loopPeriod;
 
 // Todo: Real spinning rainbow
 // Todo: Make sure UpdateEffect() doesn't generate delay spikes
@@ -46,12 +48,29 @@ void setup()
 
 void loop()
 {
+    loopStart = micros();
+    
     UpdateLed();
     keypad.ScanKeys();
     effectManager.UpdateEffect();
     rgb.Draw();
     CheckSerialMessage();
+
+    // Don't change the measured loop time immediately as it might float around
+    loopPeriod = (uint32_t)((loopPeriod * 0.8f) + ((micros() - loopStart) * 0.2f));
+#ifdef Debug
+    static uint32_t t = 0ul;
+    if (millis() - t >= 1000)
+    {
+        t = millis();
+        Serial.print(F("Main loop took: "));
+        Serial.print(loopPeriod);
+        Serial.println(F(" micros"));
+    }
+#endif
 }
+
+uint32_t GetLoopTime() { return loopPeriod; }
 
 void CheckSerialMessage()
 {

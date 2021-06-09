@@ -19,6 +19,7 @@ extern Keypad keypad;
 extern Rgb rgb;
 extern EffectManager effectManager;
 
+uint32_t GetLoopTime();
 void UpdateLed();
 void CheckSerialMessage();
 uint16_t Random(uint16_t max);

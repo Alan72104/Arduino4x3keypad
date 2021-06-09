@@ -31,7 +31,7 @@ uint8_t Keypad::GetState(uint8_t x, uint8_t y) { return btnState[y][x]; }
 
 void Keypad::ScanKeys()
 {
-    if (micros() - lastScanTime < (microsPerScan - (scanPeriod > microsPerScan) ? microsPerScan : scanPeriod)) return;
+    if (micros() - lastScanTime < (microsPerScan - min(GetLoopTime(), microsPerScan))) return;
     lastScanTime = micros();
 
     for (uint8_t i = 0; i < HEIGHT; i++)
