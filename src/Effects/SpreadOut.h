@@ -29,12 +29,11 @@ public:
     void Load() override
     {
         std::vector<Ball>().swap(balls);
-        FastLED.clear();
     }
 
     void Update(float secondsElapsed) override
     {
-        FastLED.clear();
+        rgb.Clear();
 
         for (auto ball = balls.begin(); ball != balls.end();)
         {

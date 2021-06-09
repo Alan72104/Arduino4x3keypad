@@ -42,7 +42,7 @@ public:
             drops.push_back(MakeRaindrop(Random(WIDTH), 0, CRGB(CHSV(random(256), 255, rgb.GetBrightness()))) );
         }
 
-        FastLED.clear();
+        rgb.Clear();
 
         for (auto drop = drops.begin(); drop != drops.end();)
         {

@@ -33,7 +33,7 @@ public:
 
     void Update(float secondsElapsed) override
     {
-        FastLED.clear();
+        rgb.Clear();
 
         for (auto circle = circles.begin(); circle != circles.end();)
         {

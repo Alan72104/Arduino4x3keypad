@@ -18,7 +18,7 @@ public:
     {
         rainbowState++;
         
-        FastLED.clear();
+        rgb.Clear();
 
         rgb.DrawSquare2d(0.5f, 0.5f, 1, CHSV(rainbowState, 255, rgb.GetBrightness()));
         rgb.DrawSquare2d(2.5f, 0.5f, 1, CHSV(rainbowState + 64, 255, rgb.GetBrightness()));
