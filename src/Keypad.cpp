@@ -27,7 +27,7 @@ void Keypad::Init()
             btnState[j][i] = LOW;
 }
 
-uint8_t Keypad::GetKey(uint8_t x, uint8_t y) { return btnState[y][x]; }
+uint8_t Keypad::GetState(uint8_t x, uint8_t y) { return btnState[y][x]; }
 
 void Keypad::ScanKeys()
 {

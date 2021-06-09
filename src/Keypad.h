@@ -23,7 +23,7 @@ private:
     uint32_t lastRgbStateChange;
 public:
     void Init();
-    uint8_t GetKey(uint8_t x, uint8_t y);
+    uint8_t GetState(uint8_t x, uint8_t y);
     void ScanKeys();
     bool HandleModifiedKeys();
 };
