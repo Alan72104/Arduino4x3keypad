@@ -66,8 +66,8 @@ void Keypad::ScanKeys()
                     }
 #endif
                     // This looks much simpler than // if (!(btnState[2][0] == HIGH && HandleModifier())) EffectHandleKey(btnStateTemp, j, i); //
-                    // if (btnState[2][0] == HIGH && HandleModifier())
-                    //     ;
+                    if (btnState[2][0] == HIGH && HandleModifier())
+                        ;
                     // else
                     //     EffectHandleKey(btnStateTemp, j, i);
                 }
