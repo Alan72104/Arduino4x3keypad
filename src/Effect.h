@@ -8,6 +8,7 @@ class Effect
 public:
     virtual void Load() = 0;
     virtual void Update(float secondsElapsed) = 0;
+    void EffectHandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY) {};
     virtual std::string GetName() = 0;
 };
 
