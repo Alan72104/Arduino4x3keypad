@@ -43,6 +43,7 @@ void setup()
     effectManager.AddEffect(new Snake());
     effectManager.AddEffect(new ShootingParticles());
     effectManager.AddEffect(new WhacAMole());
+    effectManager.AddEffect(new TicTacToe());
 
     // Wait until the serial system starts
     while (!Serial) {}
