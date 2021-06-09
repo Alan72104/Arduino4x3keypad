@@ -7,3 +7,4 @@
 #include "SpinningRainbow.h"
 #include "Ripple.h"
 #include "AntiRipple.h"
+#include "Stars.h"

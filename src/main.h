@@ -21,6 +21,6 @@ extern EffectManager effectManager;
 
 void UpdateLed();
 void CheckSerialMessage();
-
+uint16_t Random(uint16_t max);
 
 #endif

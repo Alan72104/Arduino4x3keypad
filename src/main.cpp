@@ -36,6 +36,7 @@ void setup()
     effectManager.AddEffect(new SpinningRainbow());
     effectManager.AddEffect(new Ripple());
     effectManager.AddEffect(new AntiRipple());
+    effectManager.AddEffect(new Stars());
 
     // Wait until the serial system starts
     while (!Serial) {}
@@ -85,6 +86,22 @@ void CheckSerialMessage()
                 rgb.DecreaseBrightness();
                 break;
         }
+    }
+}
+
+// Random without repeat
+uint16_t Random(uint16_t max)
+{
+    static uint16_t last = 0l;
+    if (max == 0)
+        return 0;
+    else
+    {
+        uint16_t rtn = random(max);
+        while (rtn == last)
+            rtn = random(max);
+        last = rtn;
+        return rtn;
     }
 }
 
