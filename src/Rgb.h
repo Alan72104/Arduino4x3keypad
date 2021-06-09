@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "KeypadParams.h"
 
-class Led
+class Rgb
 {
     private:
         CRGB leds[NUM_LEDS];

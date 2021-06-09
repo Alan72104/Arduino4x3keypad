@@ -1,22 +1,22 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include "KeypadParams.h"
-#include "Led.h"
+#include "Rgb.h"
 
-void Led::Init()
+void Rgb::Init()
 {
     FastLED.addLeds<WS2812B, RGB_PIN, GRB>(leds, NUM_LEDS);
 }
 
 // This function fades the color brightness to the fraction
-CRGB Led::GetColorFraction(CRGB colorIn, float fraction)
+CRGB Rgb::GetColorFraction(CRGB colorIn, float fraction)
 {
   fraction = min(1.0f, fraction);
   return CRGB(colorIn).fadeToBlackBy(255 * (1.0f - fraction));
 }
 
 // This function takes both x and y coordinates and draws the corresponding led mapped to the virtual 2d matrix
-void Led::DrawPixel2d(int x, int y, CRGB color)
+void Rgb::DrawPixel2d(int x, int y, CRGB color)
 {
   if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT)
     leds[WIDTH * y + x] = color;
@@ -24,7 +24,7 @@ void Led::DrawPixel2d(int x, int y, CRGB color)
 
 // This function draws a line onto the 1ed strip
 // Position and length can be float
-void Led::DrawLine(float fPos, float length, CRGB color)
+void Rgb::DrawLine(float fPos, float length, CRGB color)
 {
   // Calculate how much the first pixel will hold
   float availFirstPixel = 1.0f - (fPos - (uint8_t)(fPos));
@@ -58,7 +58,7 @@ void Led::DrawLine(float fPos, float length, CRGB color)
 
 // This function draws a square onto the virtual 2d matrix
 // Coordinate and diameter can be float
-void Led::DrawSquare2d(float fX, float fY, float diameter, CRGB color)
+void Rgb::DrawSquare2d(float fX, float fY, float diameter, CRGB color)
 {
   float availFirstPixelX = 1.0f - (fX - (int)fX);
   float availFirstPixelY = 1.0f - (fY - (int)fY);
@@ -158,7 +158,7 @@ void Led::DrawSquare2d(float fX, float fY, float diameter, CRGB color)
   }
 }
 
-void Led::DrawCircle2d_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color)
+void Rgb::DrawCircle2d_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color)
 {
     DrawPixel2d(xc+x, yc+y, color);
     DrawPixel2d(xc-x, yc+y, color);
@@ -171,7 +171,7 @@ void Led::DrawCircle2d_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CR
 }
 
 // https://www.geeksforgeeks.org/bresenhams-circle-drawing-algorithm/
-void Led::DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
+void Rgb::DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
 {
     uint8_t x = 0, y = r;
     uint8_t d = 3 - 2 * r;
@@ -195,7 +195,7 @@ void Led::DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
     }
 }
 
-void Led::Draw()
+void Rgb::Draw()
 {
   static uint32_t lastRgbUpdate = 0ul;
   if (micros() - lastRgbUpdate < 33333 /* 30 fps */) return;

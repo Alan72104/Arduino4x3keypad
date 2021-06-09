@@ -3,10 +3,10 @@
 #include "main.h"
 #include "KeypadParams.h"
 #include "Keypad.h"
-#include "Led.h"
+#include "Rgb.h"
 
 Keypad keypad;
-Led led;
+Rgb rgb;
 
 // Todo: Real spinning rainbow
 // Todo: Make sure UpdateEffect() doesn't generate delay spikes
@@ -22,7 +22,7 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT);
 
     keypad.Init();
-    led.Init();
+    rgb.Init();
 
     // Wait until the serial system starts
     while (!Serial) {}
@@ -32,5 +32,5 @@ void setup()
 void loop()
 {
     keypad.ScanKeys();
-    led.Draw();
+    rgb.Draw();
 }
