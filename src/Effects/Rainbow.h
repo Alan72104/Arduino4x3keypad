@@ -25,5 +25,5 @@ public:
                     rgb.SetColor(4*2+i, CHSV(i * 10 - (rainbowState * 1), 255, rgb.GetBrightness()) )));
     }
 
-    std::string GetName() override { return "staticRainbow"; }
+    std::string GetName() override { return "rainbow"; }
 };
