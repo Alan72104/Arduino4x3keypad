@@ -31,6 +31,33 @@ void setup()
 
 void loop()
 {
+    UpdateLed();
     keypad.ScanKeys();
     rgb.Draw();
+}
+
+void UpdateLed()
+{
+    static uint8_t ledState = LOW;
+    static uint32_t lastBlinkTime = 0ul;
+    static const uint32_t ledBlinkLen = 5ul;
+
+    if (ledState == LOW)
+    {
+        if (millis() - lastBlinkTime > 1000ul - ledBlinkLen)
+        {
+            lastBlinkTime = millis();
+            ledState = HIGH;
+            digitalWrite(LED_BUILTIN, ledState);
+        }
+    }
+    else
+    {
+        if (millis() - lastBlinkTime > ledBlinkLen)
+        {
+            lastBlinkTime = millis();
+            ledState = LOW;
+            digitalWrite(LED_BUILTIN, ledState);
+        }
+    }
 }

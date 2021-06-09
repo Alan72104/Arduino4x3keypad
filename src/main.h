@@ -3,4 +3,6 @@
 
 // #define Debug
 
+void UpdateLed();
+
 #endif
