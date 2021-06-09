@@ -8,6 +8,11 @@
 #include "Effect.h"
 #include "EffectManager.h"
 
+#undef min()
+#undef max()
+#define min(a,b) (((a)<(b))?(a):(b))
+#define max(a,b) (((a)>(b))?(a):(b))
+
 // #define Debug
 
 extern Keypad keypad;
@@ -16,5 +21,6 @@ extern EffectManager effectManager;
 
 void UpdateLed();
 void CheckSerialMessage();
+
 
 #endif

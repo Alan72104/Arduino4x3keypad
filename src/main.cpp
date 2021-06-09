@@ -31,6 +31,7 @@ void setup()
     effectManager.AddEffect(new Rainbow());
     effectManager.AddEffect(new SpreadOut());
     effectManager.AddEffect(new StaticLight());
+    effectManager.AddEffect(new Breathing());
 
     // Wait until the serial system starts
     while (!Serial) {}
