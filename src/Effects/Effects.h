@@ -10,3 +10,4 @@
 #include "Stars.h"
 #include "Raindrop.h"
 #include "Snake.h"
+#include "ShootingParticles.h"

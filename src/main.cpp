@@ -41,6 +41,7 @@ void setup()
     effectManager.AddEffect(new Stars());
     effectManager.AddEffect(new Raindrop());
     effectManager.AddEffect(new Snake());
+    effectManager.AddEffect(new ShootingParticles());
 
     // Wait until the serial system starts
     while (!Serial) {}

@@ -7,6 +7,7 @@ class Effect
 {
 protected:
     static const uint8_t rainbowHues[7];
+
 public:
     virtual void Load() = 0;
     virtual void Update(float secondsElapsed) = 0;
