@@ -103,7 +103,7 @@ bool Keypad::HandleModifier()
     if (btnState[0][3] == HIGH && millis() - lastRgbStateChange >= 150)
     {
         lastRgbStateChange = millis();
-        // NextRgbState();
+        effectManager.NextEffect();
         return true;
     }
     else if (btnState[0][0] == HIGH && millis() - lastRgbBrightnessChange >= 100)

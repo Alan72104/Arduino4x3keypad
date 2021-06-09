@@ -28,6 +28,7 @@ void setup()
     keypad.Init();
     rgb.Init();
     effectManager.AddEffect(new StaticRainbow());
+    effectManager.AddEffect(new Rainbow());
 
     // Wait until the serial system starts
     while (!Serial) {}
