@@ -66,7 +66,7 @@ void CheckSerialMessage()
         switch (incomingByte >> 6)
         {
             case 0: // UPDATERGBSTATE
-                // rgbState = (RgbState)incomingData;
+                effectManager.SetEffect(incomingData);
                 break;
             case 1: // GETRGBDATA
                 static CHSV rgbToHsv;
