@@ -26,6 +26,8 @@ void Keypad::Init()
             btnState[j][i] = LOW;
 }
 
+uint8_t Keypad::GetKey(uint8_t x, uint8_t y) { return btnState[y][x]; }
+
 void Keypad::ScanKeys()
 {
     if (micros() - lastScanTime < (microsPerScan - (scanPeriod > microsPerScan) ? microsPerScan : scanPeriod)) return;
@@ -107,13 +109,13 @@ bool Keypad::HandleModifier()
     else if (btnState[0][0] == HIGH && millis() - lastRgbBrightnessChange >= 100)
     {
         lastRgbBrightnessChange = millis();
-        // led.SetRgbBrightness(min(led.GetRgbBrightness() + 10, 255));
+        rgb.IncreaseBrightness();
         return true;
     }
     else if (btnState[0][1] == HIGH && millis() - lastRgbBrightnessChange >= 100)
     {
         lastRgbBrightnessChange = millis();
-        // led.SetRgbBrightness(max(0, led.GetRgbBrightness() - 10));
+        rgb.DecreaseBrightness();
         return true;
     }
     // else if (btnState[0][2] == HIGH && led.GetRgbState() == staticLight && millis() - lastRgbBrightnessChange >= 100)
