@@ -26,6 +26,11 @@ void EffectManager::UpdateEffect()
     GetCurrentEffect()->Update(secondsElapsed);
 }
 
+void EffectManager::HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY)
+{
+    GetCurrentEffect()->HandleKey(currentState, keyX, keyY);
+}
+
 Effect* EffectManager::GetCurrentEffect() { return effects[currentEffectNum]; }
 
 std::string EffectManager::GetCurrentEffectName() { return effects[currentEffectNum]->GetName(); };

@@ -68,8 +68,8 @@ void Keypad::ScanKeys()
                     // This looks much simpler than // if (!(btnState[2][0] == HIGH && HandleModifier())) EffectHandleKey(btnStateTemp, j, i); //
                     if (btnState[2][0] == HIGH && HandleModifiedKeys())
                         ;
-                    // else
-                    //     EffectHandleKey(btnStateTemp, j, i);
+                    else
+                        effectManager.HandleKey(btnStateTemp, j, i);
                 }
             }
             lastBtnState[i][j] = btnStateTemp;

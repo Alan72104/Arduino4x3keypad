@@ -48,5 +48,15 @@ public:
         }
     }
 
+    void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY) override
+    {
+        if (currentState == HIGH && balls.size() < 16)
+        {
+            CRGB color = CHSV(random(256), 255, rgb.GetBrightness());
+            balls.push_back(MakeBall(keyX, keyY, -1, color));
+            balls.push_back(MakeBall(keyX, keyY, 1, color));
+        }
+    }
+
     std::string GetName() override { return "spreadOut"; }
 };

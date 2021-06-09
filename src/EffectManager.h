@@ -17,6 +17,7 @@ public:
     void SetEffect(uint8_t i);
     void NextEffect();
     void UpdateEffect();
+    void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY);
     Effect* GetCurrentEffect();
     std::string GetCurrentEffectName();
 };
