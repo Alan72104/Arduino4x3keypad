@@ -30,6 +30,7 @@ void setup()
     effectManager.AddEffect(new StaticRainbow());
     effectManager.AddEffect(new Rainbow());
     effectManager.AddEffect(new SpreadOut());
+    effectManager.AddEffect(new StaticLight());
 
     // Wait until the serial system starts
     while (!Serial) {}

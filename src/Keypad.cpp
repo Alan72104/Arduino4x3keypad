@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "main.h"
 #include "Keypad.h"
+#include "Effects/StaticLight.h"
 
 void Keypad::Init()
 {
@@ -118,10 +119,11 @@ bool Keypad::HandleModifiedKeys()
         rgb.DecreaseBrightness();
         return true;
     }
-    // else if (btnState[0][2] == HIGH && led.GetRgbState() == staticLight && millis() - lastRgbBrightnessChange >= 100)
-    // {
-    //     (StaticLight)GetEffect(staticLight).NextStaticLightState();
-    //     return true;
-    // }
+    else if (btnState[0][2] == HIGH && effectManager.GetCurrentEffectName() == "staticLight" && millis() - lastRgbBrightnessChange >= 100)
+    {
+        StaticLight* staticLight = (StaticLight*)(effectManager.GetCurrentEffect());
+        staticLight->NextState();
+        return true;
+    }
     return false;
 }
