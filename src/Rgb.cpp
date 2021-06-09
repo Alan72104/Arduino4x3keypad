@@ -211,3 +211,5 @@ void Rgb::Draw()
   lastRgbUpdate = micros();
   FastLED.show();
 }
+
+void Rgb::Clear() { FastLED.clear(); }

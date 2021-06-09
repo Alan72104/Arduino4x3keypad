@@ -3,3 +3,4 @@
 #include "SpreadOut.h"
 #include "StaticLight.h"
 #include "Breathing.h"
+#include "FractionalDrawingTest2d.h"

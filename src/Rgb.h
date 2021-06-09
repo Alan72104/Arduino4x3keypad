@@ -28,6 +28,7 @@ public:
     void DrawSquare2d(float fX, float fY, float length, CRGB color);
     void DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color);
     void Draw();
+    void Clear();
 };
 
 #endif
