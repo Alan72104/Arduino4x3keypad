@@ -17,10 +17,7 @@ uint32_t loopPeriod;
 // Todo: Real spinning rainbow
 // Todo: Make sure UpdateEffect() doesn't generate delay spikes
 // Todo: Split rising edge/falling edge debouncing, delayed rising, straight falling
-// Todo: Split codes
 // Todo: Double byte messages
-// Todo: Fill up the last 40% of the flash with more effects!
-// Todo: Why tf does ScanKeys() run 3k times per sec???
 // Todo: Fix tic tac toe taking minutes to calculate a move
 
 void setup()
