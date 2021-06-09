@@ -14,6 +14,7 @@ void EffectManager::NextEffect()
 {
     if (++currentEffectNum == effects.size())
         currentEffectNum = 0;
+    GetCurrentEffect()->Load();
 }
 
 void EffectManager::UpdateEffect()
@@ -33,4 +34,4 @@ void EffectManager::HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY)
 
 Effect* EffectManager::GetCurrentEffect() { return effects[currentEffectNum]; }
 
-std::string EffectManager::GetCurrentEffectName() { return effects[currentEffectNum]->GetName(); };
+std::string EffectManager::GetCurrentEffectName() { return GetCurrentEffect()->GetName(); };
