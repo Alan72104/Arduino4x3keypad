@@ -6,3 +6,4 @@
 #include "FractionalDrawingTest2d.h"
 #include "SpinningRainbow.h"
 #include "Ripple.h"
+#include "AntiRipple.h"
