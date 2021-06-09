@@ -4,3 +4,4 @@
 #include "StaticLight.h"
 #include "Breathing.h"
 #include "FractionalDrawingTest2d.h"
+#include "SpinningRainbow.h"
