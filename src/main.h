@@ -1,11 +1,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <vector>
-#include <memory>
 #include "Keypad.h"
 #include "Rgb.h"
-#include "Effect.h"
 #include "EffectManager.h"
 
 #undef min
