@@ -6,13 +6,15 @@
 #include "Keypad.h"
 #include "Rgb.h"
 #include "Effect.h"
+#include "EffectManager.h"
 
 // #define Debug
 
 extern Keypad keypad;
 extern Rgb rgb;
-extern std::vector<Effect*> effects;
+extern EffectManager effectManager;
 
+void UpdateEffect();
 void UpdateLed();
 void CheckSerialMessage();
 

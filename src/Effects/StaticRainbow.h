@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <string>
 #include "KeypadParams.h"
 #include "Rgb.h"
 #include "main.h"
@@ -21,7 +22,9 @@ public:
 
         for (uint8_t i = 0; i < HEIGHT; i++)
             for (uint8_t j = 0; j < WIDTH; j++)
-                rgb.SetColor(4 * i + j, keypad.GetKey(i, j) ? CHSV((4 * i + j) * 25 - (rainbowState * 1), 255, rgb.GetBrightness())
+                rgb.SetColor(4 * i + j, keypad.GetKey(j, i) ? CHSV((4 * i + j) * 25 - (rainbowState * 1), 255, rgb.GetBrightness())
                                                             : CHSV(0, 0, 0));
     }
+
+    std::string GetName() override { return "staticRainbow"; }
 };

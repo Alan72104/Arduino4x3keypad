@@ -5,12 +5,12 @@
 #include "Keypad.h"
 #include "Rgb.h"
 #include "Effect.h"
+#include "EffectManager.h"
 #include "Effects/Effects.h"
 
 Keypad keypad;
 Rgb rgb;
-std::vector<Effect*> effects;
-uint8_t currentEffect;
+EffectManager effectManager;
 
 // Todo: Real spinning rainbow
 // Todo: Make sure UpdateEffect() doesn't generate delay spikes
@@ -27,10 +27,7 @@ void setup()
 
     keypad.Init();
     rgb.Init();
-
-    effects.push_back(new StaticRainbow());
-
-    currentEffect = 0;
+    effectManager.AddEffect(new StaticRainbow());
 
     // Wait until the serial system starts
     while (!Serial) {}
@@ -41,7 +38,7 @@ void loop()
 {
     UpdateLed();
     keypad.ScanKeys();
-    effects[0]->Update();
+    UpdateEffect();
     rgb.Draw();
     CheckSerialMessage();
 }
@@ -81,6 +78,14 @@ void CheckSerialMessage()
                 break;
         }
     }
+}
+
+void UpdateEffect()
+{
+    static uint32_t lastEffectUpdate = 0ul;
+    if (millis() - lastEffectUpdate < 33333 /* 30 fps */) return;
+
+    effectManager.GetCurrentEffect()->Update();
 }
 
 void UpdateLed()
