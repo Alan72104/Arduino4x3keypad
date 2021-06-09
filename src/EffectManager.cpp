@@ -16,6 +16,16 @@ void EffectManager::NextEffect()
         currentEffectNum = 0;
 }
 
+void EffectManager::UpdateEffect()
+{
+    static uint32_t lastEffectUpdate = 0ul;
+    if (micros() - lastEffectUpdate < 33333 /* 30 fps */) return;
+    secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 1000.0f;
+    lastEffectUpdate = micros();
+
+    GetCurrentEffect()->Update(secondsElapsed);
+}
+
 Effect* EffectManager::GetCurrentEffect() { return effects[currentEffectNum]; }
 
 std::string EffectManager::GetCurrentEffectName() { return effects[currentEffectNum]->GetName(); };

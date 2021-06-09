@@ -38,7 +38,7 @@ void loop()
 {
     UpdateLed();
     keypad.ScanKeys();
-    UpdateEffect();
+    effectManager.UpdateEffect();
     rgb.Draw();
     CheckSerialMessage();
 }
@@ -78,15 +78,6 @@ void CheckSerialMessage()
                 break;
         }
     }
-}
-
-void UpdateEffect()
-{
-    static uint32_t lastEffectUpdate = 0ul;
-    if (micros() - lastEffectUpdate < 33333 /* 30 fps */) return;
-    lastEffectUpdate = micros();
-
-    effectManager.GetCurrentEffect()->Update();
 }
 
 void UpdateLed()

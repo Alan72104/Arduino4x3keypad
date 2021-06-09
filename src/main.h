@@ -14,7 +14,6 @@ extern Keypad keypad;
 extern Rgb rgb;
 extern EffectManager effectManager;
 
-void UpdateEffect();
 void UpdateLed();
 void CheckSerialMessage();
 

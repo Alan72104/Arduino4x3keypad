@@ -16,7 +16,7 @@ public:
         rainbowState = 0;
     }
 
-    void Update() override
+    void Update(float secondsElapsed) override
     {
         rainbowState++;
 

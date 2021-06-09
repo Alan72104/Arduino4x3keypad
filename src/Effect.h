@@ -7,7 +7,7 @@ class Effect
 {
 public:
     virtual void Load() = 0;
-    virtual void Update() = 0;
+    virtual void Update(float secondsElapsed) = 0;
     virtual std::string GetName() = 0;
 };
 
