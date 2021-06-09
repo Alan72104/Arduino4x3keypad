@@ -52,7 +52,7 @@ public:
     void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY)
     {
         if (currentState == HIGH && circles.size() < 16)
-            circles.push_back(MakeCircle(keyX, keyY, 0, CHSV(random(256), 255, rgb.GetBrightness())) );
+            circles.push_back(MakeCircle(keyX, keyY, 5.0f, CHSV(random(256), 255, rgb.GetBrightness())) );
     }
 
     std::string GetName() override { return "ripple"; }
