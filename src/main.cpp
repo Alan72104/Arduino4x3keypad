@@ -34,6 +34,43 @@ void loop()
     UpdateLed();
     keypad.ScanKeys();
     rgb.Draw();
+    CheckSerialMessage();
+}
+
+void CheckSerialMessage()
+{
+    // If serial has received bytes, read the driver messages
+    if (Serial.available())
+    {
+        static unsigned char incomingByte;
+        static unsigned char incomingData;
+
+        incomingByte = Serial.read();
+        incomingData = incomingByte & 0b00111111;
+        switch (incomingByte >> 6)
+        {
+            case 0: // UPDATERGBSTATE
+                // rgbState = (RgbState)incomingData;
+                break;
+            case 1: // GETRGBDATA
+                static CHSV rgbToHsv;
+                static CRGB brightenRgb;
+                for (int i = 0; i < WIDTH * HEIGHT; i++)
+                {
+                    // rgbToHsv = rgb2hsv_approximate(rgb.GetColor(i));
+                    // brightenRgb.setHSV(rgbToHsv[0], rgbToHsv[1], (255 - 200) * (rgbToHsv[2] - 0) / (255 - 0) + 200);
+                    // Serial.write(brightenRgb[0]);
+                    // Serial.write(brightenRgb[1]);
+                    // Serial.write(brightenRgb[2]);
+                }
+                break;
+            case 2: // INCREASERGBBRIGHTNESS
+                // led.SetRgbBrightness(min(led.GetRgbBrightness() + 10, 255));
+                break;
+            case 3: // DECREASERGBBRIGHTNESS
+                // led.SetRgbBrightness(max(0, led.GetRgbBrightness() - 10));
+                break;
+        }
 }
 
 void UpdateLed()
