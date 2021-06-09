@@ -34,6 +34,7 @@ void setup()
     effectManager.AddEffect(new Breathing());
     effectManager.AddEffect(new FractionalDrawingTest2d());
     effectManager.AddEffect(new SpinningRainbow());
+    effectManager.AddEffect(new Ripple());
 
     // Wait until the serial system starts
     while (!Serial) {}

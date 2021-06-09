@@ -5,3 +5,4 @@
 #include "Breathing.h"
 #include "FractionalDrawingTest2d.h"
 #include "SpinningRainbow.h"
+#include "Ripple.h"
