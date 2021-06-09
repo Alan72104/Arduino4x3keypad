@@ -13,8 +13,6 @@ private:
         CRGB color;
     } Ball;
 
-    std::vector<Ball> balls;
-
     Ball MakeBall(float x, uint8_t y, uint8_t direction, CRGB color)
     {
         Ball newBall;
@@ -24,6 +22,9 @@ private:
         newBall.color = color;
         return newBall;
     }
+
+    std::vector<Ball> balls;
+    
 public:
     void Load() override
     {
