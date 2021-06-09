@@ -8,6 +8,14 @@ void Rgb::Init()
     FastLED.addLeds<WS2812B, RGB_PIN, GRB>(leds, NUM_LEDS);
 }
 
+CRGB Rgb::GetColor(uint8_t i) { return leds[i]; }
+CRGB Rgb::SetColor(uint8_t i, CRGB color) { return leds[i] = color; }
+CRGB Rgb::SetColor(uint8_t i, CHSV color) { return leds[i] = (CRGB)color; }
+CRGB Rgb::AddColor(uint8_t i, CRGB color) { return leds[i] += color; }
+CRGB Rgb::AddColor(uint8_t i, CHSV color) { return leds[i] += (CRGB)color; }
+void Rgb::IncreaseBrightness() { ledBrightness = min(ledBrightness + 10, 255); }
+void Rgb::DecreaseBrightness() { ledBrightness = max(0, ledBrightness - 10); }
+
 // This function fades the color brightness to the fraction
 CRGB Rgb::GetColorFraction(CRGB colorIn, float fraction)
 {

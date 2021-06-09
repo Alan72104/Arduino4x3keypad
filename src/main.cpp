@@ -57,20 +57,21 @@ void CheckSerialMessage()
                 static CRGB brightenRgb;
                 for (int i = 0; i < WIDTH * HEIGHT; i++)
                 {
-                    // rgbToHsv = rgb2hsv_approximate(rgb.GetColor(i));
-                    // brightenRgb.setHSV(rgbToHsv[0], rgbToHsv[1], (255 - 200) * (rgbToHsv[2] - 0) / (255 - 0) + 200);
-                    // Serial.write(brightenRgb[0]);
-                    // Serial.write(brightenRgb[1]);
-                    // Serial.write(brightenRgb[2]);
+                    rgbToHsv = rgb2hsv_approximate(rgb.GetColor(i));
+                    brightenRgb.setHSV(rgbToHsv[0], rgbToHsv[1], (255 - 200) * (rgbToHsv[2] - 0) / (255 - 0) + 200);
+                    Serial.write(brightenRgb[0]);
+                    Serial.write(brightenRgb[1]);
+                    Serial.write(brightenRgb[2]);
                 }
                 break;
             case 2: // INCREASERGBBRIGHTNESS
-                // led.SetRgbBrightness(min(led.GetRgbBrightness() + 10, 255));
+                rgb.IncreaseBrightness();
                 break;
             case 3: // DECREASERGBBRIGHTNESS
-                // led.SetRgbBrightness(max(0, led.GetRgbBrightness() - 10));
+                rgb.DecreaseBrightness();
                 break;
         }
+    }
 }
 
 void UpdateLed()

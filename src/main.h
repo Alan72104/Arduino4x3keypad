@@ -4,5 +4,6 @@
 // #define Debug
 
 void UpdateLed();
+void CheckSerialMessage();
 
 #endif
