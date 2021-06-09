@@ -40,6 +40,7 @@ void setup()
     effectManager.AddEffect(new AntiRipple());
     effectManager.AddEffect(new Stars());
     effectManager.AddEffect(new Raindrop());
+    effectManager.AddEffect(new Snake());
 
     // Wait until the serial system starts
     while (!Serial) {}

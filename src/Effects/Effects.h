@@ -9,3 +9,4 @@
 #include "AntiRipple.h"
 #include "Stars.h"
 #include "Raindrop.h"
+#include "Snake.h"
