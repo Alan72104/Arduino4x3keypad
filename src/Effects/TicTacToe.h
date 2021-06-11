@@ -103,7 +103,7 @@ public:
                     tttCurrentPlayer = user;
                 }
 
-                rgb.clear();
+                rgb.Clear();
 
                 for (uint8_t j = 0; j < HEIGHT; j++)
                     for (uint8_t i = 0; i < WIDTH; i++)
