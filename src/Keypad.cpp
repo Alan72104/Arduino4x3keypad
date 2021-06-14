@@ -66,7 +66,6 @@ void Keypad::ScanKeys()
                         Serial.write(((4 * i + j + 1) << 4) + (btnStateTemp == HIGH ? 1 : 0));
                     }
 #endif
-                    // This looks much simpler than // if (!(btnState[2][0] == HIGH && HandleModifier())) EffectHandleKey(btnStateTemp, j, i); //
                     if (btnState[2][0] == HIGH && HandleModifiedKeys())
                         ;
                     else
