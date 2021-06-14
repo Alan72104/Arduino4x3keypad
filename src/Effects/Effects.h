@@ -1,5 +1,5 @@
-#include "StaticRainbow.h"
 #include "Rainbow.h"
+#include "StaticRainbow.h"
 #include "SpreadOut.h"
 #include "StaticLight.h"
 #include "Breathing.h"

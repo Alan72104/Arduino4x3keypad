@@ -26,8 +26,8 @@ void setup()
 
     keypad.Init();
     rgb.Init();
-    effectManager.AddEffect(new StaticRainbow());
     effectManager.AddEffect(new Rainbow());
+    effectManager.AddEffect(new StaticRainbow());
     effectManager.AddEffect(new SpreadOut());
     effectManager.AddEffect(new StaticLight());
     effectManager.AddEffect(new Breathing());
