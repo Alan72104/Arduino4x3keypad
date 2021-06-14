@@ -12,6 +12,7 @@ private:
     uint8_t rgbBrightness = 63;
 
     void DrawCircle2d_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color);
+
 public:
     void Init();
     CRGB GetColor(uint8_t i);
