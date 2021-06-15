@@ -45,122 +45,122 @@ public:
 
         switch (tttState)
         {
-        case ready:
-            delayElapsed += secondsElapsed;
-
-            if (delayElapsed >= 4.0f)
-            {
-                delayElapsed = 0.0f;
-                tttState = playing;
-                // Fall through...
-            }
-            else
-            {
-                for (uint8_t i = 0; i < min((int)delayElapsed, 3) + 1; i++)
-                    for (uint8_t j = 0; j < HEIGHT; j++)
-                        rgb.SetColor(j * WIDTH + i, CHSV(HUE_AQUA, 255, rgb.GetBrightness()));
-                break;
-            }
-
-        case playing:
-            tttWinner = TttCheckWinner();
-            if (tttWinner != empty)
-            {
-                // Only start the timer when there is a winner,
-                // if so show the score after 5 seconds
+            case ready:
                 delayElapsed += secondsElapsed;
-                if (delayElapsed > 5.0f)
+
+                if (delayElapsed >= 4.0f)
                 {
                     delayElapsed = 0.0f;
-                    tttState = score;
+                    tttState = playing;
                     // Fall through...
                 }
                 else
-                    break;
-            }
-            else
-            {
-                if (tttCurrentPlayer == ai)
                 {
-                    int8_t bestScore = -128;
-                    uint8_t moveX = 0;
-                    uint8_t moveY = 0;
-                    for (uint8_t j = 0; j < HEIGHT; j++)
-                        for (uint8_t i = 0; i < WIDTH; i++)
-                            if (tttBoard[j][i] == empty)
-                            {
-                                tttBoard[j][i] = ai;
-                                int8_t score = TttGetMinimaxBestscore(false);
-                                tttBoard[j][i] = empty;
-                                if (score > bestScore)
-                                {
-                                    bestScore = score;
-                                    moveX = j;
-                                    moveY = i;
-                                }
-                            }
-                    tttBoard[moveX][moveY] = ai;
-                    tttCurrentPlayer = user;
+                    for (uint8_t i = 0; i < min((int)delayElapsed, 3) + 1; i++)
+                        for (uint8_t j = 0; j < HEIGHT; j++)
+                            rgb.SetColor(j * WIDTH + i, CHSV(HUE_AQUA, 255, rgb.GetBrightness()));
+                    break;
                 }
 
-                rgb.Clear();
+            case playing:
+                tttWinner = TttCheckWinner();
+                if (tttWinner != empty)
+                {
+                    // Only start the timer when there is a winner,
+                    // if so show the score after 5 seconds
+                    delayElapsed += secondsElapsed;
+                    if (delayElapsed > 5.0f)
+                    {
+                        delayElapsed = 0.0f;
+                        tttState = score;
+                        // Fall through...
+                    }
+                    else
+                        break;
+                }
+                else
+                {
+                    if (tttCurrentPlayer == ai)
+                    {
+                        int8_t bestScore = -128;
+                        uint8_t moveX = 0;
+                        uint8_t moveY = 0;
+                        for (uint8_t j = 0; j < HEIGHT; j++)
+                            for (uint8_t i = 0; i < WIDTH; i++)
+                                if (tttBoard[j][i] == empty)
+                                {
+                                    tttBoard[j][i] = ai;
+                                    int8_t score = TttGetMinimaxBestscore(false);
+                                    tttBoard[j][i] = empty;
+                                    if (score > bestScore)
+                                    {
+                                        bestScore = score;
+                                        moveX = j;
+                                        moveY = i;
+                                    }
+                                }
+                        tttBoard[moveX][moveY] = ai;
+                        tttCurrentPlayer = user;
+                    }
 
-                for (uint8_t j = 0; j < HEIGHT; j++)
+                    rgb.Clear();
+
+                    for (uint8_t j = 0; j < HEIGHT; j++)
+                        for (uint8_t i = 0; i < WIDTH; i++)
+                            switch (tttBoard[j][i])
+                            {
+                            case empty:
+                                break;
+                            case ai:
+                                rgb.DrawPixel2d(j, i, CHSV(HUE_BLUE, 255, rgb.GetBrightness()));
+                                break;
+                            case user:
+                                rgb.DrawPixel2d(j, i, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                                break;
+                            case tie: // Not used for board
+                                break;
+                            }
+                    break;
+                }
+
+            case score:
+                delayElapsed += secondsElapsed;
+                if (delayElapsed > 5.0f)
+                {
+                    std::fill_n(&tttBoard[0][0], WIDTH * HEIGHT, empty);
+                    tttState = ready;
+                    tttCurrentPlayer = user;
+                    tttWinner = empty;
+                    delayElapsed = 0.0f;
+                    break;
+                }
+
+                switch (tttWinner)
+                {
+                case ai:
+                    rgb.DrawPixel2d(0, 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    rgb.DrawPixel2d(0, 3, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    rgb.DrawPixel2d(1, 1, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    rgb.DrawPixel2d(1, 2, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    rgb.DrawPixel2d(2, 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    rgb.DrawPixel2d(2, 3, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    break;
+                case user:
+                    rgb.DrawPixel2d(0, 1, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    rgb.DrawPixel2d(0, 2, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    rgb.DrawPixel2d(1, 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    rgb.DrawPixel2d(1, 3, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    rgb.DrawPixel2d(2, 1, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    rgb.DrawPixel2d(2, 2, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    break;
+                case tie:
                     for (uint8_t i = 0; i < WIDTH; i++)
-                        switch (tttBoard[j][i])
-                        {
-                        case empty:
-                            break;
-                        case ai:
-                            rgb.DrawPixel2d(j, i, CHSV(HUE_BLUE, 255, rgb.GetBrightness()));
-                            break;
-                        case user:
-                            rgb.DrawPixel2d(j, i, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                            break;
-                        case tie: // Not used for board
-                            break;
-                        }
+                        rgb.DrawPixel2d(1, i, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                    break;
+                case empty: // Winner won't be empty in there
+                    break;
+                }
                 break;
-            }
-
-        case score:
-            delayElapsed += secondsElapsed;
-            if (delayElapsed > 5.0f)
-            {
-                std::fill_n(&tttBoard[0][0], WIDTH * HEIGHT, empty);
-                tttState = ready;
-                tttCurrentPlayer = user;
-                tttWinner = empty;
-                delayElapsed = 0.0f;
-                break;
-            }
-
-            switch (tttWinner)
-            {
-            case ai:
-                rgb.DrawPixel2d(0, 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                rgb.DrawPixel2d(0, 3, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                rgb.DrawPixel2d(1, 1, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                rgb.DrawPixel2d(1, 2, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                rgb.DrawPixel2d(2, 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                rgb.DrawPixel2d(2, 3, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                break;
-            case user:
-                rgb.DrawPixel2d(0, 1, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                rgb.DrawPixel2d(0, 2, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                rgb.DrawPixel2d(1, 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                rgb.DrawPixel2d(1, 3, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                rgb.DrawPixel2d(2, 1, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                rgb.DrawPixel2d(2, 2, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                break;
-            case tie:
-                for (uint8_t i = 0; i < WIDTH; i++)
-                    rgb.DrawPixel2d(1, i, CHSV(HUE_RED, 255, rgb.GetBrightness()));
-                break;
-            case empty: // Winner won't be empty in there
-                break;
-            }
-            break;
         }
     }
 
