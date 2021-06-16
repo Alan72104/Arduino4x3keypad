@@ -111,4 +111,5 @@ public:
     }
 
     std::string GetName() override { return "whacAMole"; }
+    bool IsGameEffect() override { return true; }
 };

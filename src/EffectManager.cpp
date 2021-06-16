@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include "EffectManager.h"
+#include "main.h"
+#include "Keypad.h"
 
 void EffectManager::AddEffect(Effect* effect) { effects.push_back(effect); }
 
@@ -7,7 +9,8 @@ void EffectManager::SetEffect(uint8_t i)
 {
     if (i < effects.size())
         currentEffectNum = i;
-
+    if (IsCurrentEffectGameEffect())
+        keypad.ResetAllStateForDriver();
 }
 
 void EffectManager::NextEffect()
@@ -15,6 +18,8 @@ void EffectManager::NextEffect()
     if (++currentEffectNum == effects.size())
         currentEffectNum = 0;
     GetCurrentEffect()->Load();
+    if (IsCurrentEffectGameEffect())
+        keypad.ResetAllStateForDriver();
 }
 
 void EffectManager::UpdateEffect()
@@ -34,4 +39,6 @@ void EffectManager::HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY)
 
 Effect* EffectManager::GetCurrentEffect() { return effects[currentEffectNum]; }
 
-std::string EffectManager::GetCurrentEffectName() { return GetCurrentEffect()->GetName(); };
+std::string EffectManager::GetCurrentEffectName() { return GetCurrentEffect()->GetName(); }
+
+bool EffectManager::IsCurrentEffectGameEffect() { return GetCurrentEffect()->IsGameEffect(); }

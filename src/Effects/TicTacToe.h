@@ -175,6 +175,7 @@ public:
     }
 
     std::string GetName() override { return "ticTacToe"; }
+    bool IsGameEffect() override { return true; }
 
 private:
     TttObject TttCheckWinner()

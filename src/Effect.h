@@ -13,6 +13,7 @@ public:
     virtual void Update(float secondsElapsed) = 0;
     virtual void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY) {};
     virtual std::string GetName() = 0;
+    virtual bool IsGameEffect() { return false; };
 };
 
 #endif

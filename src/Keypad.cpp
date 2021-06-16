@@ -60,7 +60,7 @@ void Keypad::ScanKeys()
 
                     btnState[i][j] = btnStateTemp;
 #ifndef Debug
-                    if (Serial.availableForWrite())
+                    if (Serial.availableForWrite() && !effectManager.IsCurrentEffectGameEffect())
                     {
                         // Key status byte - |first 4 bits for key number, 3 zero padding bits, last one bit for pressed state|
                         Serial.write(((4 * i + j + 1) << 4) + (btnStateTemp == HIGH ? 1 : 0));
@@ -126,3 +126,5 @@ bool Keypad::HandleModifiedKeys()
     }
     return false;
 }
+
+void Keypad::ResetAllStateForDriver() { for (uint8_t i = 0; i < WIDTH * HEIGHT; i++) Serial.write(((i + 1) << 4) + 0); }

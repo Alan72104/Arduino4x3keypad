@@ -20,6 +20,7 @@ public:
     void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY);
     Effect* GetCurrentEffect();
     std::string GetCurrentEffectName();
+    bool IsCurrentEffectGameEffect();
 };
 
 #endif

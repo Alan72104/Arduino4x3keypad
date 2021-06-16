@@ -185,6 +185,7 @@ public:
     }
 
     std::string GetName() override { return "bullsNCows"; }
+    bool IsGameEffect() override { return true; }
 
 private:
     void CalculateScore()
