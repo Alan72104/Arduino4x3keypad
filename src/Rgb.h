@@ -9,17 +9,17 @@ class Rgb
 {
 private:
     CRGB leds[NUM_LEDS];
-    uint8_t rgbBrightness = 63;
+    uint8_t brightness = 63;
 
     void DrawCircle2d_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color);
 
 public:
     void Init();
     CRGB GetColor(uint8_t i);
-    CRGB SetColor(uint8_t i, CRGB color);
-    CRGB SetColor(uint8_t i, CHSV color);
-    CRGB AddColor(uint8_t i, CRGB color);
-    CRGB AddColor(uint8_t i, CHSV color);
+    CRGB Draw(uint8_t i, CRGB color);
+    CRGB Draw(uint8_t i, CHSV color);
+    CRGB Blend(uint8_t i, CRGB color);
+    CRGB Blend(uint8_t i, CHSV color);
     uint8_t GetBrightness();
     void IncreaseBrightness();
     void DecreaseBrightness();
@@ -28,7 +28,7 @@ public:
     void DrawLine(float fPos, float length, CRGB color);
     void DrawSquare2d(float fX, float fY, float length, CRGB color);
     void DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color);
-    void Draw();
+    void Show();
     void Clear();
 };
 

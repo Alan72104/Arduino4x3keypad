@@ -58,7 +58,7 @@ public:
                 {
                     for (uint8_t i = 0; i < min((int)delayElapsed, 3) + 1; i++)
                         for (uint8_t j = 0; j < HEIGHT; j++)
-                            rgb.SetColor(j * WIDTH + i, CHSV(HUE_AQUA, 255, rgb.GetBrightness()));
+                            rgb.Draw(j * WIDTH + i, CHSV(HUE_AQUA, 255, rgb.GetBrightness()));
                     break;
                 }
 

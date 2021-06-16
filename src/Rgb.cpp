@@ -9,13 +9,13 @@ void Rgb::Init()
 }
 
 CRGB Rgb::GetColor(uint8_t i) { return leds[i]; }
-CRGB Rgb::SetColor(uint8_t i, CRGB color) { return leds[i] = color; }
-CRGB Rgb::SetColor(uint8_t i, CHSV color) { return leds[i] = (CRGB)color; }
-CRGB Rgb::AddColor(uint8_t i, CRGB color) { return leds[i] += color; }
-CRGB Rgb::AddColor(uint8_t i, CHSV color) { return leds[i] += (CRGB)color; }
-uint8_t Rgb::GetBrightness() { return rgbBrightness; }
-void Rgb::IncreaseBrightness() { rgbBrightness = min(rgbBrightness + 10, 255); }
-void Rgb::DecreaseBrightness() { rgbBrightness = max(0, rgbBrightness - 10); }
+CRGB Rgb::Draw(uint8_t i, CRGB color) { return leds[i] = color; }
+CRGB Rgb::Draw(uint8_t i, CHSV color) { return leds[i] = (CRGB)color; }
+CRGB Rgb::Blend(uint8_t i, CRGB color) { return leds[i] += color; }
+CRGB Rgb::Blend(uint8_t i, CHSV color) { return leds[i] += (CRGB)color; }
+uint8_t Rgb::GetBrightness() { return brightness; }
+void Rgb::IncreaseBrightness() { brightness = min(brightness + 10, 255); }
+void Rgb::DecreaseBrightness() { brightness = max(0, brightness - 10); }
 
 // This function fades the color brightness to the fraction
 CRGB Rgb::GetColorFraction(CRGB colorIn, float fraction)
@@ -204,7 +204,7 @@ void Rgb::DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
     }
 }
 
-void Rgb::Draw()
+void Rgb::Show()
 {
   static uint32_t lastRgbUpdate = 0ul;
   if (micros() - lastRgbUpdate < 33333 /* 30 fps */) return;

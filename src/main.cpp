@@ -55,7 +55,7 @@ void loop()
     UpdateLed();
     keypad.ScanKeys();
     effectManager.UpdateEffect();
-    rgb.Draw();
+    rgb.Show();
     CheckSerialMessage();
 
     // Don't change the measured loop time immediately as it might float around

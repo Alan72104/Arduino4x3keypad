@@ -78,13 +78,13 @@ public:
                         switch (startupState)
                         {
                             case 0:
-                                rgb.SetColor(4 * 1 + i, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                                rgb.Draw(4 * 1 + i, CHSV(HUE_RED, 255, rgb.GetBrightness()));
                                 break;
                             case 1:
-                                rgb.SetColor(4 * 1 + i, CHSV(HUE_GREEN, 255, rgb.GetBrightness()));
+                                rgb.Draw(4 * 1 + i, CHSV(HUE_GREEN, 255, rgb.GetBrightness()));
                                 break;
                             case 2:
-                                rgb.SetColor(4 * 1 + i, CHSV(HUE_BLUE, 255, rgb.GetBrightness()));
+                                rgb.Draw(4 * 1 + i, CHSV(HUE_BLUE, 255, rgb.GetBrightness()));
                                 break;
                         }
                     break;
@@ -105,32 +105,32 @@ public:
                     if (isGuessing)
                     {
                         for (uint8_t i = 0; i < 4; i++)
-                            rgb.SetColor(4 * 1 + i, CHSV(rainbowHues[guessingNum[i]], 255, rgb.GetBrightness()));
-                        rgb.SetColor(4 * 2 + 3, CHSV(HUE_PINK, 255, rgb.GetBrightness()));
+                            rgb.Draw(4 * 1 + i, CHSV(rainbowHues[guessingNum[i]], 255, rgb.GetBrightness()));
+                        rgb.Draw(4 * 2 + 3, CHSV(HUE_PINK, 255, rgb.GetBrightness()));
                     }
                     else
                     {
                         switch (numA)
                         {
                             case 4:
-                                rgb.SetColor(4 * 1 + 1, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                                rgb.Draw(4 * 1 + 1, CHSV(HUE_RED, 255, rgb.GetBrightness()));
                             case 3:
-                                rgb.SetColor(4 * 2 + 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                                rgb.Draw(4 * 2 + 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
                             case 2:
-                                rgb.SetColor(4 * 1 + 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                                rgb.Draw(4 * 1 + 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
                             case 1:
-                                rgb.SetColor(4 * 0 + 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
+                                rgb.Draw(4 * 0 + 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
                         }
                         switch (numB)
                         {
                             case 4:
-                                rgb.SetColor(4 * 1 + 2, CHSV(HUE_GREEN, 255, rgb.GetBrightness()));
+                                rgb.Draw(4 * 1 + 2, CHSV(HUE_GREEN, 255, rgb.GetBrightness()));
                             case 3:
-                                rgb.SetColor(4 * 2 + 3, CHSV(HUE_GREEN, 255, rgb.GetBrightness()));
+                                rgb.Draw(4 * 2 + 3, CHSV(HUE_GREEN, 255, rgb.GetBrightness()));
                             case 2:
-                                rgb.SetColor(4 * 1 + 3, CHSV(HUE_GREEN, 255, rgb.GetBrightness()));
+                                rgb.Draw(4 * 1 + 3, CHSV(HUE_GREEN, 255, rgb.GetBrightness()));
                             case 1:
-                                rgb.SetColor(4 * 0 + 3, CHSV(HUE_GREEN, 255, rgb.GetBrightness()));
+                                rgb.Draw(4 * 0 + 3, CHSV(HUE_GREEN, 255, rgb.GetBrightness()));
                         }
                     }
 
@@ -156,7 +156,7 @@ public:
                     winElapsed = 0.0f;
                     bool lastIsEmpty = !rgb.GetColor(0);
                     for (uint8_t i = 0; i < NUM_LEDS; i++)
-                        rgb.SetColor(i, CHSV(HUE_YELLOW, 255, lastIsEmpty ? rgb.GetBrightness() : 0));
+                        rgb.Draw(i, CHSV(HUE_YELLOW, 255, lastIsEmpty ? rgb.GetBrightness() : 0));
                 }
                 break;
         }
