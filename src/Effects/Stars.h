@@ -12,7 +12,8 @@ public:
     void Load() override
     {
         delayElapsed = 0.0f;
-        rgb.Fill(CHSV(rainbowHues[random(7)], 255, rgb.GetBrightness()));
+        for (uint8_t i = 0; i < NUM_LEDS; i++)
+            rgb.Draw(i, CHSV(rainbowHues[random(7)], 255, rgb.GetBrightness()));
     }
 
     void Update(float secondsElapsed) override
