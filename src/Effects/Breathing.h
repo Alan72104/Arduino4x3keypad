@@ -29,9 +29,8 @@ public:
                 breathingState = 0;
         }
 
-        for (uint8_t i = 0; i < NUM_LEDS; i++)
-            rgb.Draw(i, CHSV(rainbowHues[breathingState], 255, (max(127, rgb.GetBrightness()) *
-                                (delayElapsed <= 4.0f / 2 ? delayElapsed / 2 : (2.0f - (delayElapsed - 2.0f)) / 2))) );
+        rgb.Fill(CHSV(rainbowHues[breathingState], 255, (max(127, rgb.GetBrightness()) *
+                      (delayElapsed <= 4.0f / 2 ? delayElapsed / 2 : (2.0f - (delayElapsed - 2.0f)) / 2))) );
     }
 
     std::string GetName() override { return "breathing"; }

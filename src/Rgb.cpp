@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <Arduino.h>
 #include <FastLED.h>
 #include "KeypadParams.h"
@@ -13,6 +14,8 @@ CRGB Rgb::Draw(uint8_t i, CRGB color) { return leds[i] = color; }
 CRGB Rgb::Draw(uint8_t i, CHSV color) { return leds[i] = (CRGB)color; }
 CRGB Rgb::Blend(uint8_t i, CRGB color) { return leds[i] += color; }
 CRGB Rgb::Blend(uint8_t i, CHSV color) { return leds[i] += (CRGB)color; }
+CRGB Rgb::Fill(CRGB color) { std::fill_n(leds, NUM_LEDS, color); return leds[0]; }
+CRGB Rgb::Fill(CHSV color) { CRGB rgb = CRGB(color); std::fill_n(leds, NUM_LEDS, rgb); return leds[0]; }
 uint8_t Rgb::GetBrightness() { return brightness; }
 void Rgb::IncreaseBrightness() { brightness = min(brightness + 10, 255); }
 void Rgb::DecreaseBrightness() { brightness = max(0, brightness - 10); }

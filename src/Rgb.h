@@ -20,6 +20,8 @@ public:
     CRGB Draw(uint8_t i, CHSV color);
     CRGB Blend(uint8_t i, CRGB color);
     CRGB Blend(uint8_t i, CHSV color);
+    CRGB Fill(CRGB color);
+    CRGB Fill(CHSV color);
     uint8_t GetBrightness();
     void IncreaseBrightness();
     void DecreaseBrightness();

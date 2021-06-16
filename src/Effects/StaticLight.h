@@ -17,13 +17,10 @@ public:
 
     void Update(float secondsElapsed) override
     {
-        for (uint8_t i = 0; i < NUM_LEDS; i++)
-        {
-            if (staticLightState == 7)
-                rgb.Draw(i, CRGB(rgb.GetBrightness(), rgb.GetBrightness(), rgb.GetBrightness()));
-            else
-                rgb.Draw(i, CHSV(rainbowHues[staticLightState], 255, rgb.GetBrightness()));
-        }
+        if (staticLightState == 7)
+            rgb.Fill(CRGB(rgb.GetBrightness(), rgb.GetBrightness(), rgb.GetBrightness()));
+        else
+            rgb.Fill(CHSV(rainbowHues[staticLightState], 255, rgb.GetBrightness()));
     }
 
     void NextState()

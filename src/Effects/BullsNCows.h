@@ -155,8 +155,7 @@ public:
                 {
                     winElapsed = 0.0f;
                     bool lastIsEmpty = !rgb.GetColor(0);
-                    for (uint8_t i = 0; i < NUM_LEDS; i++)
-                        rgb.Draw(i, CHSV(HUE_YELLOW, 255, lastIsEmpty ? rgb.GetBrightness() : 0));
+                    rgb.Fill(CHSV(HUE_YELLOW, 255, lastIsEmpty ? rgb.GetBrightness() : 0));
                 }
                 break;
         }
