@@ -127,4 +127,10 @@ bool Keypad::HandleModifiedKeys()
     return false;
 }
 
-void Keypad::ResetAllStateForDriver() { for (uint8_t i = 0; i < WIDTH * HEIGHT; i++) Serial.write(((i + 1) << 4) + 0); }
+void Keypad::ResetAllStateForDriver()
+{
+    if (!Serial.availableForWrite()) return;
+    
+    for (uint8_t i = 0; i < WIDTH * HEIGHT; i++)
+        Serial.write(((i + 1) << 4) + 0);
+}
