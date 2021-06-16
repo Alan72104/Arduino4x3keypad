@@ -3,7 +3,7 @@
 #include "main.h"
 #include "Effect.h"
 
-class SpreadOut : public Effect
+class Splash : public Effect
 {
 private:
     typedef struct {
@@ -58,5 +58,5 @@ public:
         }
     }
 
-    std::string GetName() override { return "spreadOut"; }
+    std::string GetName() override { return "splash"; }
 };

@@ -1,6 +1,6 @@
 #include "Rainbow.h"
 #include "StaticRainbow.h"
-#include "SpreadOut.h"
+#include "Splash.h"
 #include "StaticLight.h"
 #include "Breathing.h"
 #include "FractionalDrawingTest2d.h"
