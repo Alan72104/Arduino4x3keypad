@@ -58,8 +58,8 @@ void loop()
     rgb.Show();
     CheckSerialMessage();
 
-    // Don't change the measured loop time immediately as it might float around
-    loopPeriod = (uint32_t)((loopPeriod * 0.8f) + ((micros() - loopStart) * 0.2f));
+    // Only change the measured loop time by 80% new measurement as it might float around
+    loopPeriod = (uint32_t)((loopPeriod * 0.2f) + ((micros() - loopStart) * 0.8f));
 #ifdef Debug
     static uint32_t t = 0ul;
     if (millis() - t >= 1000)
