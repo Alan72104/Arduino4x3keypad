@@ -41,6 +41,7 @@ void setup()
     effectManager.AddEffect(new ShootingParticles());
     effectManager.AddEffect(new WhacAMole());
     effectManager.AddEffect(new TicTacToe());
+    effectManager.AddEffect(new BullsNCows());
 
     // Wait until the serial system starts
     while (!Serial) {}
