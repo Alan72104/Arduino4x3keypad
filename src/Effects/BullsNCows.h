@@ -24,7 +24,7 @@ private:
     uint8_t guessingNum[4];
     uint8_t numA;
     uint8_t numB;
-    const uint8_t numCount = 6;
+    const uint8_t diffNumCount = 6;
     bool win;
     float winElapsed;
 
@@ -59,11 +59,11 @@ public:
                 {
                     delayElapsed = 0.0f;
                     state = playing;
-                    uint8_t ta[numCount];
+                    uint8_t ta[diffNumCount];
                     uint8_t t = 0;
-                    for (uint8_t i = 0; i < numCount; i++)
+                    for (uint8_t i = 0; i < diffNumCount; i++)
                         ta[i] = t++;
-                    std::random_shuffle(ta, ta + numCount);
+                    std::random_shuffle(ta, ta + diffNumCount);
                     std::copy(ta, ta + 4, secretNum);
                     std::fill_n(guessingNum, 4, 0);
                     isGuessing = true;
@@ -170,7 +170,7 @@ public:
             if (keyY == 1)
             {
                 guessingNum[keyX]++;
-                if (guessingNum[keyX] >= 4)
+                if (guessingNum[keyX] >= diffNumCount)
                     guessingNum[keyX] = 0;
             }
             else if (keyY == 2 && keyX == 3)
@@ -191,7 +191,7 @@ private:
     void CalculateScore()
     {
         uint8_t bulls = 0;
-        int8_t bucket[numCount] = {};
+        int8_t bucket[diffNumCount] = {};
 
         for (uint8_t i = 0; i < 4; i++)
         {
@@ -204,7 +204,7 @@ private:
             }
         }
         numA = bulls;
-        numB = 4 - bulls - std::accumulate(bucket, bucket + numCount, 0, [](int cur, int n) { if (n > 0) return cur + n; else return cur; });
+        numB = 4 - bulls - std::accumulate(bucket, bucket + diffNumCount, 0, [](int cur, int n) { if (n > 0) return cur + n; else return cur; });
         if (numA == 4 && numB == 0)
             win = true;
     }
