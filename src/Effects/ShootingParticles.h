@@ -53,9 +53,9 @@ public:
         }
     }
 
-    void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY) override
+    void OnKeyPressed(uint8_t state, uint8_t keyX, uint8_t keyY) override
     {
-        if (currentState == HIGH && particles.size() < 16)
+        if (state == HIGH && particles.size() < 16)
         {
             float vX = WIDTH / 2 - (keyX + 0.5f);
             float vY = HEIGHT / 2 - (keyY + 0.5f);

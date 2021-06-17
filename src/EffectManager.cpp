@@ -35,7 +35,7 @@ void EffectManager::UpdateEffect()
 
 void EffectManager::HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY)
 {
-    GetCurrentEffect()->HandleKey(currentState, keyX, keyY);
+    GetCurrentEffect()->OnKeyPressed(currentState, keyX, keyY);
 }
 
 Effect* EffectManager::GetCurrentEffect() { return effects[currentEffectNum]; }

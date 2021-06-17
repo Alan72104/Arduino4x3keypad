@@ -164,7 +164,7 @@ public:
         }
     }
 
-    void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY) override
+    void OnKeyPressed(uint8_t state, uint8_t keyX, uint8_t keyY) override
     {
         if (tttCurrentPlayer == user)
             if (tttBoard[keyY][keyX] == empty)

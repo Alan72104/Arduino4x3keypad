@@ -49,9 +49,9 @@ public:
         }
     }
 
-    void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY)
+    void OnKeyPressed(uint8_t state, uint8_t keyX, uint8_t keyY)
     {
-        if (currentState == HIGH && circles.size() < 16)
+        if (state == HIGH && circles.size() < 16)
             circles.push_back(MakeCircle(keyX, keyY, 5.0f, CHSV(random(256), 255, rgb.GetBrightness())) );
     }
 

@@ -48,9 +48,9 @@ public:
         }
     }
 
-    void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY) override
+    void OnKeyPressed(uint8_t state, uint8_t keyX, uint8_t keyY) override
     {
-        if (currentState == HIGH && balls.size() < 16)
+        if (state == HIGH && balls.size() < 16)
         {
             CRGB color = CHSV(random(256), 255, rgb.GetBrightness());
             balls.push_back(MakeBall(keyX, keyY, -1, color));

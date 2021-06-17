@@ -161,9 +161,9 @@ public:
         }
     }
 
-    void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY) override
+    void OnKeyPressed(uint8_t state, uint8_t keyX, uint8_t keyY) override
     {
-        if (currentState != HIGH) return;
+        if (state != HIGH) return;
 
         if (isGuessing)
         {

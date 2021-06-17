@@ -100,9 +100,9 @@ public:
         }
     }
 
-    void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY) override
+    void OnKeyPressed(uint8_t state, uint8_t keyX, uint8_t keyY) override
     {
-        if (currentState == HIGH && moleIsHere)
+        if (state == HIGH && moleIsHere)
             if (keyY == moleY && keyX == moleX)
             {
                 moleScore++;
