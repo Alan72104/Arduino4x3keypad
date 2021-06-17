@@ -1,8 +1,8 @@
-#include <algorithm>
 #include <Arduino.h>
 #include <FastLED.h>
 #include "KeypadParams.h"
 #include "Rgb.h"
+#include "main.h"
 
 void Rgb::Init()
 {
@@ -10,12 +10,6 @@ void Rgb::Init()
 }
 
 CRGB Rgb::GetColor(uint8_t i) { return leds[i]; }
-CRGB Rgb::Draw(uint8_t i, CRGB color) { return leds[i] = color; }
-CRGB Rgb::Draw(uint8_t i, CHSV color) { return leds[i] = (CRGB)color; }
-CRGB Rgb::Blend(uint8_t i, CRGB color) { return leds[i] += color; }
-CRGB Rgb::Blend(uint8_t i, CHSV color) { return leds[i] += (CRGB)color; }
-CRGB Rgb::Fill(CRGB color) { std::fill_n(leds, NUM_LEDS, color); return leds[0]; }
-CRGB Rgb::Fill(CHSV color) { CRGB rgb = CRGB(color); std::fill_n(leds, NUM_LEDS, rgb); return leds[0]; }
 uint8_t Rgb::GetBrightness() { return brightness; }
 void Rgb::IncreaseBrightness() { brightness = min(brightness + 10, 255); }
 void Rgb::DecreaseBrightness() { brightness = max(0, brightness - 10); }
@@ -23,163 +17,163 @@ void Rgb::DecreaseBrightness() { brightness = max(0, brightness - 10); }
 // This function fades the color brightness to the fraction
 CRGB Rgb::GetColorFraction(CRGB colorIn, float fraction)
 {
-  fraction = min(1.0f, fraction);
-  return CRGB(colorIn).fadeToBlackBy(255 * (1.0f - fraction));
+    fraction = min(1.0f, fraction);
+    return CRGB(colorIn).fadeToBlackBy(255 * (1.0f - fraction));
 }
 
 // This function takes both x and y coordinates and draws the corresponding led mapped to the virtual 2d matrix
 void Rgb::DrawPixel2d(int x, int y, CRGB color)
 {
-  if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT)
-    leds[WIDTH * y + x] = color;
+    if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT)
+        leds[WIDTH * y + x] = color;
 }
 
 // This function draws a line onto the 1ed strip
 // Position and length can be float
 void Rgb::DrawLine(float fPos, float length, CRGB color)
 {
-  // Calculate how much the first pixel will hold
-  float availFirstPixel = 1.0f - (fPos - (uint8_t)(fPos));
-  float amtFirstPixel = min(availFirstPixel, length);
-  float remaining = min(length, NUM_LEDS - fPos);
-  int iPos = fPos;
-  
-  // Blend in the color of the first partial pixel
-  if (remaining > 0.0f)
-  {
-    if (0 <= iPos && iPos < NUM_LEDS)
-      leds[iPos++] += GetColorFraction(color, amtFirstPixel);
-    remaining -= amtFirstPixel;
-  }
-  
-  // Now draw every full pixels in the middle
-  while (remaining > 1.0f)
-  {
-    if (0 <= iPos && iPos < NUM_LEDS)
-      leds[iPos++] += color;
-    remaining--;
-  }
-  
-  // Draw tail pixel, up to a single full pixel
-  if (remaining > 0.0f)
-  {
-    if (0 <= iPos && iPos < NUM_LEDS)
-      leds[iPos] += GetColorFraction(color, remaining);
-  }
+    // Calculate how much the first pixel will hold
+    float availFirstPixel = 1.0f - (fPos - (uint8_t)(fPos));
+    float amtFirstPixel = min(availFirstPixel, length);
+    float remaining = min(length, NUM_LEDS - fPos);
+    int iPos = fPos;
+
+    // Blend in the color of the first partial pixel
+    if (remaining > 0.0f)
+    {
+        if (0 <= iPos && iPos < NUM_LEDS)
+            leds[iPos++] += GetColorFraction(color, amtFirstPixel);
+        remaining -= amtFirstPixel;
+    }
+
+    // Now draw every full pixels in the middle
+    while (remaining > 1.0f)
+    {
+        if (0 <= iPos && iPos < NUM_LEDS)
+            leds[iPos++] += color;
+        remaining--;
+    }
+
+    // Draw tail pixel, up to a single full pixel
+    if (remaining > 0.0f)
+    {
+        if (0 <= iPos && iPos < NUM_LEDS)
+            leds[iPos] += GetColorFraction(color, remaining);
+    }
 }
 
 // This function draws a square onto the virtual 2d matrix
 // Coordinate and diameter can be float
 void Rgb::DrawSquare2d(float fX, float fY, float diameter, CRGB color)
 {
-  float availFirstPixelX = 1.0f - (fX - (int)fX);
-  float availFirstPixelY = 1.0f - (fY - (int)fY);
-  float amtFirstPixelX = min(availFirstPixelX, diameter);
-  float amtFirstPixelY = min(availFirstPixelY, diameter);
-  float remainingX = min(diameter, WIDTH - fX);
-  float remainingY = min(diameter, HEIGHT - fY);
-  int iX = fX;
-  int iY = fY;
+    float availFirstPixelX = 1.0f - (fX - (int)fX);
+    float availFirstPixelY = 1.0f - (fY - (int)fY);
+    float amtFirstPixelX = min(availFirstPixelX, diameter);
+    float amtFirstPixelY = min(availFirstPixelY, diameter);
+    float remainingX = min(diameter, WIDTH - fX);
+    float remainingY = min(diameter, HEIGHT - fY);
+    int iX = fX;
+    int iY = fY;
 
-  // Draw the first row
-  if (remainingY > 0.0f)
-  {
-    // Blend in the color of the first partial pixel of the first row
-    if (remainingX > 0.0f)
+    // Draw the first row
+    if (remainingY > 0.0f)
     {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX++] += GetColorFraction(color, amtFirstPixelX * amtFirstPixelY / 1 * 1);
-      remainingX -= amtFirstPixelX;
-    }
-    
-    // Draw every pixels in the middle of the first row
-    while (remainingX > 1.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX++] += GetColorFraction(color, 1 * amtFirstPixelY / 1 * 1);
-      remainingX--;
-    }
-    
-    // Draw the tail pixel of the first row, up to a single full pixel
-    if (remainingX > 0.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX] += GetColorFraction(color, remainingX * amtFirstPixelY / 1 * 1);
-    }
-  }
+        // Blend in the color of the first partial pixel of the first row
+        if (remainingX > 0.0f)
+        {
+            if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+                leds[WIDTH * iY + iX++] += GetColorFraction(color, amtFirstPixelX * amtFirstPixelY / 1 * 1);
+            remainingX -= amtFirstPixelX;
+        }
 
-  // Draw every middle rows
-  while (remainingY > 1.0f)
-  {
-    remainingX = min(diameter, WIDTH - fX);
-    iX = fX;
-    iY++;
-    // Blend in the color of the first partial pixels of the middle rows
-    if (remainingX > 0.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX++] += GetColorFraction(color, amtFirstPixelX * 1 / 1 * 1);
-      remainingX -= amtFirstPixelX;
-    }
-    
-    // Draw every pixels in the middle of the middle rows
-    while (remainingX > 1.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX++] += color;
-      remainingX--;
-    }
-    
-    // Draw the tail pixels of the middle rows
-    if (remainingX > 0.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-      leds[WIDTH * iY + iX] += GetColorFraction(color, remainingX * 1 / 1 * 1);
-    }
-    remainingY--;
-  }
+        // Draw every pixels in the middle of the first row
+        while (remainingX > 1.0f)
+        {
+            if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+                leds[WIDTH * iY + iX++] += GetColorFraction(color, 1 * amtFirstPixelY / 1 * 1);
+            remainingX--;
+        }
 
-  // Finally, draw the last row
-  if (remainingY > 0.0f)
-  {
-    remainingX = min(diameter, WIDTH - fX);
-    iX = fX;
-    iY++;
-    // Blend in the color of the first partial pixel of the last row
-    if (remainingX > 0.0f)
-    {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX++] += GetColorFraction(color, remainingX * remainingY / 1 * 1);
-      remainingX -= amtFirstPixelX;
+        // Draw the tail pixel of the first row, up to a single full pixel
+        if (remainingX > 0.0f)
+        {
+            if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+                leds[WIDTH * iY + iX] += GetColorFraction(color, remainingX * amtFirstPixelY / 1 * 1);
+        }
     }
-    
-    // Draw every pixels in the middle of the last row
-    while (remainingX > 1.0f)
+
+    // Draw every middle rows
+    while (remainingY > 1.0f)
     {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX++] += GetColorFraction(color, 1 * remainingY / 1 * 1);
-      remainingX--;
+        remainingX = min(diameter, WIDTH - fX);
+        iX = fX;
+        iY++;
+        // Blend in the color of the first partial pixels of the middle rows
+        if (remainingX > 0.0f)
+        {
+            if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+                leds[WIDTH * iY + iX++] += GetColorFraction(color, amtFirstPixelX * 1 / 1 * 1);
+            remainingX -= amtFirstPixelX;
+        }
+
+        // Draw every pixels in the middle of the middle rows
+        while (remainingX > 1.0f)
+        {
+            if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+                leds[WIDTH * iY + iX++] += color;
+            remainingX--;
+        }
+
+        // Draw the tail pixels of the middle rows
+        if (remainingX > 0.0f)
+        {
+            if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+                leds[WIDTH * iY + iX] += GetColorFraction(color, remainingX * 1 / 1 * 1);
+        }
+        remainingY--;
     }
-    
-    // Draw the tail pixel of the last row
-    if (remainingX > 0.0f)
+
+    // Finally, draw the last row
+    if (remainingY > 0.0f)
     {
-      if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
-        leds[WIDTH * iY + iX] += GetColorFraction(color, remainingX * remainingY / 1 * 1);
+        remainingX = min(diameter, WIDTH - fX);
+        iX = fX;
+        iY++;
+        // Blend in the color of the first partial pixel of the last row
+        if (remainingX > 0.0f)
+        {
+            if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+                leds[WIDTH * iY + iX++] += GetColorFraction(color, remainingX * remainingY / 1 * 1);
+            remainingX -= amtFirstPixelX;
+        }
+
+        // Draw every pixels in the middle of the last row
+        while (remainingX > 1.0f)
+        {
+            if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+                leds[WIDTH * iY + iX++] += GetColorFraction(color, 1 * remainingY / 1 * 1);
+            remainingX--;
+        }
+
+        // Draw the tail pixel of the last row
+        if (remainingX > 0.0f)
+        {
+            if (0 <= iX && iX < WIDTH && 0 <= iY && iY < HEIGHT)
+                leds[WIDTH * iY + iX] += GetColorFraction(color, remainingX * remainingY / 1 * 1);
+        }
     }
-  }
 }
 
 void Rgb::DrawCircle2d_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color)
 {
-    DrawPixel2d(xc+x, yc+y, color);
-    DrawPixel2d(xc-x, yc+y, color);
-    DrawPixel2d(xc+x, yc-y, color);
-    DrawPixel2d(xc-x, yc-y, color);
-    DrawPixel2d(xc+y, yc+x, color);
-    DrawPixel2d(xc-y, yc+x, color);
-    DrawPixel2d(xc+y, yc-x, color);
-    DrawPixel2d(xc-y, yc-x, color);
+    DrawPixel2d(xc + x, yc + y, color);
+    DrawPixel2d(xc - x, yc + y, color);
+    DrawPixel2d(xc + x, yc - y, color);
+    DrawPixel2d(xc - x, yc - y, color);
+    DrawPixel2d(xc + y, yc + x, color);
+    DrawPixel2d(xc - y, yc + x, color);
+    DrawPixel2d(xc + y, yc - x, color);
+    DrawPixel2d(xc - y, yc - x, color);
 }
 
 // https://www.geeksforgeeks.org/bresenhams-circle-drawing-algorithm/
@@ -209,10 +203,10 @@ void Rgb::DrawCircle2d(uint8_t xc, uint8_t yc, uint8_t r, CRGB color)
 
 void Rgb::Show()
 {
-  static uint32_t lastRgbUpdate = 0ul;
-  if (micros() - lastRgbUpdate < 33333 /* 30 fps */) return;
-  lastRgbUpdate = micros();
-  FastLED.show();
+    static uint32_t lastRgbUpdate = 0ul;
+    if (micros() - lastRgbUpdate < 33333 /* 30 fps */) return;
+    lastRgbUpdate = micros();
+    FastLED.show();
 }
 
 void Rgb::Clear() { FastLED.clear(); }

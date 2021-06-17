@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 #include <FastLED.h>
+#include <algorithm>
+// #include <ArxTypeTraits.h>
 #include "KeypadParams.h"
 
 class Rgb
@@ -12,16 +14,30 @@ private:
     uint8_t brightness = 63;
 
     void DrawCircle2d_internal(uint8_t xc, uint8_t yc, uint8_t x, uint8_t y, CRGB color);
+    // template<class T, std::enable_if<std::is_function<T>>>
+    //     uint8_t FillHSV_getValue(T t) { return t(); }
+    // template<class T, std::enable_if<not std::is_function<T>>>
+    //     uint8_t FillHSV_getValue(T t) { return t; }
 
 public:
     void Init();
     CRGB GetColor(uint8_t i);
-    CRGB Draw(uint8_t i, CRGB color);
-    CRGB Draw(uint8_t i, CHSV color);
-    CRGB Blend(uint8_t i, CRGB color);
-    CRGB Blend(uint8_t i, CHSV color);
-    CRGB Fill(CRGB color);
-    CRGB Fill(CHSV color);
+    template<class Color>
+        CRGB Draw(uint8_t i, Color color) { return leds[i] = color; }
+    template<class Color>
+        CRGB Blend(uint8_t i, Color color) { return leds[i] += color; }
+    template<class Color>
+        CRGB Fill(Color color)
+        {
+            std::fill_n(leds, NUM_LEDS, color);
+            return leds[0];
+        }
+    // template<class H, class S, class V>
+    //     CRGB FillHSV(H h, S s, V v)
+    //     {
+    //         std::generate_n(leds, NUM_LEDS, [&]() { return CHSV(FillHSV_getValue(h), FillHSV_getValue(s), FillHSV_getValue(v)); });
+    //         return leds[0];
+    //     }
     uint8_t GetBrightness();
     void IncreaseBrightness();
     void DecreaseBrightness();
