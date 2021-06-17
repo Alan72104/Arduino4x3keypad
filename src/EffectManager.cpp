@@ -9,6 +9,7 @@ void EffectManager::SetEffect(uint8_t i)
 {
     if (i < effects.size())
         currentEffectNum = i;
+    GetCurrentEffect()->Load();
     if (IsCurrentEffectGameEffect())
         keypad.ResetAllStateForDriver();
 }
