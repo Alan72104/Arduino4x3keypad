@@ -26,7 +26,9 @@ private:
     std::vector<Circle> circles;
 
 public:
-    void Load() override
+    void Load() override {}
+
+    void Unload() override
     {
         std::vector<Circle>().swap(circles);
     }

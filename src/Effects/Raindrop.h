@@ -28,8 +28,12 @@ private:
 public:
     void Load() override
     {
-        std::vector<Drop>().swap(drops);
         delayElapsed = 0.0f;
+    }
+
+    void Unload() override
+    {
+        std::vector<Drop>().swap(drops);
     }
 
     void Update(float secondsElapsed) override

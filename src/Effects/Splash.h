@@ -26,7 +26,9 @@ private:
     std::vector<Ball> balls;
     
 public:
-    void Load() override
+    void Load() override {}
+
+    void Unload() override
     {
         std::vector<Ball>().swap(balls);
     }

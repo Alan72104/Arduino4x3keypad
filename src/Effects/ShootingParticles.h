@@ -30,7 +30,9 @@ private:
     std::vector<Particle> particles;
 
 public:
-    void Load() override
+    void Load() override {}
+
+    void Unload() override
     {
         std::vector<Particle>().swap(particles);
     }

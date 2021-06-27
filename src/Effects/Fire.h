@@ -28,9 +28,11 @@ private:
     std::vector<FireParticle> particles;
 
 public:
-    void Load() override
+    void Load() override {}
+
+    void Unload() override
     {
-        particles.clear();
+        std::vector<FireParticle>().swap(particles);
     }
 
     void Update(float secondsElapsed) override
