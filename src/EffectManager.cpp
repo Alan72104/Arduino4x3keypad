@@ -7,9 +7,9 @@ void EffectManager::AddEffect(Effect* effect) { effects.push_back(effect); }
 
 void EffectManager::SetEffect(uint8_t i)
 {
+    if (!(i < effects.size())) return;
     GetCurrentEffect()->Unload();
-    if (i < effects.size())
-        currentEffectNum = i;
+    currentEffectNum = i;
     GetCurrentEffect()->Load();
     if (IsCurrentEffectGameEffect())
         keypad.ResetAllStateForDriver();
