@@ -34,20 +34,20 @@ public:
     {
         rgb.Clear();
 
-        if (particles.size() < 16)
+        if (particles.size() < 8)
             particles.push_back(MakeParticle(frandom(-2.0f, 4.2f),
                                              3.0f,
-                                             frandom(-1.0f, 1.0f),
-                                             -frandom(1.0f, 2.0f) ));
+                                             frandom(-1.0f, 1.0f) * 1.5f,
+                                             -frandom(1.0f, 2.0f) * 1.5f ));
                                              
         for (auto part = particles.begin(); part != particles.end();)
         {
             part->x += secondsElapsed * part->vX;
             part->y += secondsElapsed * part->vY;
 
-            rgb.DrawSquare2d(part->x, part->y, 0.2f, CRGB::Red);
+            rgb.DrawSquare2d(part->x, part->y, 0.2f, CHSV(HUE_RED, 255, constrain(rgb.GetBrightness(), 130, 255)));
 
-            if (part->x <= -0.2f || part->y >= 4.2f)
+            if (part->x <= -0.2f || part->x >= 4.2f || part->y <= -0.2f)
                 particles.erase(part);
             else
                 part++;
