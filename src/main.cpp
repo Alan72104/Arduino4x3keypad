@@ -6,7 +6,6 @@
 #include "Rgb.h"
 #include "Effect.h"
 #include "EffectManager.h"
-#include "Effects/Effects.h"
 
 Keypad keypad;
 Rgb rgb;
@@ -25,23 +24,7 @@ void setup()
 
     keypad.Init();
     rgb.Init();
-    effectManager.AddEffect(new Rainbow());
-    effectManager.AddEffect(new StaticRainbow());
-    effectManager.AddEffect(new Splash());
-    effectManager.AddEffect(new StaticLight());
-    effectManager.AddEffect(new Breathing());
-    effectManager.AddEffect(new FractionalDrawingTest2d());
-    effectManager.AddEffect(new SpinningRainbow());
-    effectManager.AddEffect(new Ripple());
-    effectManager.AddEffect(new AntiRipple());
-    effectManager.AddEffect(new Stars());
-    effectManager.AddEffect(new Raindrop());
-    effectManager.AddEffect(new Snake());
-    effectManager.AddEffect(new ShootingParticles());
-    effectManager.AddEffect(new WhacAMole());
-    effectManager.AddEffect(new TicTacToe());
-    effectManager.AddEffect(new BullsNCows());
-    effectManager.AddEffect(new Fire());
+    effectManager.Init();
 
     // Wait until the serial system starts
     while (!Serial) {}

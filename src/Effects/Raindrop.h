@@ -28,7 +28,6 @@ private:
 public:
     void Load() override
     {
-        std::vector<Drop>().swap(drops);
         delayElapsed = 0.0f;
     }
 

@@ -8,12 +8,15 @@
 class EffectManager
 {
 private:
-    std::vector<Effect*> effects;
+    void CreateEffect(uint8_t i);
+
+    Effect* currentEffect;
     uint8_t currentEffectNum;
+    static const uint8_t effectCount;
     float secondsElapsed;
 
 public:
-    void AddEffect(Effect* effect);
+    void Init();
     void SetEffect(uint8_t i);
     void NextEffect();
     void UpdateEffect();

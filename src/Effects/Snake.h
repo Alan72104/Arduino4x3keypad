@@ -17,13 +17,12 @@ private:
 public:
     void Load() override
     {
-        snakePaths.clear();
         snakeX = random(WIDTH);
         snakeY = random(HEIGHT);
         snakeHue = random(256);
         delayElapsed = 0.0f;
     }
-
+    
     void Update(float secondsElapsed) override
     {
         delayElapsed += secondsElapsed;

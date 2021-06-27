@@ -26,11 +26,8 @@ private:
     std::vector<Circle> circles;
 
 public:
-    void Load() override
-    {
-        std::vector<Circle>().swap(circles);
-    }
-
+    void Load() override {}
+    
     void Update(float secondsElapsed) override
     {
         rgb.Clear();

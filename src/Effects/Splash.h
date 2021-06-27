@@ -26,10 +26,7 @@ private:
     std::vector<Ball> balls;
     
 public:
-    void Load() override
-    {
-        std::vector<Ball>().swap(balls);
-    }
+    void Load() override {}
 
     void Update(float secondsElapsed) override
     {

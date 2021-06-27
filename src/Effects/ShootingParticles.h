@@ -30,10 +30,7 @@ private:
     std::vector<Particle> particles;
 
 public:
-    void Load() override
-    {
-        std::vector<Particle>().swap(particles);
-    }
+    void Load() override {}
 
     void Update(float secondsElapsed) override
     {
