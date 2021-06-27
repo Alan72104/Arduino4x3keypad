@@ -1,9 +1,10 @@
 #include <FastLED.h>
 #include <algorithm>
 #include <numeric>
+#include <string>
+#include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
-#include "Effect.h"
 
 class BullsNCows : public Effect
 {

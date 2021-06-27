@@ -1,6 +1,7 @@
 #include <FastLED.h>
-#include "main.h"
+#include <string>
 #include "Effect.h"
+#include "main.h"
 
 class FractionalDrawingTest2d : public Effect
 {

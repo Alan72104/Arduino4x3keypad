@@ -1,8 +1,7 @@
-#include <Arduino.h>
 #include <FastLED.h>
 #include "KeypadParams.h"
-#include "Rgb.h"
 #include "main.h"
+#include "Rgb.h"
 
 void Rgb::Init()
 {

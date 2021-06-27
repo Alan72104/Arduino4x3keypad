@@ -1,8 +1,9 @@
 #include <FastLED.h>
 #include <algorithm>
+#include <string>
+#include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
-#include "Effect.h"
 
 class TicTacToe : public Effect
 {

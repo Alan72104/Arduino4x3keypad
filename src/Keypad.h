@@ -1,7 +1,6 @@
 #ifndef KEYPAD_H
 #define KEYPAD_H
 
-#include <Arduino.h>
 #include "KeypadParams.h"
 
 class Keypad

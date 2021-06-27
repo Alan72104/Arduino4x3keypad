@@ -1,7 +1,6 @@
 #ifndef EFFECTMANAGER_H
 #define EFFECTMANAGER_H
 
-#include <Arduino.h>
 #include <string>
 #include "Effect.h"
 

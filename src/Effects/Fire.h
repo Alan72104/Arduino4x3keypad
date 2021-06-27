@@ -1,9 +1,9 @@
-#include <Arduino.h>
 #include <FastLED.h>
+#include <string>
 #include <vector>
+#include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
-#include "Effect.h"
 
 class Fire : public Effect
 {

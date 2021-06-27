@@ -1,9 +1,10 @@
 #include <FastLED.h>
 #include <deque>
+#include <string>
 #include <utility>
+#include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
-#include "Effect.h"
 
 class Snake : public Effect
 {

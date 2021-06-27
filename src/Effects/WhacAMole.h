@@ -1,7 +1,8 @@
 #include <FastLED.h>
+#include <string>
+#include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
-#include "Effect.h"
 
 class WhacAMole : public Effect
 {

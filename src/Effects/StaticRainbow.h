@@ -1,9 +1,8 @@
-#include <Arduino.h>
 #include <string>
-#include "KeypadParams.h"
-#include "Rgb.h"
-#include "main.h"
 #include "Effect.h"
+#include "KeypadParams.h"
+#include "main.h"
+#include "Rgb.h"
 
 class StaticRainbow : public Effect
 {

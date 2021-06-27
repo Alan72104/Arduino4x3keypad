@@ -1,7 +1,8 @@
 #include <Arduino.h>
-#include "main.h"
-#include "Keypad.h"
+#include <string>
 #include "Effects/StaticLight.h"
+#include "Keypad.h"
+#include "main.h"
 
 void Keypad::Init()
 {

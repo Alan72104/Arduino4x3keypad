@@ -1,8 +1,8 @@
-#include <Arduino.h>
+#include <string>
 #include "EffectManager.h"
 #include "Effects/Effects.h"
-#include "main.h"
 #include "Keypad.h"
+#include "main.h"
 
 void EffectManager::Init() { CreateEffect(0); }
 

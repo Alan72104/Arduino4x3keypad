@@ -1,7 +1,7 @@
-#include <Arduino.h>
 #include <FastLED.h>
-#include "main.h"
+#include <string>
 #include "Effect.h"
+#include "main.h"
 
 class SpinningRainbow : public Effect
 {
