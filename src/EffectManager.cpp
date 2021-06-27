@@ -7,6 +7,7 @@ void EffectManager::AddEffect(Effect* effect) { effects.push_back(effect); }
 
 void EffectManager::SetEffect(uint8_t i)
 {
+    GetCurrentEffect()->Unload();
     if (i < effects.size())
         currentEffectNum = i;
     GetCurrentEffect()->Load();
@@ -16,6 +17,7 @@ void EffectManager::SetEffect(uint8_t i)
 
 void EffectManager::NextEffect()
 {
+    GetCurrentEffect()->Unload();
     if (++currentEffectNum == effects.size())
         currentEffectNum = 0;
     GetCurrentEffect()->Load();
