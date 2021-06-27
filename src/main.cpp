@@ -41,6 +41,7 @@ void setup()
     effectManager.AddEffect(new WhacAMole());
     effectManager.AddEffect(new TicTacToe());
     effectManager.AddEffect(new BullsNCows());
+    effectManager.AddEffect(new Fire());
 
     // Wait until the serial system starts
     while (!Serial) {}
@@ -124,6 +125,12 @@ uint16_t Random(uint16_t max)
         last = rtn;
         return rtn;
     }
+}
+
+// Random float
+float frandom(float min, float max)
+{
+    return min + random(1ul << 31) * (max - min) / (1ul << 31);
 }
 
 void UpdateLed()

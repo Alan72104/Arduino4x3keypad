@@ -14,3 +14,4 @@
 #include "WhacAMole.h"
 #include "TicTacToe.h"
 #include "BullsNCows.h"
+#include "Fire.h"

@@ -20,5 +20,6 @@ uint32_t GetLoopTime();
 void UpdateLed();
 void CheckSerialMessage();
 uint16_t Random(uint16_t max);
+float frandom(float min, float max);
 
 #endif
