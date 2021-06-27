@@ -30,11 +30,6 @@ private:
 public:
     void Load() override {}
 
-    void Unload() override
-    {
-        std::vector<FireParticle>().swap(particles);
-    }
-
     void Update(float secondsElapsed) override
     {
         rgb.Clear();

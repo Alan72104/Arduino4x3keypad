@@ -28,11 +28,6 @@ private:
 public:
     void Load() override {}
 
-    void Unload() override
-    {
-        std::vector<Ball>().swap(balls);
-    }
-
     void Update(float secondsElapsed) override
     {
         rgb.Clear();

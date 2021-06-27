@@ -27,12 +27,7 @@ private:
 
 public:
     void Load() override {}
-
-    void Unload() override
-    {
-        std::vector<Circle>().swap(circles);
-    }
-
+    
     void Update(float secondsElapsed) override
     {
         rgb.Clear();

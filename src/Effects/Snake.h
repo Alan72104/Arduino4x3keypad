@@ -22,12 +22,7 @@ public:
         snakeHue = random(256);
         delayElapsed = 0.0f;
     }
-
-    void Unload() override
-    {
-        std::deque<std::pair<uint8_t, uint8_t>>().swap(snakePaths);
-    }
-
+    
     void Update(float secondsElapsed) override
     {
         delayElapsed += secondsElapsed;

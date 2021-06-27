@@ -9,10 +9,14 @@ void EffectManager::Init() { CreateEffect(0); }
 void EffectManager::SetEffect(uint8_t i)
 {
     if (i >= effectCount) return;
+
     delete GetCurrentEffect();
+
     currentEffectNum = i;
+    
     CreateEffect(currentEffectNum);
     GetCurrentEffect()->Load();
+
     if (IsCurrentEffectGameEffect())
         keypad.ResetAllStateForDriver();
 }
@@ -20,10 +24,13 @@ void EffectManager::SetEffect(uint8_t i)
 void EffectManager::NextEffect()
 {
     delete GetCurrentEffect();
+
     if (++currentEffectNum >= effectCount)
         currentEffectNum = 0;
+
     CreateEffect(currentEffectNum);
     GetCurrentEffect()->Load();
+
     if (IsCurrentEffectGameEffect())
         keypad.ResetAllStateForDriver();
 }

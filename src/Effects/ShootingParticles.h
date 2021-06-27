@@ -32,11 +32,6 @@ private:
 public:
     void Load() override {}
 
-    void Unload() override
-    {
-        std::vector<Particle>().swap(particles);
-    }
-
     void Update(float secondsElapsed) override
     {
         FastLED.clear();
