@@ -20,6 +20,7 @@ private:
 
     uint32_t lastRgbBrightnessChange;
     uint32_t lastRgbStateChange;
+    uint32_t lastEffectSpeedChange;
 public:
     void Init();
     uint8_t GetState(uint8_t x, uint8_t y);

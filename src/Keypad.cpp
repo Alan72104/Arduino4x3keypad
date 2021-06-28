@@ -101,7 +101,22 @@ void Keypad::ScanKeys()
 
 bool Keypad::HandleModifiedKeys()
 {
-    if (btnState[0][3] == HIGH && millis() - lastRgbStateChange >= 150)
+    if (btnState[2][1] == HIGH)
+    {
+        if (btnState[0][0] == HIGH && millis() - lastEffectSpeedChange >= 100)
+        {
+            lastEffectSpeedChange = millis();
+            effectManager.IncreaseEffectSpeed();
+            return true;
+        }
+        else if (btnState[0][1] == HIGH && millis() - lastEffectSpeedChange >= 100)
+        {
+            lastEffectSpeedChange = millis();
+            effectManager.DecreaseEffectSpeed();
+            return true;
+        }
+    }
+    else if (btnState[0][3] == HIGH && millis() - lastRgbStateChange >= 150)
     {
         lastRgbStateChange = millis();
         effectManager.NextEffect();

@@ -13,12 +13,15 @@ private:
     uint8_t currentEffectNum;
     static const uint8_t effectCount;
     float secondsElapsed;
+    float effectSpeedScale;
 
 public:
     void Init();
     void SetEffect(uint8_t i);
     void NextEffect();
     void UpdateEffect();
+    void IncreaseEffectSpeed();
+    void DecreaseEffectSpeed();
     void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY);
     Effect* GetCurrentEffect();
     std::string GetCurrentEffectName();

@@ -4,7 +4,7 @@
 #include "Keypad.h"
 #include "main.h"
 
-void EffectManager::Init() { CreateEffect(0); }
+void EffectManager::Init() { CreateEffect(0); effectSpeedScale = 1.0f; }
 
 void EffectManager::SetEffect(uint8_t i)
 {
@@ -68,8 +68,11 @@ void EffectManager::UpdateEffect()
     secondsElapsed = (micros() - lastEffectUpdate) / 1000.0f / 1000.0f;
     lastEffectUpdate = micros();
 
-    GetCurrentEffect()->Update(secondsElapsed);
+    GetCurrentEffect()->Update(secondsElapsed * effectSpeedScale);
 }
+
+void EffectManager::IncreaseEffectSpeed() { effectSpeedScale = min(effectSpeedScale + 0.2f, 3.0f); }
+void EffectManager::DecreaseEffectSpeed() { effectSpeedScale = max(1.0f, effectSpeedScale - 0.2f); }
 
 void EffectManager::HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY)
 {
