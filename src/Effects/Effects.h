@@ -11,7 +11,7 @@
 #include "Raindrop.h"
 #include "Snake.h"
 #include "ShootingParticles.h"
+#include "Fire.h"
 #include "WhacAMole.h"
 #include "TicTacToe.h"
 #include "BullsNCows.h"
-#include "Fire.h"

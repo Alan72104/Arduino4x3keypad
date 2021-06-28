@@ -54,10 +54,10 @@ void EffectManager::CreateEffect(uint8_t i)
         case 10: currentEffect = new Raindrop();                break;
         case 11: currentEffect = new Snake();                   break;
         case 12: currentEffect = new ShootingParticles();       break;
-        case 13: currentEffect = new WhacAMole();               break;
-        case 14: currentEffect = new TicTacToe();               break;
-        case 15: currentEffect = new BullsNCows();              break;
-        case 16: currentEffect = new Fire();                    break;
+        case 13: currentEffect = new Fire();                    break;
+        case 14: currentEffect = new WhacAMole();               break;
+        case 15: currentEffect = new TicTacToe();               break;
+        case 16: currentEffect = new BullsNCows();              break;
     }
 }
 

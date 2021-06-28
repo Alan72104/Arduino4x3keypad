@@ -10,7 +10,7 @@ class SpinningRainbow : public Effect
 private:
     float GetPointToCenterDegrees(float x, float y)
     {
-        // It works and it works
+        // It work and it works
         float angle = atan2(y - HEIGHT / 2.0f, x - WIDTH / 2.0f) * 180 / PI + 90;
 	    return (angle < 0) ? angle + 360 : angle;
     }
