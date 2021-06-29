@@ -10,6 +10,7 @@ void EffectManager::SetEffect(uint8_t i)
 {
     if (i >= effectCount) return;
 
+    GetCurrentEffect()->Unload();
     delete GetCurrentEffect();
 
     currentEffectNum = i;
@@ -23,6 +24,7 @@ void EffectManager::SetEffect(uint8_t i)
 
 void EffectManager::NextEffect()
 {
+    GetCurrentEffect()->Unload();
     delete GetCurrentEffect();
 
     if (++currentEffectNum >= effectCount)
