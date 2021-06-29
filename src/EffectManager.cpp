@@ -4,7 +4,12 @@
 #include "Keypad.h"
 #include "main.h"
 
-void EffectManager::Init() { CreateEffect(0); effectSpeedScale = 1.0f; }
+void EffectManager::Init()
+{
+    CreateEffect(0);
+    GetCurrentEffect()->Load();
+    effectSpeedScale = 1.0f;
+}
 
 void EffectManager::SetEffect(uint8_t i)
 {
