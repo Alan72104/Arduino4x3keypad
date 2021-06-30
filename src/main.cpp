@@ -14,7 +14,6 @@ uint32_t loopStart;
 uint32_t loopPeriod;
 
 // Todo: Split rising edge/falling edge debouncing, delayed rising, straight falling
-// Todo: Double byte messages
 // Todo: Fix tic tac toe taking minutes to calculate a move
 
 void setup()
