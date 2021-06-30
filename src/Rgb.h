@@ -22,15 +22,11 @@ public:
     void Init();
     CRGB GetColor(uint8_t i);
     template<class Color>
-        CRGB Draw(uint8_t i, Color color) { return leds[i] = color; }
+        void Draw(uint8_t i, Color color) { leds[i] = color; }
     template<class Color>
-        CRGB Blend(uint8_t i, Color color) { return leds[i] += color; }
+        void Blend(uint8_t i, Color color) { leds[i] += color; }
     template<class Color>
-        CRGB Fill(Color color)
-        {
-            std::fill_n(leds, NUM_LEDS, color);
-            return leds[0];
-        }
+        void Fill(Color color) { std::fill_n(leds, NUM_LEDS, color); }
     // template<class H, class S, class V>
     //     CRGB FillHSV(H h, S s, V v)
     //     {
