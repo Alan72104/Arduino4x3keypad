@@ -12,6 +12,7 @@ CRGB Rgb::GetColor(uint8_t i) { return leds[i]; }
 uint8_t Rgb::GetBrightness() { return brightness; }
 void Rgb::IncreaseBrightness() { brightness = min(brightness + 10, 255); }
 void Rgb::DecreaseBrightness() { brightness = max(0, brightness - 10); }
+void Rgb::SetBrightness(uint8_t i) { brightness = i; }
 
 // This function fades the color brightness to the fraction
 CRGB Rgb::GetColorFraction(CRGB colorIn, float fraction)

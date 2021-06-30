@@ -92,10 +92,13 @@ void CheckSerialMessage()
                 case 3: // DECREASERGBBRIGHTNESS
                     rgb.DecreaseBrightness();
                     break;
-                case 4: // INCREASEEFFECTSPEED
+                case 4: // SETRGBBRIGHTNESS
+                    rgb.SetBrightness(data);
+                    break;
+                case 5: // INCREASEEFFECTSPEED
                     effectManager.IncreaseEffectSpeed();
                     break;
-                case 5: // DECREASEEFFECTSPEED
+                case 6: // DECREASEEFFECTSPEED
                     effectManager.DecreaseEffectSpeed();
                     break;
                 default: break;

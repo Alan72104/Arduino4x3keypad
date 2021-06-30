@@ -36,6 +36,7 @@ public:
     uint8_t GetBrightness();
     void IncreaseBrightness();
     void DecreaseBrightness();
+    void SetBrightness(uint8_t i);
     CRGB GetColorFraction(CRGB colorIn, float fraction);
     void DrawPixel2d(int x, int y, CRGB color);
     void DrawLine(float fPos, float length, CRGB color);
