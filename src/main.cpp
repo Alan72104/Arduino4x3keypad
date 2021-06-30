@@ -61,34 +61,46 @@ void CheckSerialMessage()
     // If serial has received bytes, read the driver messages
     if (Serial.available())
     {
-        static unsigned char incomingByte;
-        static unsigned char incomingData;
+        static uint8_t incomingByte[2];
+        static uint8_t imcomingByteIndex;
+        static uint8_t data;
 
-        incomingByte = Serial.read();
-        incomingData = incomingByte & 0b00111111;
-        switch (incomingByte >> 6)
+        incomingByte[imcomingByteIndex++] = Serial.read();
+        if (imcomingByteIndex >= 2)
         {
-            case 0: // UPDATERGBSTATE
-                effectManager.SetEffect(incomingData);
-                break;
-            case 1: // GETRGBDATA
-                static CHSV rgbToHsv;
-                static CRGB brightenRgb;
-                for (int i = 0; i < WIDTH * HEIGHT; i++)
-                {
-                    rgbToHsv = rgb2hsv_approximate(rgb.GetColor(i));
-                    brightenRgb.setHSV(rgbToHsv[0], rgbToHsv[1], (255 - 200) * (rgbToHsv[2] - 0) / (255 - 0) + 200);
-                    Serial.write(brightenRgb[0]);
-                    Serial.write(brightenRgb[1]);
-                    Serial.write(brightenRgb[2]);
-                }
-                break;
-            case 2: // INCREASERGBBRIGHTNESS
-                rgb.IncreaseBrightness();
-                break;
-            case 3: // DECREASERGBBRIGHTNESS
-                rgb.DecreaseBrightness();
-                break;
+            imcomingByteIndex = 0;
+            data = incomingByte[1];
+            switch (incomingByte[0])
+            {
+                case 0: // UPDATERGBSTATE
+                    effectManager.SetEffect(data);
+                    break;
+                case 1: // GETRGBDATA
+                    static CHSV rgbToHsv;
+                    static CRGB brightenRgb;
+                    for (int i = 0; i < WIDTH * HEIGHT; i++)
+                    {
+                        rgbToHsv = rgb2hsv_approximate(rgb.GetColor(i));
+                        brightenRgb.setHSV(rgbToHsv[0], rgbToHsv[1], (255 - 200) * (rgbToHsv[2] - 0) / (255 - 0) + 200);
+                        Serial.write(brightenRgb[0]);
+                        Serial.write(brightenRgb[1]);
+                        Serial.write(brightenRgb[2]);
+                    }
+                    break;
+                case 2: // INCREASERGBBRIGHTNESS
+                    rgb.IncreaseBrightness();
+                    break;
+                case 3: // DECREASERGBBRIGHTNESS
+                    rgb.DecreaseBrightness();
+                    break;
+                case 4: // INCREASEEFFECTSPEED
+                    effectManager.IncreaseEffectSpeed();
+                    break;
+                case 5: // DECREASEEFFECTSPEED
+                    effectManager.DecreaseEffectSpeed();
+                    break;
+                default: break;
+            }
         }
     }
 }
