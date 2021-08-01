@@ -15,7 +15,7 @@ private:
         score
     };
 
-    enum TttObject
+    enum Object
     {
         // Starts at -1 for score calculations
         user = -1,
@@ -25,18 +25,18 @@ private:
     };
 
     float delayElapsed;
-    TttObject tttWinner;
-    TttObject tttBoard[HEIGHT][WIDTH];
-    GameState tttState;
-    TttObject tttCurrentPlayer;
+    Object winner;
+    Object board[HEIGHT][WIDTH];
+    GameState state;
+    Object currentPlayer;
 
 public:
     void Load() override
     {
-        std::fill_n(&tttBoard[0][0], WIDTH * HEIGHT, empty);
-        tttState = ready;
-        tttCurrentPlayer = user;
-        tttWinner = empty;
+        std::fill_n(&board[0][0], WIDTH * HEIGHT, empty);
+        state = ready;
+        currentPlayer = user;
+        winner = empty;
         delayElapsed = 0.0f;
     }
 
@@ -44,7 +44,7 @@ public:
     {
         rgb.Clear();
 
-        switch (tttState)
+        switch (state)
         {
             case ready:
                 delayElapsed += secondsElapsed;
@@ -52,7 +52,7 @@ public:
                 if (delayElapsed >= 4.0f)
                 {
                     delayElapsed = 0.0f;
-                    tttState = playing;
+                    state = playing;
                     // Fall through...
                 }
                 else
@@ -64,8 +64,8 @@ public:
                 }
 
             case playing:
-                tttWinner = TttCheckWinner();
-                if (tttWinner != empty)
+                winner = CheckWinner();
+                if (winner != empty)
                 {
                     // Only start the timer when there is a winner,
                     // if so show the score after 5 seconds
@@ -73,7 +73,7 @@ public:
                     if (delayElapsed > 5.0f)
                     {
                         delayElapsed = 0.0f;
-                        tttState = score;
+                        state = score;
                         // Fall through...
                     }
                     else
@@ -81,18 +81,18 @@ public:
                 }
                 else
                 {
-                    if (tttCurrentPlayer == ai)
+                    if (currentPlayer == ai)
                     {
                         int8_t bestScore = -128;
                         uint8_t moveX = 0;
                         uint8_t moveY = 0;
                         for (uint8_t j = 0; j < HEIGHT; j++)
                             for (uint8_t i = 0; i < WIDTH; i++)
-                                if (tttBoard[j][i] == empty)
+                                if (board[j][i] == empty)
                                 {
-                                    tttBoard[j][i] = ai;
-                                    int8_t score = TttGetMinimaxBestscore(false);
-                                    tttBoard[j][i] = empty;
+                                    board[j][i] = ai;
+                                    int8_t score = GetMinimaxBestscore(false);
+                                    board[j][i] = empty;
                                     if (score > bestScore)
                                     {
                                         bestScore = score;
@@ -100,15 +100,15 @@ public:
                                         moveY = i;
                                     }
                                 }
-                        tttBoard[moveX][moveY] = ai;
-                        tttCurrentPlayer = user;
+                        board[moveX][moveY] = ai;
+                        currentPlayer = user;
                     }
 
                     rgb.Clear();
 
                     for (uint8_t j = 0; j < HEIGHT; j++)
                         for (uint8_t i = 0; i < WIDTH; i++)
-                            switch (tttBoard[j][i])
+                            switch (board[j][i])
                             {
                             case empty:
                                 break;
@@ -128,15 +128,15 @@ public:
                 delayElapsed += secondsElapsed;
                 if (delayElapsed > 5.0f)
                 {
-                    std::fill_n(&tttBoard[0][0], WIDTH * HEIGHT, empty);
-                    tttState = ready;
-                    tttCurrentPlayer = user;
-                    tttWinner = empty;
+                    std::fill_n(&board[0][0], WIDTH * HEIGHT, empty);
+                    state = ready;
+                    currentPlayer = user;
+                    winner = empty;
                     delayElapsed = 0.0f;
                     break;
                 }
 
-                switch (tttWinner)
+                switch (winner)
                 {
                 case ai:
                     rgb.DrawPixel2d(0, 0, CHSV(HUE_RED, 255, rgb.GetBrightness()));
@@ -167,11 +167,11 @@ public:
 
     void OnKeyPressed(uint8_t state, uint8_t keyX, uint8_t keyY) override
     {
-        if (tttCurrentPlayer == user)
-            if (tttBoard[keyY][keyX] == empty)
+        if (currentPlayer == user)
+            if (board[keyY][keyX] == empty)
             {
-                tttBoard[keyY][keyX] = user;
-                tttCurrentPlayer = ai;
+                board[keyY][keyX] = user;
+                currentPlayer = ai;
             }
     }
 
@@ -179,39 +179,39 @@ public:
     bool IsGameEffect() override { return true; }
 
 private:
-    TttObject TttCheckWinner()
+    Object CheckWinner()
     {
         // Horizontal
         for (uint8_t i = 0; i < WIDTH - 2; i++)
             for (uint8_t j = 0; j < HEIGHT; j++)
-                if (tttBoard[j][i] != empty && tttBoard[j][i] == tttBoard[j][i + 1] && tttBoard[j][i + 1] == tttBoard[j][i + 2])
-                    return tttBoard[j][i];
+                if (board[j][i] != empty && board[j][i] == board[j][i + 1] && board[j][i + 1] == board[j][i + 2])
+                    return board[j][i];
         // Vertical
         for (uint8_t i = 0; i < WIDTH; i++)
-            if (tttBoard[0][i] != empty && tttBoard[0][i] == tttBoard[1][i] && tttBoard[1][i] == tttBoard[2][i])
-                return tttBoard[0][i];
+            if (board[0][i] != empty && board[0][i] == board[1][i] && board[1][i] == board[2][i])
+                return board[0][i];
         // Diagonal
         for (uint8_t i = 0; i < WIDTH - 2; i++)
         {
-            if (tttBoard[0][i] != empty && tttBoard[0][i] == tttBoard[1][i + 1] && tttBoard[1][i + 1] == tttBoard[2][i + 2])
-                return tttBoard[0][i];
-            if (tttBoard[2][i] != empty && tttBoard[2][i] == tttBoard[1][i + 1] && tttBoard[1][i + 1] == tttBoard[1][i + 2])
-                return tttBoard[2][i];
+            if (board[0][i] != empty && board[0][i] == board[1][i + 1] && board[1][i + 1] == board[2][i + 2])
+                return board[0][i];
+            if (board[2][i] != empty && board[2][i] == board[1][i + 1] && board[1][i + 1] == board[1][i + 2])
+                return board[2][i];
         }
         // Check for tie, no empty slots
         uint8_t emptySlots = 0;
         for (uint8_t j = 0; j < HEIGHT; j++)
             for (uint8_t i = 0; i < WIDTH; i++)
-                if (tttBoard[j][i] == empty)
+                if (board[j][i] == empty)
                     emptySlots++;
         if (emptySlots == 0)
             return tie;
         return empty;
     }
 
-    int8_t TttGetMinimaxBestscore(bool isMaximizing)
+    int8_t GetMinimaxBestscore(bool isMaximizing)
     {
-        TttObject result = TttCheckWinner();
+        Object result = CheckWinner();
         if (result != empty)
             return (int8_t)result;
 
@@ -220,11 +220,11 @@ private:
             int8_t bestScore = -128;
             for (uint8_t j = 0; j < HEIGHT; j++)
                 for (uint8_t i = 0; i < WIDTH; i++)
-                    if (tttBoard[j][i] == empty)
+                    if (board[j][i] == empty)
                     {
-                        tttBoard[j][i] = ai;
-                        int8_t score = TttGetMinimaxBestscore(false);
-                        tttBoard[j][i] = empty;
+                        board[j][i] = ai;
+                        int8_t score = GetMinimaxBestscore(false);
+                        board[j][i] = empty;
                         bestScore = max(score, bestScore);
                     }
             return bestScore;
@@ -234,11 +234,11 @@ private:
             int8_t bestScore = 127;
             for (uint8_t j = 0; j < HEIGHT; j++)
                 for (uint8_t i = 0; i < WIDTH; i++)
-                    if (tttBoard[j][i] == empty)
+                    if (board[j][i] == empty)
                     {
-                        tttBoard[j][i] = user;
-                        int8_t score = TttGetMinimaxBestscore(true);
-                        tttBoard[j][i] = empty;
+                        board[j][i] = user;
+                        int8_t score = GetMinimaxBestscore(true);
+                        board[j][i] = empty;
                         bestScore = min(score, bestScore);
                     }
             return bestScore;

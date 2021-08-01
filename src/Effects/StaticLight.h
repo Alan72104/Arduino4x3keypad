@@ -7,25 +7,25 @@
 class StaticLight : public Effect
 {
 private:
-    uint8_t staticLightState = 0;
+    uint8_t state = 0;
 
 public:
     void Load() override
     {
-        staticLightState = 0;
+        state = 0;
     }
 
     void Update(float secondsElapsed) override
     {
-        if (staticLightState == 7)
+        if (state == 7)
             rgb.Fill(CRGB(rgb.GetBrightness(), rgb.GetBrightness(), rgb.GetBrightness()));
         else
-            rgb.Fill(CHSV(rainbowHues[staticLightState], 255, rgb.GetBrightness()));
+            rgb.Fill(CHSV(rainbowHues[state], 255, rgb.GetBrightness()));
     }
 
     void NextState()
     {
-        if (++staticLightState >= 8) staticLightState = 0;
+        if (++state >= 8) state = 0;
     }
 
     std::string GetName() override { return "staticLight"; }

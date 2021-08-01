@@ -15,7 +15,7 @@ private:
     };
 
     float delayElapsed;
-    GameState moleState;
+    GameState state;
     bool moleIsHere;
     uint8_t moleX;
     uint8_t moleY;
@@ -26,7 +26,7 @@ private:
 public:
     void Load() override
     {
-        moleState = ready;
+        state = ready;
         moleIsHere = false;
         delayElapsed = 0.0f;
     }
@@ -35,7 +35,7 @@ public:
     {
         rgb.Clear();
 
-        switch (moleState)
+        switch (state)
         {
             case ready:
                 delayElapsed += secondsElapsed;
@@ -43,7 +43,7 @@ public:
                 if (delayElapsed >= 4.0f)
                 {
                     delayElapsed = 0.0f;
-                    moleState = playing;
+                    state = playing;
                     moleSpawningDelay = 0.0f;
                     moleSpawnCount = 0;
                     moleScore = 0;
@@ -63,7 +63,7 @@ public:
                     delayElapsed += secondsElapsed;
                     if (delayElapsed > 0.5f)
                     {
-                        moleState = score;
+                        state = score;
                         moleIsHere = false;
                         // Fall through...
                     }
@@ -91,7 +91,7 @@ public:
                 if (delayElapsed > 5.0f)
                 {
                     delayElapsed = 0.0f;
-                    moleState = ready;
+                    state = ready;
                     moleIsHere = false;
                     break;
                 }
