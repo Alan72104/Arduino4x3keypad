@@ -101,6 +101,12 @@ void CheckSerialMessage()
                 case 6: // DECREASEEFFECTSPEED
                     effectManager.DecreaseEffectSpeed();
                     break;
+                case 7: // ENABLEMODIFIEDKEYS
+                    keypad.EnableModifiedKeys();
+                    break;
+                case 8: // DISABLEMODIFIEDKEYS
+                    keypad.DisableModifiedKeys();
+                    break;
                 default: break;
             }
         }

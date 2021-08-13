@@ -17,6 +17,7 @@ private:
     uint8_t lastBtnState[HEIGHT][WIDTH];
     const uint16_t debounceMicros = 1500u;
     uint32_t debounceTime[HEIGHT][WIDTH];
+    bool enableModifiedKeys;
 
     uint32_t lastRgbBrightnessChange;
     uint32_t lastRgbStateChange;
@@ -26,6 +27,8 @@ public:
     uint8_t GetState(uint8_t x, uint8_t y);
     void ScanKeys();
     bool HandleModifiedKeys();
+    void EnableModifiedKeys();
+    void DisableModifiedKeys();
     void ResetAllStateForDriver();
 };
 
