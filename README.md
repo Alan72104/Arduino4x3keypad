@@ -23,7 +23,7 @@
                    BullsNCows (game)
 
 - ! because of the pin headers for the external swappable arduino board, the total height will be much taller than a solder-on one
-- ! due to usable space being too small, the 5v pin need to be manually soldered on using jumper wires
+- ! due to usable space being too small, the 5v pin needs to be manually soldered on using extra wires
 
 - ! because of the usage of arduino nano (can't be connected as a USB HID hardware), an external software is required to receive the keypad messages and tell the computer keypresses, the driver and GUI written in Autoit is on github (https://github.com/Alan72104/KeypadDriver)
 
