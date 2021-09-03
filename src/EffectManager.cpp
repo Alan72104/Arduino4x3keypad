@@ -78,8 +78,8 @@ void EffectManager::UpdateEffect()
     GetCurrentEffect()->Update(secondsElapsed * effectSpeedScale);
 }
 
-void EffectManager::IncreaseEffectSpeed() { effectSpeedScale = min(effectSpeedScale + 0.2f, 40.0f); }
-void EffectManager::DecreaseEffectSpeed() { effectSpeedScale = max(1.0f, effectSpeedScale - 0.2f); }
+void EffectManager::IncreaseEffectSpeed(float amount = 2.0f) { effectSpeedScale = min(effectSpeedScale + amount, 40.0f); }
+void EffectManager::DecreaseEffectSpeed(float amount = 2.0f) { effectSpeedScale = max(0.1f, effectSpeedScale - amount); }
 
 void EffectManager::HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY)
 {

@@ -12,6 +12,8 @@ Rgb rgb;
 EffectManager effectManager;
 uint32_t loopStart;
 uint32_t loopPeriod;
+bool isStartupAnimationDone;
+uint32_t startupAnimationStart;
 
 // Todo: Split rising edge/falling edge debouncing, delayed rising, straight falling
 // Todo: Fix tic tac toe taking minutes to calculate a move
@@ -23,15 +25,31 @@ void setup()
     keypad.Init();
     rgb.Init();
     effectManager.Init();
+    isStartupAnimationDone = false;
+    effectManager.SetEffect(7);
+    effectManager.DecreaseEffectSpeed(0.5f);
+    randomSeed(69420ul);
+    effectManager.HandleKey(1, 1, 1);
+    randomSeed(69420ul);
+    effectManager.HandleKey(1, 2, 1);
+    randomSeed(((uint32_t)analogRead(0) << 16) + (uint32_t)analogRead(1));
 
     // Wait until the serial system starts
     while (!Serial) {}
     Serial.begin(19200);
+    startupAnimationStart = micros();
 }
 
 void loop()
 {
     loopStart = micros();
+
+    if (!isStartupAnimationDone && micros() - startupAnimationStart > 1000000)
+    {
+        isStartupAnimationDone = true;
+        effectManager.SetEffect(0);
+        effectManager.IncreaseEffectSpeed(0.5f);
+    }
     
     UpdateLed();
     keypad.ScanKeys();
