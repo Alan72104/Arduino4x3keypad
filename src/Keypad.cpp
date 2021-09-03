@@ -27,7 +27,7 @@ void Keypad::Init()
         for (uint8_t i = 0; i < WIDTH; i++)
             btnState[j][i] = LOW;
 
-    enableModifiedKeys = true;
+    enableModifierKeys = true;
 }
 
 uint8_t Keypad::GetState(uint8_t x, uint8_t y) { return btnState[y][x]; }
@@ -69,7 +69,7 @@ void Keypad::ScanKeys()
                         Serial.write(((4 * i + j + 1) << 4) + (btnStateTemp == HIGH ? 1 : 0));
                     }
 #endif
-                    if (btnState[2][0] == HIGH && enableModifiedKeys && HandleModifiedKeys())
+                    if (btnState[2][0] == HIGH && enableModifierKeys && HandleModifiedKeys())
                         ;
                     else
                         effectManager.HandleKey(btnStateTemp, j, i);
@@ -145,14 +145,14 @@ bool Keypad::HandleModifiedKeys()
     return false;
 }
 
-void Keypad::EnableModifiedKeys()
+void Keypad::EnableModifierKeys()
 {
-    enableModifiedKeys = true;
+    enableModifierKeys = true;
 }
 
-void Keypad::DisableModifiedKeys()
+void Keypad::DisableModifierKeys()
 {
-    enableModifiedKeys = false;
+    enableModifierKeys = false;
 }
 
 void Keypad::ResetAllStateForDriver()

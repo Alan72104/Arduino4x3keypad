@@ -33,7 +33,7 @@ void setup()
     randomSeed(69420ul);
     effectManager.HandleKey(1, 2, 1);
     randomSeed(((uint32_t)analogRead(0) << 16) + (uint32_t)analogRead(1));
-    keypad.DisableModifiedKeys();
+    keypad.DisableModifierKeys();
 
     // Wait until the serial system starts
     while (!Serial) {}
@@ -50,7 +50,7 @@ void loop()
         isStartupAnimationDone = true;
         effectManager.SetEffect(0);
         effectManager.IncreaseEffectSpeed(0.5f);
-        keypad.EnableModifiedKeys();
+        keypad.EnableModifierKeys();
     }
     
     UpdateLed();
@@ -122,10 +122,10 @@ void CheckSerialMessage()
                     effectManager.DecreaseEffectSpeed();
                     break;
                 case 7: // ENABLEMODIFIEDKEYS
-                    keypad.EnableModifiedKeys();
+                    keypad.EnableModifierKeys();
                     break;
                 case 8: // DISABLEMODIFIEDKEYS
-                    keypad.DisableModifiedKeys();
+                    keypad.DisableModifierKeys();
                     break;
                 default: break;
             }
