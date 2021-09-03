@@ -33,6 +33,7 @@ void setup()
     randomSeed(69420ul);
     effectManager.HandleKey(1, 2, 1);
     randomSeed(((uint32_t)analogRead(0) << 16) + (uint32_t)analogRead(1));
+    keypad.DisableModifiedKeys();
 
     // Wait until the serial system starts
     while (!Serial) {}
@@ -44,11 +45,12 @@ void loop()
 {
     loopStart = micros();
 
-    if (!isStartupAnimationDone && micros() - startupAnimationStart > 1000000)
+    if (!isStartupAnimationDone && micros() - startupAnimationStart > 1000000ul)
     {
         isStartupAnimationDone = true;
         effectManager.SetEffect(0);
         effectManager.IncreaseEffectSpeed(0.5f);
+        keypad.EnableModifiedKeys();
     }
     
     UpdateLed();
