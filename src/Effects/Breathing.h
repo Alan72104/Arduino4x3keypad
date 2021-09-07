@@ -1,5 +1,4 @@
 #include <FastLED.h>
-#include <string>
 #include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
@@ -32,6 +31,4 @@ public:
         rgb.Fill(CHSV(rainbowHues[state], 255, (max(127, rgb.GetBrightness()) *
                       (delayElapsed <= 4.0f / 2 ? delayElapsed / 2 : (2.0f - (delayElapsed - 2.0f)) / 2))) );
     }
-
-    std::string GetName() override { return "breathing"; }
 };

@@ -1,6 +1,5 @@
 #include <FastLED.h>
 #include <algorithm>
-#include <string>
 #include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
@@ -175,7 +174,6 @@ public:
             }
     }
 
-    std::string GetName() override { return "ticTacToe"; }
     bool IsGameEffect() override { return true; }
 
 private:

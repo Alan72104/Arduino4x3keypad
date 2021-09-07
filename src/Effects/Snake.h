@@ -1,6 +1,5 @@
 #include <FastLED.h>
 #include <deque>
-#include <string>
 #include <utility>
 #include "Effect.h"
 #include "KeypadParams.h"
@@ -57,6 +56,4 @@ public:
 
         rgb.DrawPixel2d(snakeX, snakeY, CHSV(snakeHue, 255, rgb.GetBrightness()) );
     }
-
-    std::string GetName() override { return "snake"; }
 };

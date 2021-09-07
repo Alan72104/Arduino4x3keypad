@@ -87,7 +87,6 @@ void EffectManager::HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY)
 }
 
 Effect* EffectManager::GetCurrentEffect() { return currentEffect; }
-
-std::string EffectManager::GetCurrentEffectName() { return GetCurrentEffect()->GetName(); }
+uint8_t EffectManager::GetCurrentEffectNum() { return currentEffectNum; }
 
 bool EffectManager::IsCurrentEffectGameEffect() { return GetCurrentEffect()->IsGameEffect(); }

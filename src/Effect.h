@@ -13,7 +13,6 @@ public:
     virtual void Unload() {}
     virtual void Update(float secondsElapsed) = 0;
     virtual void OnKeyPressed(uint8_t state, uint8_t keyX, uint8_t keyY) {}
-    virtual std::string GetName() = 0;
     virtual bool IsGameEffect() { return false; }
     virtual ~Effect() {};
 };

@@ -1,5 +1,4 @@
 #include <FastLED.h>
-#include <string>
 #include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
@@ -55,6 +54,4 @@ public:
                 drop++;
         }
     }
-
-    std::string GetName() override { return "raindrop"; }
 };

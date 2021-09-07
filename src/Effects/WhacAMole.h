@@ -1,5 +1,4 @@
 #include <FastLED.h>
-#include <string>
 #include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
@@ -110,7 +109,6 @@ public:
                 moleIsHere = false;
             }
     }
-
-    std::string GetName() override { return "whacAMole"; }
+    
     bool IsGameEffect() override { return true; }
 };

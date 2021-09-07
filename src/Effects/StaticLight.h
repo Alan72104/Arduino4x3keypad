@@ -1,5 +1,4 @@
 #include <FastLED.h>
-#include <string>
 #include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
@@ -27,6 +26,4 @@ public:
     {
         if (++state >= 8) state = 0;
     }
-
-    std::string GetName() override { return "staticLight"; }
 };

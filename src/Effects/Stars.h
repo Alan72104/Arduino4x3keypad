@@ -1,5 +1,4 @@
 #include <FastLED.h>
-#include <string>
 #include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
@@ -28,6 +27,4 @@ public:
             rgb.Draw(Random(NUM_LEDS), CHSV(rainbowHues[random(7)], 255, rgb.GetBrightness()));
         }
     }
-
-    std::string GetName() override { return "stars"; }
 };

@@ -1,7 +1,6 @@
 #ifndef EFFECTMANAGER_H
 #define EFFECTMANAGER_H
 
-#include <string>
 #include "Effect.h"
 
 class EffectManager
@@ -24,7 +23,7 @@ public:
     void DecreaseEffectSpeed(float amount = 2.0f);
     void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY);
     Effect* GetCurrentEffect();
-    std::string GetCurrentEffectName();
+    uint8_t GetCurrentEffectNum();
     bool IsCurrentEffectGameEffect();
 };
 

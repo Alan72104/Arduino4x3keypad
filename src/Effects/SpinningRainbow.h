@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <FastLED.h>
-#include <string>
 #include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
@@ -43,6 +42,4 @@ public:
             for (uint8_t x = 0; x < WIDTH; x++)
                 rgb.DrawPixel2d(x, y, CHSV(pointToCenterAngles[y][x] + rainbowState->Int(), 255, rgb.GetBrightness()));
     }
-
-    std::string GetName() override { return "spinningRainbow"; }
 };

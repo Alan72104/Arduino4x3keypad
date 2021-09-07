@@ -136,9 +136,9 @@ bool Keypad::HandleModifiedKeys()
         rgb.DecreaseBrightness();
         return true;
     }
-    else if (btnState[0][2] == HIGH && effectManager.GetCurrentEffectName() == "staticLight" && millis() - lastRgbBrightnessChange >= 100)
+    else if (btnState[0][2] == HIGH && effectManager.GetCurrentEffectNum() == 3 /*staticLight*/ && millis() - lastRgbBrightnessChange >= 100)
     {
-        StaticLight* staticLight = (StaticLight*)(effectManager.GetCurrentEffect());
+        StaticLight* staticLight = (StaticLight*)effectManager.GetCurrentEffect();
         staticLight->NextState();
         return true;
     }

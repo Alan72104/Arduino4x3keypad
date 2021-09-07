@@ -1,5 +1,4 @@
 #include <FastLED.h>
-#include <string>
 #include <vector>
 #include "Effect.h"
 #include "KeypadParams.h"
@@ -53,6 +52,4 @@ public:
                 part++;
         }
     }
-
-    std::string GetName() override { return "fire"; }
 };

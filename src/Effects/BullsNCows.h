@@ -1,7 +1,6 @@
 #include <FastLED.h>
 #include <algorithm>
 #include <numeric>
-#include <string>
 #include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
@@ -185,7 +184,6 @@ public:
                 isGuessing = true;
     }
 
-    std::string GetName() override { return "bullsNCows"; }
     bool IsGameEffect() override { return true; }
 
 private:

@@ -1,5 +1,4 @@
 #include <FastLED.h>
-#include <string>
 #include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
@@ -29,6 +28,4 @@ public:
             for (uint8_t j = 0; j < HEIGHT; j++)
                 rgb.Draw(4*j+i, CHSV(i * 10 - (rainbowState->Int() * 1), 255, rgb.GetBrightness()));
     }
-
-    std::string GetName() override { return "rainbow"; }
 };

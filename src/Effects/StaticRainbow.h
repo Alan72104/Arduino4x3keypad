@@ -1,4 +1,3 @@
-#include <string>
 #include "Effect.h"
 #include "KeypadParams.h"
 #include "main.h"
@@ -30,6 +29,4 @@ public:
                 rgb.Draw(4 * i + j, keypad.GetState(j, i) ? CHSV((4 * i + j) * 25 - (rainbowState->Int() * 1), 255, rgb.GetBrightness())
                                                             : CHSV(0, 0, 0));
     }
-
-    std::string GetName() override { return "staticRainbow"; }
 };

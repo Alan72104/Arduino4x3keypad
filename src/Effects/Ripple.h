@@ -1,5 +1,4 @@
 #include <FastLED.h>
-#include <string>
 #include "Effect.h"
 #include "main.h"
 
@@ -50,6 +49,4 @@ public:
         if (state == HIGH && circles.size() < 16)
             circles.push_back(MakeCircle(keyX, keyY, 0, CHSV(random(256), 255, rgb.GetBrightness())) );
     }
-
-    std::string GetName() override { return "ripple"; }
 };

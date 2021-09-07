@@ -1,5 +1,4 @@
 #include <FastLED.h>
-#include <string>
 #include "Effect.h"
 #include "main.h"
 
@@ -32,6 +31,4 @@ public:
             else if (keyY == 1 && keyX == 1 && x > 0.0f)   x -= 0.1f;
         }
     }
-
-    std::string GetName() override { return "fractionalDrawingTest2d"; }
 };

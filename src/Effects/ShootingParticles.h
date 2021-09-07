@@ -1,5 +1,4 @@
 #include <FastLED.h>
-#include <string>
 #include <vector>
 #include "Effect.h"
 #include "KeypadParams.h"
@@ -63,6 +62,4 @@ public:
             particles.push_back(MakeParticle(keyX, keyY, (vX / l) * 8.0f, (vY / l) * 8.0f, CHSV(random(256), 255, rgb.GetBrightness())));
         }
     }
-
-    std::string GetName() override { return "shootingParticles"; }
 };

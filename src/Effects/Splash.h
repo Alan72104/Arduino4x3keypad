@@ -1,5 +1,4 @@
 #include <FastLED.h>
-#include <string>
 #include "Effect.h"
 #include "main.h"
 
@@ -54,6 +53,4 @@ public:
             balls.push_back(MakeBall(keyX, keyY, 1, color));
         }
     }
-
-    std::string GetName() override { return "splash"; }
 };
