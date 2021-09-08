@@ -19,8 +19,8 @@ public:
     void SetEffect(uint8_t i);
     void NextEffect();
     void UpdateEffect();
-    void IncreaseEffectSpeed(float amount = 2.0f);
-    void DecreaseEffectSpeed(float amount = 2.0f);
+    void IncreaseEffectSpeed(float amount = 0.2f);
+    void DecreaseEffectSpeed(float amount = 0.2f);
     void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY);
     Effect* GetCurrentEffect();
     uint8_t GetCurrentEffectNum();
