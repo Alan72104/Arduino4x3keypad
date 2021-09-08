@@ -44,7 +44,7 @@ public:
         }
     }
 
-    void OnKeyPressed(uint8_t state, uint8_t keyX, uint8_t keyY)
+    void OnKeyPressed(uint8_t state, uint8_t keyX, uint8_t keyY) override
     {
         if (state == HIGH && circles.size() < 16)
             circles.push_back(MakeCircle(keyX, keyY, 0, CHSV(random(256), 255, rgb.GetBrightness())) );

@@ -21,7 +21,7 @@ public:
         rgb.DrawSquare2d(x, y, 1.1, CHSV(128, 255, rgb.GetBrightness()) );
     }
 
-    void HandleKey(uint8_t currentState, uint8_t keyX, uint8_t keyY)
+    void OnKeyPressed(uint8_t currentState, uint8_t keyX, uint8_t keyY) override
     {
         if (currentState == HIGH)
         {
