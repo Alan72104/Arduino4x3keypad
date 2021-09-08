@@ -29,17 +29,10 @@ void EffectManager::SetEffect(uint8_t i)
 
 void EffectManager::NextEffect()
 {
-    GetCurrentEffect()->Unload();
-    delete GetCurrentEffect();
-
     if (++currentEffectNum >= effectCount)
         currentEffectNum = 0;
 
-    CreateEffect(currentEffectNum);
-    GetCurrentEffect()->Load();
-
-    if (IsCurrentEffectGameEffect())
-        keypad.ResetAllStateForDriver();
+    SetEffect(currentEffectNum);
 }
 
 const uint8_t EffectManager::effectCount = 17;
