@@ -2,31 +2,11 @@
 #include "Effect.h"
 #include "main.h"
 
-class AntiRipple : public Effect
+class AntiRipple : public Ripple
 {
 private:
-    typedef struct {
-        uint8_t x;
-        uint8_t y;
-        float radius;
-        CRGB color;
-    } Circle;
-
-    Circle MakeCircle(uint8_t x, uint8_t y, float radius, CRGB color)
-    {
-        Circle newCircle;
-        newCircle.x = x;
-        newCircle.y = y;
-        newCircle.radius = radius;
-        newCircle.color = color;
-        return newCircle;
-    }
-
-    std::vector<Circle> circles;
 
 public:
-    void Load() override {}
-
     void Update(float secondsElapsed) override
     {
         rgb.Clear();
