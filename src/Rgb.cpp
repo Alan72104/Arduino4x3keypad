@@ -14,21 +14,21 @@ void Rgb::IncreaseBrightness() { brightness = min(brightness + 10, 255); }
 void Rgb::DecreaseBrightness() { brightness = max(0, brightness - 10); }
 void Rgb::SetBrightness(uint8_t i) { brightness = i; }
 
-// This function fades the color brightness to the fraction
+// Fades the color brightness to the fraction
 CRGB Rgb::GetColorFraction(CRGB colorIn, float fraction)
 {
     fraction = min(1.0f, fraction);
     return CRGB(colorIn).fadeToBlackBy(255 * (1.0f - fraction));
 }
 
-// This function takes both x and y coordinates and draws the corresponding led mapped to the virtual 2d matrix
+// Takes both x and y coordinates and draws the corresponding led mapped to the virtual 2d matrix
 void Rgb::DrawPixel2d(int x, int y, CRGB color)
 {
     if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT)
         leds[WIDTH * y + x] = color;
 }
 
-// This function draws a line onto the 1ed strip
+// Draws a line onto the 1ed strip
 // Position and length can be float
 void Rgb::DrawLine(float fPos, float length, CRGB color)
 {
@@ -62,7 +62,7 @@ void Rgb::DrawLine(float fPos, float length, CRGB color)
     }
 }
 
-// This function draws a square onto the virtual 2d matrix
+// Draws a square onto the virtual 2d matrix
 // Coordinate and diameter can be float
 void Rgb::DrawSquare2d(float fX, float fY, float diameter, CRGB color)
 {

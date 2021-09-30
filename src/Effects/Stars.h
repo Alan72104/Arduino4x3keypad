@@ -14,7 +14,6 @@ public:
         delayElapsed = 0.0f;
         for (uint8_t i = 0; i < NUM_LEDS; i++)
             rgb.Draw(i, CHSV(rainbowHues[random(7)], 255, rgb.GetBrightness()));
-        // rgb.FillHSV([&]() { return rainbowHues[random(7)]; }, 255, rgb.GetBrightness());
     }
 
     void Update(float secondsElapsed) override

@@ -1,4 +1,5 @@
 #include "Rainbow.h"
+#include "StaticFade.h"
 #include "StaticRainbow.h"
 #include "Splash.h"
 #include "StaticLight.h"

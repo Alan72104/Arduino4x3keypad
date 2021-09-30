@@ -4,8 +4,6 @@
 
 class AntiRipple : public Ripple
 {
-private:
-
 public:
     void Update(float secondsElapsed) override
     {

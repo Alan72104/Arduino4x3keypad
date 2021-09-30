@@ -26,7 +26,7 @@ void setup()
     rgb.Init();
     effectManager.Init();
     isStartupAnimationDone = false;
-    effectManager.SetEffect(7);
+    effectManager.SetEffect(EffectType::ripple);
     effectManager.DecreaseEffectSpeed(0.5f);
     randomSeed(69420ul);
     effectManager.HandleKey(1, 1, 1);
