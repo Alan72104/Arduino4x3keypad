@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="750" alt="Keypad logo" src="that.png">
+</p>
+
 # Arduino4x3keypad
 
 - swappable Arduino nano
