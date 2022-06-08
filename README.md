@@ -4,11 +4,11 @@
 
 # Arduino4x3keypad
 
+This was a fun project
+
 - [KeypadDriver](https://github.com/Alan72104/KeypadDriver)
 - effect showcase: https://youtu.be/Na9jvEjyg58
 - acrylic case schematic: https://oshwlab.com/alan72104/4x3-keypad
-
-This was a fun project
 
 ### Features
 
